@@ -8,6 +8,8 @@ vite.config.ts.*
 #agent rules
 .cursor/*
 .continue/*
+mcp.json
+
 
 .env
 .env.local
