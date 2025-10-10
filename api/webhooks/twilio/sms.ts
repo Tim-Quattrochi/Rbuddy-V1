@@ -1,7 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import twilio from 'twilio';
+import ConversationEngine from '../../../server/services/conversationEngine';
 
-export default (req: VercelRequest, res: VercelResponse) => {
+export default async (req: VercelRequest, res: VercelResponse) => {
   const twilioSignature = req.headers['x-twilio-signature'] as string;
   const authToken = process.env.TWILIO_AUTH_TOKEN;
 
@@ -15,10 +16,27 @@ export default (req: VercelRequest, res: VercelResponse) => {
 
   const { From, Body } = req.body;
 
-  console.log(`Received SMS from ${From}: ${Body}`);
+  console.log(`[SMS Webhook] Received from ${From}: ${Body}`);
 
-  const twiml = new twilio.twiml.MessagingResponse();
+  try {
+    // Process input through ConversationEngine
+    const engine = new ConversationEngine();
+    const responseMessage = await engine.processInput(From, Body, 'sms');
 
-  res.writeHead(200, { 'Content-Type': 'text/xml' });
-  res.end(twiml.toString());
+    // Return TwiML response with engine's message
+    const twiml = new twilio.twiml.MessagingResponse();
+    twiml.message(responseMessage);
+
+    res.writeHead(200, { 'Content-Type': 'text/xml' });
+    res.end(twiml.toString());
+  } catch (error) {
+    console.error('[SMS Webhook] Error processing message:', error);
+
+    // Fallback response on error (within 10s Twilio timeout)
+    const twiml = new twilio.twiml.MessagingResponse();
+    twiml.message('Sorry, something went wrong. Please try again.');
+
+    res.writeHead(200, { 'Content-Type': 'text/xml' });
+    res.end(twiml.toString());
+  }
 };
