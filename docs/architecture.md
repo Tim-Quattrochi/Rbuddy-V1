@@ -317,6 +317,8 @@ export const followUps = pgTable("follow_ups", {
 **Responsibility**: Finite State Machine (FSM) for SMS/IVR flows
 **Integration Points**: Twilio webhooks → Conversation Engine → Database
 
+**Implementation Note**: The ConversationEngine uses static in-memory state storage for MVP simplicity. For production, this should be migrated to Redis or database-backed session storage to support multi-instance deployments and prevent state loss during serverless function cold starts.
+
 ```typescript
 // server/services/conversationEngine.ts
 interface ConversationState {
@@ -764,10 +766,12 @@ rBuddy-v1/
 **Platform**: Vercel (Free Tier)
 
 **Deployment Approach**:
-1. **Frontend**: Static site generation (Vite build → `client/dist/`)
+1. **Frontend**: Static site generation (Vite build → `public/`)
 2. **Backend**: Serverless functions (`api/` directory auto-deploys)
 3. **Database**: Neon PostgreSQL (external, connection pooling built-in)
 4. **Scheduled Tasks**: Vercel Cron (daily reminders)
+
+**Note**: The build output directory was changed from `client/dist/` to `public/` to align with Vercel's serverless function requirements and avoid conflicts with the `api/` directory structure.
 
 **Infrastructure Changes**:
 ```json
@@ -786,10 +790,10 @@ rBuddy-v1/
     }
   ],
   "env": {
-    "DATABASE_URL": "@database-url",
-    "TWILIO_ACCOUNT_SID": "@twilio-account-sid",
-    "TWILIO_AUTH_TOKEN": "@twilio-auth-token",
-    "TWILIO_PHONE_NUMBER": "@twilio-phone-number"
+    "DATABASE_URL": "@database_url",
+    "TWILIO_ACCOUNT_SID": "@twilio_account_sid",
+    "TWILIO_AUTH_TOKEN": "@twilio_auth_token",
+    "TWILIO_PHONE_NUMBER": "@twilio_phone_number"
   }
 }
 ```

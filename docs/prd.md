@@ -32,22 +32,30 @@ Reentry Buddy bridges that gap through **Tier 1 accessibility** — a low-data S
 
 ## 2. Scope and Requirements
 
-### 2.1 In Scope (Tier 1 MVP)
-| Feature | Description | Priority |
-|----------|--------------|----------|
-| **F1 – Daily Ritual Flow** | 2–5 min check-in via SMS/IVR capturing mood → affirmation → optional intention. | P0 |
-| **F2 – Rupture & Repair Flow** | “SLIP” keyword triggers compassionate relapse reset with repair suggestions. | P0 |
-| **F3 – Encouragement Loop** | Automated motivational messages for inactivity or streak milestones. | P1 |
-| **F4 – User State Logging** | Anonymous session storage for mood, triggers, and streaks. | P1 |
-| **F5 – Coach Summary (Phase 2)** | Weekly aggregate summaries for partner coaches. | P2 |
-| **F6 – Language & Accessibility Layer** | English-first; bilingual (EN/ES) expansion framework. | P2 |
+### 2.1 In Scope (10-Day MVP - Phase 1)
+| Feature | Description | Priority | Status |
+|----------|--------------|----------|--------|
+| **F1 – Daily Ritual Flow (SMS Only)** | 2–5 min check-in via **SMS** capturing mood → affirmation → optional intention. | P0 | ✅ In Scope |
+| **F2 – Rupture & Repair Flow** | "SLIP" keyword triggers compassionate relapse reset with repair suggestions. | P0 | ✅ In Scope |
+| **F3 – Encouragement Loop** | Automated motivational messages for inactivity or streak milestones. | P1 | ✅ In Scope |
+| **F4 – User State Logging** | Anonymous session storage for mood, triggers, and streaks. | P1 | ✅ In Scope |
+| **F7 – Investor Demo Dashboard** | Real-time metrics display for investor demonstration. | P0 | ✅ In Scope |
 
-### 2.2 Out of Scope
-- Smartphone or web app.
+### 2.2 Deferred to Phase 2 (Post-MVP)
+| Feature | Description | Original Priority | Deferral Reason |
+|----------|--------------|-------------------|-----------------|
+| **F1b – IVR (Voice)** | Voice call version of Daily Ritual Flow with DTMF input. | P0 → P2 | Complexity + doubles integration surface; SMS validates core concept. |
+| **F5 – Coach Summary** | Weekly aggregate summaries for partner coaches. | P2 | No change - remains Phase 2. |
+| **F6 – Language & Accessibility Layer** | English-first; bilingual (EN/ES) expansion framework. | P2 | No change - remains Phase 2. |
+
+**Scope Rationale**: 10-day timeline prioritizes SMS accessibility (core MVP goal) while deferring IVR complexity to Phase 2 post-validation. All P0 recovery support features (Daily Ritual, Repair, Encouragement) remain in scope.
+
+### 2.3 Out of Scope (All Phases)
+- Smartphone or web app (beyond investor demo dashboard).
 - AI chatbot or adaptive recommendation engine.
 - Clinical data integration (EHR).
 - Long-form journaling or audio storage.
-- Case-management dashboard (beyond pilot summary view).
+- Case-management dashboard (beyond aggregate metrics view).
 
 ### 2.3 Primary Actor: Returning Citizen in Recovery
 A justice-impacted individual within 12 months of release, working through substance use recovery using a basic phone.  
@@ -121,13 +129,15 @@ They need simple, supportive routines without judgment or technical friction.
 
 ## 4. Technical Requirements and Architecture Overview
 
-### 4.1 Core Architecture
-- **Interface:** SMS + IVR via Twilio Programmable Messaging and Voice.  
-- **Backend:** FastAPI (Python) + AWS Lambda (serverless).  
-- **Data Store:** DynamoDB (encrypted, TTL cleanup).  
-- **Storage:** S3 for optional voice recordings (short-term).  
-- **Monitoring:** CloudWatch / Datadog for error tracking.  
-- **Security:** TLS, AES-256 encryption, and Twilio signature validation.
+### 4.1 Core Architecture (10-Day MVP Implementation)
+- **Interface:** SMS only via Twilio Programmable Messaging (IVR deferred to Phase 2).
+- **Backend:** Node.js + Express + TypeScript (Vercel serverless functions).
+- **Data Store:** PostgreSQL (Neon) with Drizzle ORM.
+- **Storage:** No file storage in MVP (voice recordings deferred to Phase 2).
+- **Monitoring:** Vercel logs + Twilio Console.
+- **Security:** TLS, Twilio signature validation, Neon PostgreSQL encryption at rest.
+
+**Tech Stack Rationale**: Leverages existing TypeScript/Express/PostgreSQL codebase for rapid 10-day MVP delivery. Brownfield enhancement approach converts Express routes to Vercel serverless functions while reusing React + shadcn/ui for investor demo dashboard.
 
 ### 4.2 Conversation Engine
 - Finite-state machine (FSM) controlling “Daily Ritual” and “Repair” flows.  
@@ -166,23 +176,22 @@ They need simple, supportive routines without judgment or technical friction.
 | QA Lead | TBD | Testing & pilot readiness |
 | Security Officer | TBD | Compliance validation |
 
-### 5.2 Sprint Plan (10 Weeks)
+### 5.2 Implementation Plan (10 Days - October 10-19, 2025)
 
-| Sprint | Duration | Focus | Deliverables |
-|--------|-----------|-------|--------------|
-| **Sprint 0** | 1 week | Environment setup | Repo, CI/CD, Twilio sandbox, infra config |
-| **Sprint 1** | 2 weeks | Core SMS flow | Daily Ritual FSM, database logging |
-| **Sprint 2** | 2 weeks | IVR + Repair flow | Voice DTMF, SLIP flow, follow-up |
-| **Sprint 3** | 2 weeks | Metrics + monitoring | Admin dashboard, alerts |
-| **Sprint 4** | 2 weeks | QA + pilot readiness | Testing, content QA, review |
-| **Sprint 5** | 1 week | Pilot launch | Live test with 25–50 users |
+| Phase | Days | Focus | Deliverables |
+|-------|------|-------|--------------|
+| **Phase 1: Planning & Setup** | Days 1-2 (Oct 10-11) | PRD updates, story creation, stakeholder approval | Updated PRD, 9-10 implementation stories, Neon PostgreSQL setup |
+| **Phase 2: Foundation** | Days 3-4 (Oct 12-13) | Database & webhook infrastructure | Schema migrations, Twilio SMS webhook, message templates |
+| **Phase 3: Core Flows** | Days 5-6 (Oct 14-15) | Conversation logic implementation | Daily Ritual FSM, Repair Flow ("SLIP") |
+| **Phase 4: Advanced Features** | Days 7-8 (Oct 16-17) | Encouragement & scheduling | Encouragement Loop logic, Vercel Cron configuration |
+| **Phase 5: Deploy & Demo** | Days 9-10 (Oct 18-19) | Dashboard & testing | Investor demo dashboard, Vercel deployment, manual E2E testing |
 
-### 5.3 Milestones
-- **M1:** SMS flow functional (sandbox).  
-- **M2:** IVR end-to-end call flow verified.  
-- **M3:** Secure DynamoDB operational.  
-- **M4:** QA passed (≥90% success).  
-- **M5:** Pilot launch complete.
+### 5.3 Milestones (10-Day MVP)
+- **M1:** Database schema extended + Twilio webhook operational (Day 4).
+- **M2:** Daily Ritual SMS flow functional end-to-end (Day 6).
+- **M3:** Repair Flow + Encouragement Loop deployed (Day 8).
+- **M4:** Investor demo dashboard displaying real-time metrics (Day 9).
+- **M5:** Manual test checklist 100% passing + demo-ready (Day 10).
 
 ### 5.4 Success Metrics
 - ≥ 70% of users complete 5+ daily check-ins.  
