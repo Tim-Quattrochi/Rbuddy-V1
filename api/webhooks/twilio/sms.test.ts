@@ -1,13 +1,36 @@
-import { describe, it, expect, vi } from 'vitest';
-import { http, HttpResponse } from 'msw';
-import { setupServer } from 'msw/node';
-import handler from './sms';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-const server = setupServer();
+// Mock the twilio module before importing the handler
+vi.mock('twilio', () => {
+  const mockValidateRequest = vi.fn();
+  const mockMessagingResponse = vi.fn(() => ({
+    toString: () => '<?xml version="1.0" encoding="UTF-8"?><Response/>'
+  }));
+
+  return {
+    default: {
+      validateRequest: mockValidateRequest,
+      twiml: {
+        MessagingResponse: mockMessagingResponse
+      }
+    },
+    validateRequest: mockValidateRequest
+  };
+});
 
 describe('Twilio SMS Webhook', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.stubEnv('TWILIO_AUTH_TOKEN', 'test-token');
+  });
+
   it('should return 403 for an invalid signature', async () => {
+    const twilio = await import('twilio');
+    vi.mocked(twilio.validateRequest).mockReturnValue(false);
+
+    const handler = (await import('./sms')).default;
+
     const req = {
       headers: {
         'x-twilio-signature': 'invalid-signature',
@@ -22,19 +45,17 @@ describe('Twilio SMS Webhook', () => {
       send: vi.fn()
     } as unknown as VercelResponse;
 
-    vi.stubGlobal('process', { ...global.process, env: { TWILIO_AUTH_TOKEN: 'test-token' } });
-
-    await handler(req, res);
+    handler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(403);
     expect(res.send).toHaveBeenCalledWith('Forbidden');
   });
 
   it('should return 200 for a valid signature', async () => {
-    // This is a bit tricky to test without a real signature. 
-    // We will mock the validateRequest function to return true.
     const twilio = await import('twilio');
-    const validateRequestSpy = vi.spyOn(twilio, 'validateRequest').mockReturnValue(true);
+    vi.mocked(twilio.validateRequest).mockReturnValue(true);
+
+    const handler = (await import('./sms')).default;
 
     const req = {
       headers: {
@@ -50,11 +71,9 @@ describe('Twilio SMS Webhook', () => {
       end: vi.fn()
     } as unknown as VercelResponse;
 
-    await handler(req, res);
+    handler(req, res);
 
     expect(res.writeHead).toHaveBeenCalledWith(200, { 'Content-Type': 'text/xml' });
     expect(res.end).toHaveBeenCalledWith('<?xml version="1.0" encoding="UTF-8"?><Response/>');
-
-    validateRequestSpy.mockRestore();
   });
 });
