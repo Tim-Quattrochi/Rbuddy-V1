@@ -22,7 +22,10 @@ const MOOD_MAP: Record<string, MoodOption> = {
 
 export default class ConversationEngine {
   // In-memory state storage (Story 3 requirement - no DB persistence yet)
-  private stateStore: Map<string, ConversationState> = new Map();
+  // Use a static store so warm serverless containers can share state across
+  // invocations. This is a pragmatic MVP approach; production should persist
+  // conversation state in an external store (Redis/Postgres) instead.
+  private static stateStore: Map<string, ConversationState> = new Map();
 
   /**
    * Process incoming SMS/IVR input
@@ -38,8 +41,8 @@ export default class ConversationEngine {
   ): Promise<string> {
     console.log(`[ConversationEngine] Processing input from ${userId}: "${input}" via ${channel}`);
 
-    // Get or initialize state
-    let state = this.stateStore.get(userId);
+  // Get or initialize state
+  let state = ConversationEngine.stateStore.get(userId);
 
     if (!state) {
       // New conversation - start daily ritual flow
@@ -49,7 +52,7 @@ export default class ConversationEngine {
         currentStep: "mood_prompt",
         context: {},
       };
-      this.stateStore.set(userId, state);
+  ConversationEngine.stateStore.set(userId, state);
 
       return this.getMoodPromptMessage();
     }
@@ -60,7 +63,11 @@ export default class ConversationEngine {
     }
 
     // Future steps will be implemented in subsequent stories
-    return "Thank you for your check-in!";
+    // Robustness: log and reset if we encounter an unexpected state so the
+    // conversation doesn't get stuck.
+    console.warn(`[ConversationEngine] Unhandled step "${state.currentStep}" for user ${userId}. Resetting state.`);
+    ConversationEngine.stateStore.delete(userId);
+    return "Thank you for your check-in! This conversation has now ended.";
   }
 
   /**
@@ -78,9 +85,9 @@ export default class ConversationEngine {
     }
 
     // Valid mood selection
-    state.context.mood = mood;
-    state.currentStep = "mood_selected";
-    this.stateStore.set(state.userId, state);
+  state.context.mood = mood;
+  state.currentStep = "mood_selected";
+  ConversationEngine.stateStore.set(state.userId, state);
 
     console.log(`[ConversationEngine] User ${state.userId} selected mood: ${mood}`);
 
@@ -121,13 +128,13 @@ export default class ConversationEngine {
    * Get current state for a user (for testing/debugging)
    */
   getState(userId: string): ConversationState | undefined {
-    return this.stateStore.get(userId);
+    return ConversationEngine.stateStore.get(userId);
   }
 
   /**
    * Clear state for a user (for testing)
    */
   clearState(userId: string): void {
-    this.stateStore.delete(userId);
+    ConversationEngine.stateStore.delete(userId);
   }
 }
