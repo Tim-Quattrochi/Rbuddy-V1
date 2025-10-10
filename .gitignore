@@ -9,8 +9,14 @@ vite.config.ts.*
 .cursor/*
 .continue/*
 mcp.json
-
-
+.bmad-core/
+.claude/
+.gemini/
+.github/chatmodes/
+.kilocodemodes
+flattened-codebase.stats.md
+flattened-codebase.xml
+web-bundles/
 .env
 .env.local
 .env.*.local
