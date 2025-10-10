@@ -34,7 +34,7 @@
   ],
   "env": {
     "DATABASE_URL": "@database_url",
-    "TWILIO_ACCOUNT_SID": "@twilio-_account-_sid",
+    "TWILIO_ACCOUNT_SID": "@twilio_account_sid",
     "TWILIO_AUTH_TOKEN": "@twilio_auth_token",
     "TWILIO_PHONE_NUMBER": "@twilio_phone_number"
   }
