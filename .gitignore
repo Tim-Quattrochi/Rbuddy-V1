@@ -25,3 +25,4 @@ web-bundles/
 .env.test.local
 .vercel
 .env*.local
+.vercel
