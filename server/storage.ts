@@ -1,5 +1,15 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
+// Diagnostic: Log what we're importing from pg
+import * as pgModule from 'pg';
+console.log('[Storage Diagnostic] pg module type:', typeof pgModule);
+console.log('[Storage Diagnostic] pg module keys:', Object.keys(pgModule));
+console.log('[Storage Diagnostic] Pool available:', 'Pool' in pgModule);
+console.log('[Storage Diagnostic] default available:', 'default' in pgModule);
+
+// Try to get Pool from either named export or default
+const Pool = (pgModule as any).Pool || (pgModule as any).default?.Pool || (pgModule as any).default;
+console.log('[Storage Diagnostic] Pool constructor type:', typeof Pool);
+
 import * as schema from '../shared/schema.js';
 import { eq } from 'drizzle-orm';
 

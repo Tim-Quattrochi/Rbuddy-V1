@@ -1,7 +1,18 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import twilio from 'twilio';
+
+// Diagnostic: Add logging at import time
+console.log('[SMS Webhook Diagnostic] Module loading started');
+console.log('[SMS Webhook Diagnostic] Environment:', process.env.NODE_ENV);
+console.log('[SMS Webhook Diagnostic] Platform:', process.platform);
+
+// Import with diagnostic logging
 import ConversationEngine from '../../../server/services/conversationEngine.js';
 import { db } from '../../../server/storage.js';
+
+console.log('[SMS Webhook Diagnostic] Imports successful');
+console.log('[SMS Webhook Diagnostic] ConversationEngine type:', typeof ConversationEngine);
+console.log('[SMS Webhook Diagnostic] db type:', typeof db);
 
 // Module-level singleton engine to avoid creating a new instance per request
 // in serverless environments. The ConversationEngine uses a static state store
@@ -9,8 +20,13 @@ import { db } from '../../../server/storage.js';
 const engine = new ConversationEngine(db);
 
 export default async (req: VercelRequest, res: VercelResponse) => {
-  const twilioSignature = req.headers['x-twilio-signature'] as string | undefined;
-  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  console.log('[SMS Webhook] Handler invoked');
+  console.log('[SMS Webhook] Request method:', req.method);
+  console.log('[SMS Webhook] Request URL:', req.url);
+  
+  try {
+    const twilioSignature = req.headers['x-twilio-signature'] as string | undefined;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
 
   if (!authToken) {
     console.error('[SMS Webhook] TWILIO_AUTH_TOKEN is not set. Cannot validate request.');
@@ -82,5 +98,10 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
     res.writeHead(200, { 'Content-Type': 'text/xml' });
     res.end(twiml.toString());
+  }
+  } catch (error) {
+    console.error('[SMS Webhook] Unhandled error in handler:', error);
+    console.error('[SMS Webhook] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    return res.status(500).send('Internal Server Error');
   }
 };
