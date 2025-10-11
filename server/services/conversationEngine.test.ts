@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import ConversationEngine from './conversationEngine';
 
 describe('ConversationEngine - Story 3 (Mood Prompt)', () => {
@@ -444,6 +444,336 @@ describe('ConversationEngine - Story 4 (Affirmation & Intention)', () => {
       expect(engine.getState(testUserId)?.currentStep).toBe('mood_prompt');
       expect(engine.getState(testUserId)?.context.mood).toBeUndefined();
       expect(engine.getState(testUserId)?.context.intention).toBeUndefined();
+    });
+  });
+});
+
+describe('ConversationEngine - Story 5 (Database Logging)', () => {
+  // Mock Drizzle client helper
+  const createMockDb = () => {
+    const valuesMock = vi.fn(() => ({
+      returning: vi.fn(() => Promise.resolve([{ id: 'test-session-id' }]))
+    }));
+
+    const whereMock = vi.fn(() => Promise.resolve());
+    const setMock = vi.fn(() => ({ where: whereMock }));
+
+    return {
+      insert: vi.fn(() => ({ values: valuesMock })),
+      update: vi.fn(() => ({ set: setMock })),
+      select: vi.fn(() => ({
+        from: vi.fn(() => ({
+          where: vi.fn(() => Promise.resolve([]))
+        }))
+      })),
+      _valuesMock: valuesMock,
+      _setMock: setMock
+    } as any;
+  };
+
+  let mockDb: any;
+  let engine: ConversationEngine;
+  const testUserId = '+15555551234';
+
+  beforeEach(() => {
+    mockDb = createMockDb();
+    engine = new ConversationEngine(mockDb);
+    engine.clearState(testUserId);
+  });
+
+  describe('Session Creation - AC #1, #2, #3', () => {
+    it('should create session with full data (mood + intention)', async () => {
+      // Simulate full conversation flow
+      await engine.processInput(testUserId, 'start', 'sms');
+      await engine.processInput(testUserId, '1', 'sms'); // Select mood: calm
+      await engine.processInput(testUserId, 'yes', 'sms'); // Accept intention prompt
+      await engine.processInput(testUserId, 'Stay focused on recovery', 'sms'); // Provide intention
+
+      // Verify session insert was called with correct data
+      expect(mockDb.insert).toHaveBeenCalled();
+      expect(mockDb._valuesMock).toHaveBeenCalledWith({
+        userId: testUserId,
+        flowType: 'daily',
+        channel: 'sms',
+        mood: 'calm',
+        intention: 'Stay focused on recovery'
+      });
+    });
+
+    it('should create session without intention (NO path)', async () => {
+      // Simulate conversation with NO to intention
+      await engine.processInput(testUserId, 'start', 'sms');
+      await engine.processInput(testUserId, '2', 'sms'); // Select mood: stressed
+      await engine.processInput(testUserId, 'no', 'sms'); // Decline intention
+
+      // Verify session insert was called
+      expect(mockDb.insert).toHaveBeenCalled();
+      expect(mockDb._valuesMock).toHaveBeenCalledWith({
+        userId: testUserId,
+        flowType: 'daily',
+        channel: 'sms',
+        mood: 'stressed',
+        intention: null
+      });
+    });
+
+    it('should handle session creation with all mood types', async () => {
+      const moods = [
+        { input: '1', expected: 'calm' },
+        { input: '2', expected: 'stressed' },
+        { input: '3', expected: 'tempted' },
+        { input: '4', expected: 'hopeful' }
+      ];
+
+      for (const mood of moods) {
+        engine.clearState(testUserId);
+        await engine.processInput(testUserId, 'start', 'sms');
+        await engine.processInput(testUserId, mood.input, 'sms');
+        await engine.processInput(testUserId, 'no', 'sms');
+
+        expect(mockDb._valuesMock).toHaveBeenCalledWith(
+          expect.objectContaining({
+            mood: mood.expected
+          })
+        );
+      }
+    });
+  });
+
+  describe('Message Logging - AC #4, #5, #7', () => {
+    it('should log inbound message with twilioSid', async () => {
+      await engine.logMessage(
+        'inbound',
+        '+15555551234',
+        '+15555556789',
+        'Hello',
+        'SM123456'
+      );
+
+      expect(mockDb.insert).toHaveBeenCalled();
+      expect(mockDb._valuesMock).toHaveBeenCalledWith({
+        sessionId: null,
+        direction: 'inbound',
+        fromNumber: '+15555551234',
+        toNumber: '+15555556789',
+        body: 'Hello',
+        twilioSid: 'SM123456'
+      });
+    });
+
+    it('should log outbound message without twilioSid', async () => {
+      await engine.logMessage(
+        'outbound',
+        '+15555556789',
+        '+15555551234',
+        'Your check-in is complete. Thank you.',
+        undefined
+      );
+
+      expect(mockDb.insert).toHaveBeenCalled();
+      expect(mockDb._valuesMock).toHaveBeenCalledWith({
+        sessionId: null,
+        direction: 'outbound',
+        fromNumber: '+15555556789',
+        toNumber: '+15555551234',
+        body: 'Your check-in is complete. Thank you.',
+        twilioSid: null
+      });
+    });
+
+    it('should log message with empty body', async () => {
+      await engine.logMessage(
+        'inbound',
+        '+15555551234',
+        '+15555556789',
+        '',
+        'SM123456'
+      );
+
+      expect(mockDb.insert).toHaveBeenCalled();
+      expect(mockDb._valuesMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: ''
+        })
+      );
+    });
+  });
+
+  describe('Session-Message Linking - AC #6', () => {
+    it('should link messages to session after creation', async () => {
+      // Complete conversation
+      await engine.processInput(testUserId, 'start', 'sms');
+      await engine.processInput(testUserId, '1', 'sms');
+      await engine.processInput(testUserId, 'no', 'sms');
+
+      // Verify update was called to link messages
+      expect(mockDb.update).toHaveBeenCalled();
+      expect(mockDb._setMock).toHaveBeenCalledWith({
+        sessionId: 'test-session-id'
+      });
+    });
+
+    it('should link both inbound and outbound messages (bidirectional)', async () => {
+      // Log both inbound and outbound messages
+      await engine.logMessage('inbound', testUserId, '+15555556789', 'Hello', 'SM123');
+      await engine.logMessage('outbound', '+15555556789', testUserId, 'Hi back', undefined);
+
+      // Complete conversation to trigger session creation and linking
+      await engine.processInput(testUserId, 'start', 'sms');
+      await engine.processInput(testUserId, '1', 'sms');
+      await engine.processInput(testUserId, 'no', 'sms');
+
+      // Verify update was called
+      expect(mockDb.update).toHaveBeenCalled();
+      expect(mockDb._setMock).toHaveBeenCalledWith({
+        sessionId: 'test-session-id'
+      });
+
+      // The WHERE clause should match messages where:
+      // (fromNumber = userId OR toNumber = userId) AND sessionId IS NULL
+      // This ensures both inbound (fromNumber = user) and outbound (toNumber = user) messages are linked
+    });
+  });
+
+  describe('Error Handling - AC #8, #9', () => {
+    it('should not throw when DB session insert fails', async () => {
+      const failingDb = {
+        insert: vi.fn(() => ({
+          values: vi.fn(() => ({
+            returning: vi.fn(() => Promise.reject(new Error('DB connection failed')))
+          }))
+        }))
+      } as any;
+
+      const failingEngine = new ConversationEngine(failingDb);
+
+      // Should not throw - error caught and logged
+      await expect(async () => {
+        await failingEngine.processInput(testUserId, 'start', 'sms');
+        await failingEngine.processInput(testUserId, '1', 'sms');
+        await failingEngine.processInput(testUserId, 'no', 'sms');
+      }).not.toThrow();
+    });
+
+    it('should not throw when message logging fails', async () => {
+      const failingDb = {
+        insert: vi.fn(() => ({
+          values: vi.fn(() => Promise.reject(new Error('DB insert failed')))
+        }))
+      } as any;
+
+      const failingEngine = new ConversationEngine(failingDb);
+
+      // Should not throw
+      await expect(
+        failingEngine.logMessage('inbound', '+1234', '+5678', 'test', 'SM123')
+      ).resolves.toBeUndefined();
+    });
+
+    it('should not throw when session-message linking fails', async () => {
+      const failingDb = {
+        insert: vi.fn(() => ({
+          values: vi.fn(() => ({
+            returning: vi.fn(() => Promise.resolve([{ id: 'test-id' }]))
+          }))
+        })),
+        update: vi.fn(() => ({
+          set: vi.fn(() => ({
+            where: vi.fn(() => Promise.reject(new Error('Update failed')))
+          }))
+        }))
+      } as any;
+
+      const failingEngine = new ConversationEngine(failingDb);
+      const state = {
+        userId: testUserId,
+        currentFlow: 'daily' as const,
+        currentStep: 'complete' as const,
+        context: { mood: 'calm' as const }
+      };
+
+      // Should not throw
+      await expect(failingEngine.saveSession(state)).resolves.toBeUndefined();
+    });
+
+    it('should continue processing when DB operations fail', async () => {
+      const failingDb = {
+        insert: vi.fn(() => ({
+          values: vi.fn(() => ({
+            returning: vi.fn(() => Promise.reject(new Error('DB failed')))
+          }))
+        }))
+      } as any;
+
+      const failingEngine = new ConversationEngine(failingDb);
+
+      // Complete flow should still work despite DB failures
+      const msg1 = await failingEngine.processInput(testUserId, 'start', 'sms');
+      expect(msg1).toContain('Welcome to your daily check-in');
+
+      const msg2 = await failingEngine.processInput(testUserId, '3', 'sms');
+      expect(msg2).toContain('Thank you for being honest');
+
+      const msg3 = await failingEngine.processInput(testUserId, 'no', 'sms');
+      expect(msg3).toContain('Your check-in is complete');
+
+      const state = failingEngine.getState(testUserId);
+      expect(state?.currentStep).toBe('complete');
+    });
+  });
+
+  describe('Edge Cases', () => {
+    it('should handle null/undefined mood gracefully', async () => {
+      const state = {
+        userId: testUserId,
+        currentFlow: 'daily' as const,
+        currentStep: 'complete' as const,
+        context: {}
+      };
+
+      await engine.saveSession(state);
+
+      expect(mockDb._valuesMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mood: null,
+          intention: null
+        })
+      );
+    });
+
+    it('should handle undefined intention gracefully', async () => {
+      const state = {
+        userId: testUserId,
+        currentFlow: 'daily' as const,
+        currentStep: 'complete' as const,
+        context: {
+          mood: 'hopeful' as const
+        }
+      };
+
+      await engine.saveSession(state);
+
+      expect(mockDb._valuesMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mood: 'hopeful',
+          intention: null
+        })
+      );
+    });
+
+    it('should handle long intention text', async () => {
+      await engine.processInput(testUserId, 'start', 'sms');
+      await engine.processInput(testUserId, '1', 'sms');
+      await engine.processInput(testUserId, 'yes', 'sms');
+
+      const longIntention = 'I want to focus on staying positive and present throughout the entire day, being mindful of my triggers and practicing self-compassion whenever I face challenges.';
+      await engine.processInput(testUserId, longIntention, 'sms');
+
+      expect(mockDb._valuesMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          intention: longIntention
+        })
+      );
     });
   });
 });

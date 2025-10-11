@@ -2,7 +2,12 @@
  * ConversationEngine - FSM for SMS/IVR Daily Ritual flows
  *
  * Story 3: Implements mood prompt (Part 1 of Daily Ritual)
+ * Story 5: Adds database persistence for sessions and messages
  */
+
+import { db } from '../storage';
+import * as schema from '@shared/schema';
+import { eq, and, or, isNull } from 'drizzle-orm';
 
 export interface ConversationContext {
   mood?: MoodOption;
@@ -38,6 +43,17 @@ export default class ConversationEngine {
   // invocations. This is a pragmatic MVP approach; production should persist
   // conversation state in an external store (Redis/Postgres) instead.
   private static stateStore: Map<string, ConversationState> = new Map();
+
+  // Database client for persistence (Story 5)
+  private dbClient: typeof db;
+
+  /**
+   * Constructor
+   * @param dbClient - Optional Drizzle database client for persistence
+   */
+  constructor(dbClient: typeof db = db) {
+    this.dbClient = dbClient;
+  }
 
   /**
    * Process incoming SMS/IVR input
@@ -75,10 +91,10 @@ export default class ConversationEngine {
         return this.handleMoodInput(state, input.trim());
 
       case "intention_prompt":
-        return this.handleIntentionPrompt(state, input.trim());
+        return await this.handleIntentionPrompt(state, input.trim());
 
       case "intention_capture":
-        return this.handleIntentionCapture(state, input.trim());
+        return await this.handleIntentionCapture(state, input.trim());
 
       case "complete":
         // Conversation already completed - reset and start new flow
@@ -136,7 +152,7 @@ export default class ConversationEngine {
    * @param input - User's YES/NO response
    * @returns Response message
    */
-  private handleIntentionPrompt(state: ConversationState, input: string): string {
+  private async handleIntentionPrompt(state: ConversationState, input: string): Promise<string> {
     const normalizedInput = input.toLowerCase();
 
     if (normalizedInput === "yes") {
@@ -149,6 +165,9 @@ export default class ConversationEngine {
     if (normalizedInput === "no") {
       state.currentStep = "complete";
       ConversationEngine.stateStore.set(state.userId, state);
+
+      // Save session to database (user declined to set intention)
+      await this.saveSession(state);
 
       return "Your check-in is complete. Thank you.";
     }
@@ -163,12 +182,15 @@ export default class ConversationEngine {
    * @param input - User's intention message
    * @returns Response message
    */
-  private handleIntentionCapture(state: ConversationState, input: string): string {
+  private async handleIntentionCapture(state: ConversationState, input: string): Promise<string> {
     state.context.intention = input.trim();
     state.currentStep = "complete";
     ConversationEngine.stateStore.set(state.userId, state);
 
     console.log(`[ConversationEngine] User ${state.userId} set intention: ${input.trim()}`);
+
+    // Save session to database (user provided intention)
+    await this.saveSession(state);
 
     return "Your check-in is complete. Thank you.";
   }
@@ -195,11 +217,91 @@ export default class ConversationEngine {
   }
 
   /**
-   * Save session to database (placeholder for future stories)
+   * Save session to database and link messages
+   * Story 5: Implements database persistence
    */
   async saveSession(state: ConversationState): Promise<void> {
-    // Story 3: In-memory only - database persistence in future stories
-    console.log(`[ConversationEngine] Session saved (in-memory): ${state.userId}`);
+    try {
+      console.log(`[ConversationEngine] Saving session for user ${state.userId}`);
+
+      // Insert session record
+      const [newSession] = await this.dbClient.insert(schema.sessions).values({
+        userId: state.userId,
+        flowType: state.currentFlow,
+        channel: 'sms',
+        mood: state.context.mood || null,
+        intention: state.context.intention || null,
+      }).returning();
+
+      console.log(`[ConversationEngine] Session created: ${newSession.id}`);
+
+      // Link all messages for this user to the new session
+      await this.linkMessagesToSession(state.userId, newSession.id);
+
+      console.log(`[ConversationEngine] Messages linked to session ${newSession.id}`);
+    } catch (error) {
+      console.error(`[ConversationEngine] Failed to save session for ${state.userId}:`, error);
+      // Don't throw - continue execution to avoid blocking Twilio response
+    }
+  }
+
+  /**
+   * Link all unlinked messages for a user to a session
+   * Links both inbound (fromNumber = userId) and outbound (toNumber = userId) messages
+   * @param userId - User identifier (phone number)
+   * @param sessionId - Session ID to link messages to
+   */
+  private async linkMessagesToSession(userId: string, sessionId: string): Promise<void> {
+    try {
+      await this.dbClient.update(schema.messages)
+        .set({ sessionId })
+        .where(
+          and(
+            or(
+              eq(schema.messages.fromNumber, userId),
+              eq(schema.messages.toNumber, userId)
+            ),
+            isNull(schema.messages.sessionId)
+          )
+        );
+    } catch (error) {
+      console.error(`[ConversationEngine] Failed to link messages to session ${sessionId}:`, error);
+      // Don't throw - log error but continue
+    }
+  }
+
+  /**
+   * Log a message to the database
+   * @param direction - 'inbound' or 'outbound'
+   * @param fromNumber - Sender phone number
+   * @param toNumber - Recipient phone number
+   * @param body - Message content
+   * @param twilioSid - Optional Twilio message SID
+   */
+  async logMessage(
+    direction: 'inbound' | 'outbound',
+    fromNumber: string,
+    toNumber: string,
+    body: string,
+    twilioSid?: string
+  ): Promise<void> {
+    try {
+      console.log(`[ConversationEngine] Logging ${direction} message from ${fromNumber}`);
+
+      await this.dbClient.insert(schema.messages).values({
+        sessionId: null, // Will be linked when session is created
+        direction,
+        fromNumber,
+        toNumber,
+        body,
+        twilioSid: twilioSid || null,
+      });
+
+      console.log(`[ConversationEngine] Message logged successfully`);
+    } catch (error) {
+      console.error(`[ConversationEngine] Failed to log ${direction} message:`, error);
+      // Don't throw - log error but continue
+    }
   }
 
   /**

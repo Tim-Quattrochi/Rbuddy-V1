@@ -1,11 +1,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import twilio from 'twilio';
 import ConversationEngine from '../../../server/services/conversationEngine';
+import { db } from '../../../server/storage';
 
 // Module-level singleton engine to avoid creating a new instance per request
 // in serverless environments. The ConversationEngine uses a static state store
 // to keep short-lived state across warm invocations.
-const engine = new ConversationEngine();
+const engine = new ConversationEngine(db);
 
 export default async (req: VercelRequest, res: VercelResponse) => {
   const twilioSignature = req.headers['x-twilio-signature'] as string | undefined;
@@ -29,13 +30,36 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     return res.status(403).send('Forbidden');
   }
 
-  const { From, Body } = req.body as { From?: string; Body?: string };
+  const { From, Body, To, MessageSid } = req.body as {
+    From?: string;
+    Body?: string;
+    To?: string;
+    MessageSid?: string;
+  };
 
   console.log(`[SMS Webhook] Received from ${From}: ${Body}`);
 
   try {
+    // Log inbound message to database
+    await engine.logMessage(
+      'inbound',
+      From ?? 'unknown',
+      To ?? 'unknown',
+      Body ?? '',
+      MessageSid
+    );
+
     // Process input through singleton ConversationEngine
     const responseMessage = await engine.processInput(From ?? 'unknown', Body ?? '', 'sms');
+
+    // Log outbound message to database
+    await engine.logMessage(
+      'outbound',
+      To ?? 'unknown', // System phone number (from)
+      From ?? 'unknown', // User phone number (to)
+      responseMessage,
+      undefined // Twilio generates SID after send
+    );
 
     // Return TwiML response with engine's message
     const twiml = new twilio.twiml.MessagingResponse();
