@@ -1,6 +1,6 @@
 import { db } from '../server/storage';
 import { users, sessions, interactions, followUps } from '../shared/schema';
-import { sql } from 'drizzle-orm';
+import { sql, eq } from 'drizzle-orm';
 
 async function verifyMigration() {
   console.log('🔍 Verifying Phase 2 Database Migration...\n');
@@ -17,9 +17,9 @@ async function verifyMigration() {
       username: `test_pwa_user_${Date.now()}`,
       password: 'test_password',
       phoneNumber: '+15555551234',
-      deviceToken: JSON.stringify({ endpoint: 'https://test.push.service', keys: {} }),
+      deviceToken: { endpoint: 'https://test.push.service', keys: {} },
       preferredTime: '09:00',
-      enablePushNotifications: 1,
+      enablePushNotifications: true,
     }).returning();
     console.log(`   ✅ Created user with PWA fields: ${testUser[0].id}`);
 
@@ -63,15 +63,15 @@ async function verifyMigration() {
     console.log('\n6️⃣ Testing lastSyncAt update...');
     await db.update(users)
       .set({ lastSyncAt: new Date() })
-      .where(sql`${users.id} = ${testUser[0].id}`);
+      .where(eq(users.id, testUser[0].id));
     console.log(`   ✅ Updated lastSyncAt for user`);
 
     // Cleanup test data
     console.log('\n🧹 Cleaning up test data...');
-    await db.delete(interactions).where(sql`${interactions.userId} = ${testUser[0].id}`);
-    await db.delete(followUps).where(sql`${followUps.userId} = ${testUser[0].id}`);
-    await db.delete(sessions).where(sql`${sessions.userId} = ${testUser[0].id}`);
-    await db.delete(users).where(sql`${users.id} = ${testUser[0].id}`);
+    await db.delete(interactions).where(eq(interactions.userId, testUser[0].id));
+    await db.delete(followUps).where(eq(followUps.userId, testUser[0].id));
+    await db.delete(sessions).where(eq(sessions.userId, testUser[0].id));
+    await db.delete(users).where(eq(users.id, testUser[0].id));
     console.log('   ✅ Test data cleaned up');
 
     console.log('\n✅ Phase 2 Migration Verification: SUCCESS');
