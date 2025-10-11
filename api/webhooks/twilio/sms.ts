@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import twilio from 'twilio';
-import ConversationEngine from '../../../server/services/conversationEngine';
-import { db } from '../../../server/storage';
+import ConversationEngine from '../../../server/services/conversationEngine.js';
+import { db } from '../../../server/storage.js';
 
 // Module-level singleton engine to avoid creating a new instance per request
 // in serverless environments. The ConversationEngine uses a static state store
