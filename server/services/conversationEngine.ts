@@ -18,6 +18,7 @@ export interface ConversationState {
   userId: string;
   currentFlow: "daily" | "repair";
   currentStep: "mood_prompt" | "mood_selected" | "affirmation" | "intention_prompt" | "intention_capture" | "complete" | "repair_trigger";
+  channel: "sms" | "ivr";
   context: ConversationContext;
 }
 
@@ -78,6 +79,7 @@ export default class ConversationEngine {
         userId,
         currentFlow: "daily",
         currentStep: "mood_prompt",
+        channel,
         context: {},
       };
   ConversationEngine.stateStore.set(userId, state);
@@ -106,6 +108,7 @@ export default class ConversationEngine {
           userId,
           currentFlow: "daily",
           currentStep: "mood_prompt",
+          channel,
           context: {},
         };
         ConversationEngine.stateStore.set(userId, newState);
@@ -228,7 +231,7 @@ export default class ConversationEngine {
       const [newSession] = await this.dbClient.insert(schema.sessions).values({
         userId: state.userId,
         flowType: state.currentFlow,
-        channel: 'sms',
+        channel: state.channel,
         mood: state.context.mood || null,
         intention: state.context.intention || null,
       }).returning();

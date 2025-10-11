@@ -467,7 +467,8 @@ describe('ConversationEngine - Story 5 (Database Logging)', () => {
         }))
       })),
       _valuesMock: valuesMock,
-      _setMock: setMock
+      _setMock: setMock,
+      _whereMock: whereMock
     } as any;
   };
 
@@ -629,9 +630,15 @@ describe('ConversationEngine - Story 5 (Database Logging)', () => {
         sessionId: 'test-session-id'
       });
 
+      // Verify WHERE clause was called (which contains the OR logic for bidirectional linking)
       // The WHERE clause should match messages where:
       // (fromNumber = userId OR toNumber = userId) AND sessionId IS NULL
-      // This ensures both inbound (fromNumber = user) and outbound (toNumber = user) messages are linked
+      expect(mockDb._whereMock).toHaveBeenCalled();
+
+      // The WHERE clause argument should be a Drizzle 'and()' expression
+      // containing an 'or()' expression for bidirectional matching
+      const whereArg = mockDb._whereMock.mock.calls[0][0];
+      expect(whereArg).toBeDefined();
     });
   });
 
@@ -689,6 +696,7 @@ describe('ConversationEngine - Story 5 (Database Logging)', () => {
         userId: testUserId,
         currentFlow: 'daily' as const,
         currentStep: 'complete' as const,
+        channel: 'sms' as const,
         context: { mood: 'calm' as const }
       };
 
@@ -728,6 +736,7 @@ describe('ConversationEngine - Story 5 (Database Logging)', () => {
         userId: testUserId,
         currentFlow: 'daily' as const,
         currentStep: 'complete' as const,
+        channel: 'sms' as const,
         context: {}
       };
 
@@ -746,6 +755,7 @@ describe('ConversationEngine - Story 5 (Database Logging)', () => {
         userId: testUserId,
         currentFlow: 'daily' as const,
         currentStep: 'complete' as const,
+        channel: 'sms' as const,
         context: {
           mood: 'hopeful' as const
         }

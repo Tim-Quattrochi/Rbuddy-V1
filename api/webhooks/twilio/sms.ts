@@ -37,26 +37,32 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     MessageSid?: string;
   };
 
+  // Validate required fields - From and To are essential for user identification
+  if (!From || !To) {
+    console.error('[SMS Webhook] Missing From or To in request body.');
+    return res.status(400).send('Bad Request: Missing required fields.');
+  }
+
   console.log(`[SMS Webhook] Received from ${From}: ${Body}`);
 
   try {
     // Log inbound message to database
     await engine.logMessage(
       'inbound',
-      From ?? 'unknown',
-      To ?? 'unknown',
+      From,
+      To,
       Body ?? '',
       MessageSid
     );
 
     // Process input through singleton ConversationEngine
-    const responseMessage = await engine.processInput(From ?? 'unknown', Body ?? '', 'sms');
+    const responseMessage = await engine.processInput(From, Body ?? '', 'sms');
 
     // Log outbound message to database
     await engine.logMessage(
       'outbound',
-      To ?? 'unknown', // System phone number (from)
-      From ?? 'unknown', // User phone number (to)
+      To, // System phone number (from)
+      From, // User phone number (to)
       responseMessage,
       undefined // Twilio generates SID after send
     );
