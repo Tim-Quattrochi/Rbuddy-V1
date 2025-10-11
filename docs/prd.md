@@ -183,10 +183,10 @@ They need simple, supportive routines without judgment or technical friction. PW
 - `POST /api/notifications/subscribe` → Registers push notification subscription
 
 ### 4.4 Data Model (Updated for PWA)
-- **Users** → `user_id`, `phone_hash`, `preferred_time`, `language`, `device_token` (push notifications), `last_sync_at`
+- **Users** → `user_id`, `phone_hash`, `preferred_time`, `language`, `device_token` (push notifications), `last_sync_at`, `enable_push_notifications`
 - **Sessions** → `session_id`, `user_id`, `flow_type`, `mood`, `intention`, `timestamp`, `channel` ('pwa'/'sms')
 - **Interactions** (renamed from Messages) → `id`, `user_id`, `session_id`, `direction`, `channel`, `content_type`, `body`, `created_at`
-- **NotificationSchedules** → `id`, `user_id`, `scheduled_at`, `status`, `notification_type`
+- **FollowUps** → `id`, `user_id`, `message_type`, `channel`, `scheduled_at`, `status`, `push_payload`
 
 ### 4.5 PWA-Specific Requirements
 - **Service Worker:** Cache-first strategy for app shell, network-first for API calls with fallback to IndexedDB
