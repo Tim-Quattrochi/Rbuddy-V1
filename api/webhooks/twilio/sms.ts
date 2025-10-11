@@ -63,6 +63,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
   try {
     // Log inbound message to database
+    console.log('[SMS Webhook] About to log inbound message');
     await engine.logMessage(
       'inbound',
       From,
@@ -70,11 +71,15 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       Body ?? '',
       MessageSid
     );
+    console.log('[SMS Webhook] Inbound message logged');
 
     // Process input through singleton ConversationEngine
+    console.log('[SMS Webhook] About to process input');
     const responseMessage = await engine.processInput(From, Body ?? '', 'sms');
+    console.log('[SMS Webhook] Response message:', responseMessage);
 
     // Log outbound message to database
+    console.log('[SMS Webhook] About to log outbound message');
     await engine.logMessage(
       'outbound',
       To, // System phone number (from)
@@ -82,13 +87,18 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       responseMessage,
       undefined // Twilio generates SID after send
     );
+    console.log('[SMS Webhook] Outbound message logged');
 
     // Return TwiML response with engine's message
+    console.log('[SMS Webhook] Creating TwiML response');
     const twiml = new twilio.twiml.MessagingResponse();
     twiml.message(responseMessage);
+    const twimlString = twiml.toString();
+    console.log('[SMS Webhook] TwiML response:', twimlString);
 
     res.writeHead(200, { 'Content-Type': 'text/xml' });
-    res.end(twiml.toString());
+    res.end(twimlString);
+    console.log('[SMS Webhook] Response sent successfully');
   } catch (error) {
     console.error('[SMS Webhook] Error processing message:', error);
 
