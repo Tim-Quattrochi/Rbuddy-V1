@@ -157,8 +157,6 @@
 
 ### Story 12: Daily Ritual Flow UI Components - NEXT
 
-- [ ] React Components (pending)
-
 - [ ] React Components
   - [ ] `DailyRitual.tsx` (main flow orchestrator)
   - [ ] `MoodSelector.tsx` (4 emoji buttons)
