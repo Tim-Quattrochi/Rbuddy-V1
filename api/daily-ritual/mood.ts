@@ -1,0 +1,32 @@
+
+import { Response } from 'express';
+import ConversationEngine from '../../server/services/conversationEngine';
+import type { MoodOption } from '../../shared/schema';
+import { requireAuth, AuthenticatedRequest } from '../../server/middleware/auth';
+
+const engine = new ConversationEngine();
+
+export async function handler(req: AuthenticatedRequest, res: Response) {
+  const { mood } = req.body;
+  const userId = req.userId!; // Guaranteed by requireAuth middleware
+
+  if (!mood) {
+    return res.status(400).json({ error: 'mood is required' });
+  }
+
+  // Validate mood is a valid option
+  const validMoods: MoodOption[] = ['calm', 'stressed', 'tempted', 'hopeful'];
+  if (!validMoods.includes(mood)) {
+    return res.status(400).json({ error: 'Invalid mood option' });
+  }
+
+  try {
+    const result = await engine.handlePwaMoodSelection(userId, mood as MoodOption);
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error('Error handling PWA mood selection:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
+export default [requireAuth, handler];
