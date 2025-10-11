@@ -4,11 +4,16 @@
  * Story 3: Implements mood prompt (Part 1 of Daily Ritual)
  */
 
+export interface ConversationContext {
+  mood?: MoodOption;
+  intention?: string;
+}
+
 export interface ConversationState {
   userId: string;
   currentFlow: "daily" | "repair";
-  currentStep: "mood_prompt" | "mood_selected" | "affirmation" | "intention" | "repair_trigger";
-  context: Record<string, any>;
+  currentStep: "mood_prompt" | "mood_selected" | "affirmation" | "intention_prompt" | "intention_capture" | "complete" | "repair_trigger";
+  context: ConversationContext;
 }
 
 type MoodOption = "calm" | "stressed" | "tempted" | "hopeful";
@@ -18,6 +23,13 @@ const MOOD_MAP: Record<string, MoodOption> = {
   "2": "stressed",
   "3": "tempted",
   "4": "hopeful",
+};
+
+const AFFIRMATIONS: Record<MoodOption, string> = {
+  calm: "That's wonderful. Finding peace is a strength.",
+  stressed: "I hear you. Taking this moment for yourself is important.",
+  tempted: "Thank you for being honest. You're showing courage by reaching out.",
+  hopeful: "That's beautiful. Hope is a powerful force.",
 };
 
 export default class ConversationEngine {
@@ -57,17 +69,40 @@ export default class ConversationEngine {
       return this.getMoodPromptMessage();
     }
 
-    // Handle current step
-    if (state.currentStep === "mood_prompt") {
-      return this.handleMoodInput(state, input.trim());
-    }
+    // Handle current step based on FSM state
+    switch (state.currentStep) {
+      case "mood_prompt":
+        return this.handleMoodInput(state, input.trim());
 
-    // Future steps will be implemented in subsequent stories
-    // Robustness: log and reset if we encounter an unexpected state so the
-    // conversation doesn't get stuck.
-    console.warn(`[ConversationEngine] Unhandled step "${state.currentStep}" for user ${userId}. Resetting state.`);
-    ConversationEngine.stateStore.delete(userId);
-    return "Thank you for your check-in! This conversation has now ended.";
+      case "intention_prompt":
+        return this.handleIntentionPrompt(state, input.trim());
+
+      case "intention_capture":
+        return this.handleIntentionCapture(state, input.trim());
+
+      case "complete":
+        // Conversation already completed - reset and start new flow
+        console.log(`[ConversationEngine] User ${userId} starting new check-in after completion`);
+        ConversationEngine.stateStore.delete(userId);
+
+        // Initialize new conversation state
+        const newState: ConversationState = {
+          userId,
+          currentFlow: "daily",
+          currentStep: "mood_prompt",
+          context: {},
+        };
+        ConversationEngine.stateStore.set(userId, newState);
+
+        return this.getMoodPromptMessage();
+
+      default:
+        // Robustness: log and reset if we encounter an unexpected state so the
+        // conversation doesn't get stuck.
+        console.warn(`[ConversationEngine] Unhandled step "${state.currentStep}" for user ${userId}. Resetting state.`);
+        ConversationEngine.stateStore.delete(userId);
+        return "Thank you for your check-in! This conversation has now ended.";
+    }
   }
 
   /**
@@ -84,15 +119,58 @@ export default class ConversationEngine {
       return `Sorry, I didn't understand "${input}". Please reply with a number:\n\n${this.getMoodPromptMessage()}`;
     }
 
-    // Valid mood selection
-  state.context.mood = mood;
-  state.currentStep = "mood_selected";
-  ConversationEngine.stateStore.set(state.userId, state);
+    // Valid mood selection - store and transition to intention prompt
+    state.context.mood = mood;
+    state.currentStep = "intention_prompt";
+    ConversationEngine.stateStore.set(state.userId, state);
 
     console.log(`[ConversationEngine] User ${state.userId} selected mood: ${mood}`);
 
-    // Acknowledgment message (future stories will continue flow)
-    return `Thank you! You're feeling ${mood}. Your check-in is complete for now.`;
+    // AC #1 & #2: Send affirmation immediately followed by intention prompt
+    return `${AFFIRMATIONS[mood]}\n\nWould you like to set an intention for today? Reply YES or NO.`;
+  }
+
+  /**
+   * Handle intention prompt - parse YES/NO response
+   * @param state - Current conversation state
+   * @param input - User's YES/NO response
+   * @returns Response message
+   */
+  private handleIntentionPrompt(state: ConversationState, input: string): string {
+    const normalizedInput = input.toLowerCase();
+
+    if (normalizedInput === "yes") {
+      state.currentStep = "intention_capture";
+      ConversationEngine.stateStore.set(state.userId, state);
+
+      return "Please share your intention for today.";
+    }
+
+    if (normalizedInput === "no") {
+      state.currentStep = "complete";
+      ConversationEngine.stateStore.set(state.userId, state);
+
+      return "Your check-in is complete. Thank you.";
+    }
+
+    // Invalid input - re-prompt
+    return `Sorry, I didn't understand "${input}". Please reply YES or NO.`;
+  }
+
+  /**
+   * Handle intention capture - store user's intention
+   * @param state - Current conversation state
+   * @param input - User's intention message
+   * @returns Response message
+   */
+  private handleIntentionCapture(state: ConversationState, input: string): string {
+    state.context.intention = input.trim();
+    state.currentStep = "complete";
+    ConversationEngine.stateStore.set(state.userId, state);
+
+    console.log(`[ConversationEngine] User ${state.userId} set intention: ${input.trim()}`);
+
+    return "Your check-in is complete. Thank you.";
   }
 
   /**
