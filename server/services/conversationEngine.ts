@@ -37,6 +37,12 @@ const AFFIRMATIONS: Record<MoodOption, string> = {
   hopeful: "That's beautiful. Hope is a powerful force.",
 };
 
+const REPAIR_SUGGESTIONS: Record<string, string> = {
+  stress: "Take 3 deep breaths right now.",
+  people: "Text or call someone who supports your recovery.",
+  craving: "Drink a glass of water and step outside.",
+};
+
 export default class ConversationEngine {
   // In-memory state storage (Story 3 requirement - no DB persistence yet)
   // Use a static store so warm serverless containers can share state across
@@ -395,6 +401,58 @@ export default class ConversationEngine {
     } catch (error) {
       console.error(`[ConversationEngine] Failed to handle PWA intention for session ${sessionId}:`, error);
     }
+  }
+
+  /**
+   * Handle repair flow (rupture & repair) from PWA
+   * @param userId - The user's ID
+   * @param trigger - The selected trigger ("stress", "people", or "craving")
+   */
+  async handlePwaRepairFlow(userId: string, trigger: string): Promise<{ sessionId: string; message: string; repairSuggestion: string }> {
+    console.log(`[ConversationEngine] Handling PWA repair flow for user ${userId} with trigger: ${trigger}`);
+
+    // 1. Create a new repair session
+    const [newSession] = await this.dbClient.insert(schema.sessions).values({
+      userId,
+      flowType: 'repair',
+      channel: 'pwa',
+    }).returning();
+
+    console.log(`[ConversationEngine] Repair session created: ${newSession.id}`);
+
+    // 2. Log the trigger selection as an interaction
+    await this.dbClient.insert(schema.interactions).values({
+      userId,
+      sessionId: newSession.id,
+      direction: 'inbound',
+      channel: 'pwa',
+      contentType: 'text',
+      body: trigger,
+      status: 'synced',
+    });
+
+    // 3. Get the repair suggestion based on trigger
+    const repairSuggestion = REPAIR_SUGGESTIONS[trigger];
+    const message = "Slips happen. What matters is what you do next.";
+
+    // 4. Log the repair suggestion as an interaction
+    await this.dbClient.insert(schema.interactions).values({
+      userId,
+      sessionId: newSession.id,
+      direction: 'outbound',
+      channel: 'pwa',
+      contentType: 'text',
+      body: repairSuggestion,
+      status: 'synced',
+    });
+
+    console.log(`[ConversationEngine] Repair flow completed for session ${newSession.id}`);
+
+    return {
+      sessionId: newSession.id,
+      message,
+      repairSuggestion,
+    };
   }
 
   /**

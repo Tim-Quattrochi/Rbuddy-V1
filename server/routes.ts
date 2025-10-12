@@ -13,6 +13,9 @@ import googleAuthHandler from "../api/auth/google/index";
 import googleCallbackHandler from "../api/auth/google.callback";
 import logoutHandler from "../api/auth/logout";
 
+// Import Repair route handlers
+import repairStartHandler from "../api/repair/start";
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth Routes
   app.get("/api/auth/google", googleAuthHandler);
@@ -25,6 +28,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Daily Ritual Routes
   app.post("/api/daily-ritual/mood", ...moodHandler);
   app.post("/api/daily-ritual/intention", ...intentionHandler);
+  
+  // Repair Routes
+  app.post("/api/repair/start", ...repairStartHandler);
   
   // User Stats Routes
   app.get("/api/user/stats", ...statsHandler);
