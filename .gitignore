@@ -10,6 +10,7 @@ vite.config.ts.*
 .continue/*
 mcp.json
 .bmad-core/
+.warp/
 .claude/
 .gemini/
 .github/chatmodes/
