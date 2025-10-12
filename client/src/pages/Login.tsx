@@ -1,34 +1,42 @@
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '../components/ui/alert';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import { Chrome, AlertCircle, Loader2 } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import { useNavigate } from "react-router-dom";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import { Chrome, AlertCircle, Loader2 } from "lucide-react";
 
 const LoginPage = () => {
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
-  const error = searchParams.get('error');
+  const error = searchParams.get("error");
+  const navigate = useNavigate();
 
   const handleGoogleLogin = () => {
     setIsLoading(true);
     // Full page redirect to backend OAuth endpoint
-    window.location.href = '/api/auth/google';
+    navigate("/api/auth/google", { replace: true });
   };
 
   // Get user-friendly error message
   const getErrorMessage = (errorCode: string | null): string => {
     switch (errorCode) {
-      case 'auth_failed':
-        return 'Authentication failed. Please try again.';
-      case 'no_email':
-        return 'Your Google account must have an email address.';
-      case 'cancelled':
-        return 'Sign in was cancelled. Please try again when you\'re ready.';
+      case "auth_failed":
+        return "Authentication failed. Please try again.";
+      case "no_email":
+        return "Your Google account must have an email address.";
+      case "cancelled":
+        return "Sign in was cancelled. Please try again when you're ready.";
       default:
-        return 'An unexpected error occurred. Please try again.';
+        return "An unexpected error occurred. Please try again.";
     }
   };
 
@@ -36,7 +44,7 @@ const LoginPage = () => {
   useEffect(() => {
     if (error) {
       const timer = setTimeout(() => {
-        window.history.replaceState({}, '', '/login');
+        window.history.replaceState({}, "", "/login");
       }, 5000);
       return () => clearTimeout(timer);
     }
@@ -60,12 +68,10 @@ const LoginPage = () => {
               <Alert variant="destructive" data-testid="alert-error">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Sign In Error</AlertTitle>
-                <AlertDescription>
-                  {getErrorMessage(error)}
-                </AlertDescription>
+                <AlertDescription>{getErrorMessage(error)}</AlertDescription>
               </Alert>
             )}
-            
+
             <Button
               onClick={handleGoogleLogin}
               disabled={isLoading}
@@ -89,7 +95,8 @@ const LoginPage = () => {
 
             <div className="text-center text-sm text-muted-foreground">
               <p>
-                By signing in, you agree to our commitment to support your recovery journey with care and respect.
+                By signing in, you agree to our commitment to support your
+                recovery journey with care and respect.
               </p>
             </div>
           </CardContent>
