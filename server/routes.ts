@@ -5,10 +5,8 @@ import { storage } from "./storage";
 // Import API route handlers
 
 import journalHistoryHandler from "../api/journal/history";
-import { middlewares as moodHandler } from "../api/daily-ritual/mood";
-import { middlewares as intentionHandler } from "../api/daily-ritual/intention";
-import { middlewares as statsHandler } from "../api/user/stats";
-import { middlewares as meHandler } from "../api/user/me";
+import { middlewares as dailyRitualHandler } from "../api/daily-ritual/[action]";
+import { middlewares as userHandler } from "../api/user/[action]";
 
 
 
@@ -30,18 +28,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/logout", ...logoutHandler);
   
   // User Routes
-  app.get("/api/users/me", ...meHandler);
+  app.get("/api/users/me", ...userHandler);
+  app.get("/api/user/stats", ...userHandler);
   app.get("/api/journal/history", ...journalHistoryHandler);
   
   // Daily Ritual Routes
-  app.post("/api/daily-ritual/mood", ...moodHandler);
-  app.post("/api/daily-ritual/intention", ...intentionHandler);
+  app.post("/api/daily-ritual/mood", ...dailyRitualHandler);
+  app.post("/api/daily-ritual/intention", ...dailyRitualHandler);
   
   // Repair Routes
   app.post("/api/repair/start", ...repairStartHandler);
-  
-  // User Stats Routes
-  app.get("/api/user/stats", ...statsHandler);
   
   // Chat Routes
   app.post("/api/chat/send", ...chatHandler);
