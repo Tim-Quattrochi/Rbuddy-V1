@@ -1,0 +1,120 @@
+# Quality Gate Decision - Story 1.4
+schema: 1
+story: "1.4"
+story_title: "Implement Protected Routes and Logout"
+gate: "FAIL"
+status_reason: "Critical blocking issues - 5/6 acceptance criteria unimplemented, wrong architectural approach used, zero test coverage for authentication code, missing required backend endpoints"
+reviewer: "Quinn (Test Architect)"
+updated: "2025-10-12T00:00:00Z"
+
+waiver: { active: false }
+
+top_issues:
+  - id: "ARCH-001"
+    severity: high
+    finding: "Wrong state management pattern - implemented with React Context instead of required TanStack Query approach"
+    suggested_action: "Rewrite useAuth hook using TanStack Query's useQuery as specified in AC#1 and Dev Notes"
+    suggested_owner: dev
+
+  - id: "IMPL-001"
+    severity: high
+    finding: "5 out of 6 acceptance criteria completely unimplemented (AC#2, #3, #4, #5, #6)"
+    suggested_action: "Implement all missing acceptance criteria before requesting review"
+    suggested_owner: dev
+
+  - id: "TEST-001"
+    severity: high
+    finding: "Zero test coverage for authentication functionality - Task 4 requires 3 test suites"
+    suggested_action: "Write comprehensive unit tests for useAuth, ProtectedRoute, and Header before any production use"
+    suggested_owner: dev
+
+  - id: "API-001"
+    severity: high
+    finding: "Required backend endpoints missing - GET /api/users/me and POST /api/auth/logout not found in server/routes.ts"
+    suggested_action: "Implement backend API endpoints before frontend implementation can function"
+    suggested_owner: dev
+
+  - id: "SEC-001"
+    severity: high
+    finding: "Critical security gap - /daily-ritual route completely unprotected, allowing unauthorized access"
+    suggested_action: "Implement ProtectedRoute component and wrap all protected routes per AC#3 and AC#4"
+    suggested_owner: dev
+
+  - id: "SEC-002"
+    severity: medium
+    finding: "Logout function only clears client state - no server-side session invalidation"
+    suggested_action: "Implement POST /api/auth/logout endpoint to invalidate server sessions"
+    suggested_owner: dev
+
+  - id: "STATUS-001"
+    severity: medium
+    finding: "Story status is 'Draft' not 'Review' - prerequisites not met for QA review"
+    suggested_action: "Update story status to 'Review' only when all tasks completed and dev believes it's ready"
+    suggested_owner: dev
+
+risk_summary:
+  totals: { critical: 5, high: 2, medium: 2, low: 0 }
+  highest: critical
+  recommendations:
+    must_fix:
+      - "Reimplement authentication using TanStack Query pattern (not React Context)"
+      - "Complete all 6 acceptance criteria implementation"
+      - "Add comprehensive test coverage (3 test suites minimum)"
+      - "Implement missing backend endpoints: GET /api/users/me, POST /api/auth/logout"
+      - "Protect /daily-ritual route with ProtectedRoute component"
+    monitor:
+      - "Token expiration and refresh strategy"
+      - "XSS risks with localStorage token storage"
+
+quality_score: 0
+expires: "2025-10-26T00:00:00Z"
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 9
+  trace:
+    ac_covered: []
+    ac_gaps: [1, 2, 3, 4, 5, 6]
+
+nfr_validation:
+  security:
+    status: FAIL
+    notes: "Unprotected routes, missing session invalidation, incomplete auth flow, no backend endpoints"
+  performance:
+    status: CONCERNS
+    notes: "Cannot assess - required TanStack Query implementation not present"
+  reliability:
+    status: FAIL
+    notes: "No error handling, no token refresh, no network failure handling"
+  maintainability:
+    status: FAIL
+    notes: "Zero test coverage, architecture deviates from requirements, incomplete implementation"
+
+recommendations:
+  immediate:
+    - action: "CRITICAL: Start over with correct architecture - implement useAuth using TanStack Query useQuery, not React Context"
+      refs: ["client/src/contexts/AuthContext.tsx", "Story AC#1", "Dev Notes"]
+    - action: "CRITICAL: Implement GET /api/users/me endpoint on backend"
+      refs: ["server/routes.ts", "Story AC#2"]
+    - action: "CRITICAL: Implement POST /api/auth/logout endpoint on backend"
+      refs: ["server/routes.ts", "Story AC#6"]
+    - action: "CRITICAL: Create ProtectedRoute component at client/src/components/auth/ProtectedRoute.tsx"
+      refs: ["Story AC#3"]
+    - action: "CRITICAL: Wrap /daily-ritual route with ProtectedRoute in App.tsx"
+      refs: ["client/src/App.tsx:17", "Story AC#4"]
+    - action: "CRITICAL: Update Header.tsx to show user email and Logout button conditionally"
+      refs: ["client/src/components/Header.tsx", "Story AC#5"]
+    - action: "CRITICAL: Write all 3 required test suites (useAuth, ProtectedRoute, Header)"
+      refs: ["Story Task 4"]
+  future:
+    - action: "Implement token refresh mechanism for 7-day expiry tokens"
+      refs: ["server/middleware/auth.ts:116"]
+    - action: "Add rate limiting to authentication endpoints"
+      refs: ["server/routes.ts"]
+    - action: "Document XSS risks and mitigation strategies for localStorage token storage"
+      refs: ["client/src/contexts/AuthContext.tsx:29"]
+
+history:
+  - at: "2025-10-12T00:00:00Z"
+    gate: FAIL
+    note: "Initial QA review - story not ready, critical implementation gaps, wrong architecture, zero tests"
