@@ -50,7 +50,8 @@ describe('DailyRitual Integration Tests', () => {
 
   beforeEach(() => {
     fetchMock = vi.fn();
-    global.fetch = fetchMock;
+  // Cast to any to satisfy TS when stubbing fetch in tests
+  global.fetch = fetchMock as any;
     mockToast.mockClear();
   });
 
@@ -253,10 +254,8 @@ describe('DailyRitual Integration Tests', () => {
       });
 
       // Select a mood
-      const moodButtons = screen.getAllByRole('button');
-      if (moodButtons[0]) {
-        await user.click(moodButtons[0]);
-      }
+      const calmButton = screen.getByRole('button', { name: /calm/i });
+      await user.click(calmButton);
 
       // Wait for affirmation to appear
       await waitFor(() => {
@@ -330,27 +329,26 @@ describe('DailyRitual Integration Tests', () => {
       // Mock mood selection failure
       fetchMock.mockRejectedValueOnce(new Error('Network error'));
 
-      // Click a mood button
-      const moodButtons = screen.getAllByRole('button');
-      if (moodButtons[0]) {
-        await user.click(moodButtons[0]);
+      // Click a specific mood button to avoid interference from other buttons
+      const calmButtonErr = screen.getByRole('button', { name: /calm/i });
+      await user.click(calmButtonErr);
 
-        // Check error alert appears
-        await waitFor(() => {
-          expect(screen.getByText('Error')).toBeInTheDocument();
-          expect(screen.getByText("We couldn't save your mood selection. Please try again.")).toBeInTheDocument();
-        });
+      // Check error alert appears (use descriptive text for robustness)
+      await waitFor(() => {
+        expect(
+          screen.getByText("We couldn't save your mood selection. Please try again.")
+        ).toBeInTheDocument();
+      });
 
-        // Check error toast
-        await waitFor(() => {
-          expect(mockToast).toHaveBeenCalledWith(
-            expect.objectContaining({
-              variant: 'destructive',
-              title: 'Error recording mood',
-            })
-          );
-        });
-      }
+      // Check error toast
+      await waitFor(() => {
+        expect(mockToast).toHaveBeenCalledWith(
+          expect.objectContaining({
+            variant: 'destructive',
+            title: 'Error recording mood',
+          })
+        );
+      });
     });
 
     it('displays session expired message for 401 errors', async () => {
@@ -386,21 +384,19 @@ describe('DailyRitual Integration Tests', () => {
       // Mock 401 error
       fetchMock.mockRejectedValueOnce(new Error('401 Unauthorized'));
 
-      const moodButtons = screen.getAllByRole('button');
-      if (moodButtons[0]) {
-        await user.click(moodButtons[0]);
+      const calmButton2 = screen.getByRole('button', { name: /calm/i });
+      await user.click(calmButton2);
 
-        // Check session expired toast
-        await waitFor(() => {
-          expect(mockToast).toHaveBeenCalledWith(
-            expect.objectContaining({
-              variant: 'destructive',
-              title: 'Session expired',
-              description: 'Your session has expired. Please log in again.',
-            })
-          );
-        });
-      }
+      // Check session expired toast
+      await waitFor(() => {
+        expect(mockToast).toHaveBeenCalledWith(
+          expect.objectContaining({
+            variant: 'destructive',
+            title: 'Session expired',
+            description: 'Your session has expired. Please log in again.',
+          })
+        );
+      });
     });
   });
 
@@ -496,18 +492,99 @@ describe('DailyRitual Integration Tests', () => {
           )
       );
 
-      const moodButtons = screen.getAllByRole('button');
-      if (moodButtons[0]) {
-        await user.click(moodButtons[0]);
+      const calmButton3 = screen.getByRole('button', { name: /calm/i });
+      await user.click(calmButton3);
 
-        // Check loading state appears
-        expect(screen.getByText('Loading affirmation...')).toBeInTheDocument();
+      // Check loading state appears
+      expect(screen.getByText('Loading affirmation...')).toBeInTheDocument();
 
-        // Wait for affirmation to appear
-        await waitFor(() => {
-          expect(screen.getByText('Test affirmation')).toBeInTheDocument();
-        });
-      }
+      // Wait for affirmation to appear
+      await waitFor(() => {
+        expect(screen.getByText('Test affirmation')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Support Widget and RepairFlow integration', () => {
+    it('opens RepairFlow when clicking Access Support and closes on Close', async () => {
+      const user = userEvent.setup();
+      const mockUser = {
+        id: 'test-user-id',
+        username: 'testuser',
+        email: 'test@example.com',
+      };
+
+      // Ensure the mocked useAuth below matches import usage
+      mockUseAuth.mockReturnValue({
+        user: mockUser,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+        logout: vi.fn(),
+        isLoggingOut: false,
+        refetch: vi.fn(),
+      });
+
+      // Mock stats fetch
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ streakCount: 3 }),
+      });
+
+      const { queryClient } = renderWithProviders(<DailyRitualPage />);
+
+      // Wait for streak to render (ensures page is mounted)
+      await waitFor(() => {
+        expect(screen.getByText('3 Days')).toBeInTheDocument();
+      });
+
+      // Open RepairFlow via widget
+      const accessBtn = screen.getByRole('button', { name: /access support/i });
+      await user.click(accessBtn);
+
+      // Modal content should appear (first step title text)
+      await waitFor(() => {
+        expect(
+          screen.getByText('Slips happen. What matters is what you do next.')
+        ).toBeInTheDocument();
+      });
+
+      // Close via Close button after moving to closing step
+      // Move to suggestion step
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          sessionId: 'sess-1',
+          message: 'ok',
+          repairSuggestion: 'Take a deep breath',
+        }),
+      });
+
+  // Scope search within the RepairFlow modal to avoid matching mood grid "Stressed"
+  const modal = screen.getByText('What triggered this moment?').closest('div');
+  const stressBtns = within(modal as HTMLElement).getAllByRole('button', { name: /^Stress$/i });
+  await user.click(stressBtns[0]);
+
+      await waitFor(() => {
+        expect(screen.getByText('Try This')).toBeInTheDocument();
+      });
+
+      const doneBtn = screen.getByRole('button', { name: /done/i });
+      await user.click(doneBtn);
+
+      await waitFor(() => {
+        expect(screen.getByText("You've Got This")).toBeInTheDocument();
+      });
+
+      const closeBtn = screen.getByRole('button', { name: /close/i });
+      await user.click(closeBtn);
+
+      // Modal should close
+      await waitFor(() => {
+        expect(
+          screen.queryByText('Slips happen. What matters is what you do next.')
+        ).not.toBeInTheDocument();
+      });
     });
   });
 });

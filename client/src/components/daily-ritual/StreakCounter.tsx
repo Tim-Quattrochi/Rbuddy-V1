@@ -8,7 +8,7 @@ export function StreakCounter({ streak }: StreakCounterProps) {
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Daily Streak</CardTitle>
+        <CardTitle className="text-sm font-medium text-foreground">Daily Streak</CardTitle>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -23,7 +23,7 @@ export function StreakCounter({ streak }: StreakCounterProps) {
         </svg>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{streak} Days</div>
+        <div className="text-2xl font-bold text-foreground">{streak} Days</div>
         <p className="text-xs text-muted-foreground">Keep it up!</p>
       </CardContent>
     </Card>

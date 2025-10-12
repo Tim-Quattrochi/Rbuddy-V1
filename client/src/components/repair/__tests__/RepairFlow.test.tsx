@@ -200,4 +200,34 @@ describe('RepairFlow Component', () => {
     // Buttons should be disabled during loading
     expect(screen.getByText('Stress')).toBeDisabled();
   });
+
+  it('closes modal when Escape key is pressed (Accessibility)', () => {
+    renderWithQueryClient(<RepairFlow onClose={mockOnClose} />);
+
+    // Press Escape key
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    expect(mockOnClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('closes modal when X button is clicked (Accessibility)', () => {
+    renderWithQueryClient(<RepairFlow onClose={mockOnClose} />);
+
+    // Find and click the close button
+    const closeButton = screen.getByLabelText(/close support modal/i);
+    fireEvent.click(closeButton);
+
+    expect(mockOnClose).toHaveBeenCalledTimes(1);
+  });
+
+  // Note: Backdrop click tested manually - difficult to test event.target === event.currentTarget in testing-library
+  // The important accessibility features (Escape key and X button) are tested above
+
+  it('has proper ARIA attributes for screen readers', () => {
+    renderWithQueryClient(<RepairFlow onClose={mockOnClose} />);
+
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
+    expect(dialog).toHaveAttribute('aria-labelledby', 'repair-flow-title');
+  });
 });

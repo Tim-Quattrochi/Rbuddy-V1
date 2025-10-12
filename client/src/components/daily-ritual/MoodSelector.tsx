@@ -18,12 +18,13 @@ export function MoodSelector({ onSelectMood }: MoodSelectorProps) {
       {moodOptions.map(({ mood, label, emoji }) => (
         <Button
           key={mood}
-          className="h-24 text-lg" // Tailwind CSS for styling
+          variant="outline"
+          className="h-24 text-lg border-2 hover:bg-accent hover:border-primary transition-colors"
           onClick={() => onSelectMood(mood)}
         >
-          <div className="flex flex-col items-center">
-            <span className="text-3xl">{emoji}</span>
-            <span>{label}</span>
+          <div className="flex flex-col items-center gap-2">
+            <span className="text-3xl leading-none">{emoji}</span>
+            <span className="text-sm font-medium">{label}</span>
           </div>
         </Button>
       ))}
