@@ -18,8 +18,11 @@ interface NavigationMenuProps {
 
 export function NavigationMenu({ onOpenRepair }: NavigationMenuProps) {
   const [open, setOpen] = useState(false);
-  const { user, logout, isLoggingOut } = useAuth();
+  const { user, logout, isLoggingOut, isAuthenticated} = useAuth();
   const location = useLocation();
+
+
+
 
   const handleNavigate = () => {
     setOpen(false);
@@ -31,8 +34,9 @@ export function NavigationMenu({ onOpenRepair }: NavigationMenuProps) {
   };
 
   const handleLogout = async () => {
+    // The navigation and state clearing is handled by the useAuth hook's mutation.
     setOpen(false);
-    await logout();
+    logout(); 
   };
 
   return (
@@ -80,7 +84,7 @@ export function NavigationMenu({ onOpenRepair }: NavigationMenuProps) {
             }`}
           >
             <Home className="h-5 w-5" />
-            <span>Daily Ritual</span>
+            {isAuthenticated && <span>Daily Ritual</span>}
           </Link>
 
           <Separator className="my-4" />
