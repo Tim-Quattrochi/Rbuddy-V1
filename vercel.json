@@ -35,7 +35,7 @@
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",
-          "value": "https://nextmoment.app"
+          "value": "https://rbuddy-v1.vercel.app"
         },
         {
           "key": "Access-Control-Allow-Methods",
@@ -50,59 +50,43 @@
           "value": "true"
         }
       ]
+    },
+    {
+      "source": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|json))",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1",
-      "headers": {
-        "Cache-Control": "no-cache, no-store, must-revalidate"
-      }
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
     },
     {
-      "src": "/health",
-      "dest": "/api/health",
-      "headers": {
-        "Cache-Control": "no-cache"
-      }
+      "source": "/health",
+      "destination": "/api/health"
     },
     {
-      "src": "/((?!api/|health|_next/|favicon.ico|robots.txt|sitemap.xml).*)",
-      "dest": "/index.html",
-      "headers": {
-        "Cache-Control": "public, max-age=0, must-revalidate"
-      }
-    },
+      "source": "/((?!api/|health|_next/|favicon.ico|robots.txt|sitemap.xml).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "redirects": [
     {
-      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|webp|woff|woff2))",
-      "headers": {
-        "Cache-Control": "public, max-age=31536000, immutable"
-      }
-    },
-    {
-      "src": "/404",
-      "status": 404,
-      "dest": "/404.html"
+      "source": "/404",
+      "destination": "/404.html",
+      "permanent": false
     }
   ],
   "functions": {
     "api/**/*": {
       "runtime": "@vercel/node@18.19.0",
       "maxDuration": 30,
-      "excludeFiles": [
-        "**/*.test.ts",
-        "**/*.test.js",
-        "**/__tests__/**",
-        "**/*.spec.ts",
-        "**/*.spec.js",
-        "**/node_modules/**",
-        "**/.git/**",
-        "**/coverage/**"
-      ],
-      "environment": {
-        "NODE_ENV": "production"
-      }
+      "excludeFiles": "**/*.test.ts **/*.test.js **/__tests__/** **/*.spec.ts **/*.spec.js **/node_modules/** **/.git/** **/coverage/**"
     },
     "api/health.js": {
       "runtime": "@vercel/node@18.19.0",
@@ -111,10 +95,5 @@
   },
   "env": {
     "NODE_ENV": "production"
-  },
-  "build": {
-    "env": {
-      "BUILD_TIME": "@build-time"
-    }
   }
 }
