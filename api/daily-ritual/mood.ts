@@ -15,7 +15,7 @@ export async function handler(req: AuthenticatedRequest, res: Response) {
   }
 
   // Validate mood is a valid option
-  const validMoods: MoodOption[] = ['calm', 'stressed', 'tempted', 'hopeful'];
+  const validMoods: MoodOption[] = moodEnum.enumValues;
   if (!validMoods.includes(mood)) {
     return res.status(400).json({ error: 'Invalid mood option' });
   }
