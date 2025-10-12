@@ -42,6 +42,8 @@ export default class AIChatService {
     const provider = (process.env.AI_PROVIDER || 'openai').toLowerCase() as AIProvider;
     this.provider = provider;
 
+    console.log(process.env.GEMINI_API_KEY);
+
     switch (provider) {
       case 'openai':
         const openaiKey = process.env.OPENAI_API_KEY;
@@ -280,7 +282,7 @@ Keep responses concise (2-3 sentences usually) and conversational.`;
     }
 
     const model = this.gemini.getGenerativeModel({ 
-      model: process.env.GEMINI_MODEL || 'gemini-pro'
+      model: process.env.GEMINI_MODEL || 'gemini-2.0-flash'
     });
 
     // Prepare chat history for Gemini

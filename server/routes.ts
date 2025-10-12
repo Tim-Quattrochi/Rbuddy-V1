@@ -21,9 +21,9 @@ import { middlewares as logoutHandler } from "../api/auth/logout";
 import { middlewares as repairStartHandler } from "../api/repair/start";
 
 // Import Chat route handlers
-import chatSendHandler from "../api/chat/send";
-import chatHistoryHandler from "../api/chat/history";
-import chatClearHandler from "../api/chat/clear";
+import { middlewares as chatSendHandler } from "../api/chat/send";
+import { middlewares as chatHistoryHandler } from "../api/chat/history";
+import { middlewares as chatClearHandler } from "../api/chat/clear";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth Routes

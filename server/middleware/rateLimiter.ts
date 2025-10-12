@@ -26,9 +26,11 @@ export const chatSendLimiter = rateLimit({
     if (userId) {
       return `user:${userId}`;
     }
-    // Don't return IP directly - let express-rate-limit handle it
-    // This avoids IPv6 issues
-    return undefined as any;
+    const forwardedFor = req.headers["x-forwarded-for"];
+    const fallbackIp = req.socket?.remoteAddress;
+    const rawIp = req.ip || forwardedFor || fallbackIp || "unknown";
+    const ip = Array.isArray(rawIp) ? rawIp[0] : rawIp;
+    return `ip:${ip}`;
   },
   // Skip rate limiting if API key is missing (will fail at service level)
   skip: (req) => {
@@ -67,7 +69,10 @@ export const chatGeneralLimiter = rateLimit({
     if (userId) {
       return `user:${userId}`;
     }
-    // Let express-rate-limit handle IP
-    return undefined as any;
+    const forwardedFor = req.headers["x-forwarded-for"];
+    const fallbackIp = req.socket?.remoteAddress;
+    const rawIp = req.ip || forwardedFor || fallbackIp || "unknown";
+    const ip = Array.isArray(rawIp) ? rawIp[0] : rawIp;
+    return `ip:${ip}`;
   }
 });

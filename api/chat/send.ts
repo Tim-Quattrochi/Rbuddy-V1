@@ -4,6 +4,7 @@ import { Response } from 'express';
 import { requireAuth, AuthenticatedRequest } from '../../server/middleware/auth';
 import { chatSendLimiter } from '../../server/middleware/rateLimiter';
 import AIChatService from '../../server/services/aiChatService';
+import { createVercelHandler } from '../_lib/vercel-handler';
 
 // Constants for validation
 const MESSAGE_MAX_LENGTH = 1000;
@@ -45,4 +46,6 @@ export async function handler(req: AuthenticatedRequest, res: Response) {
 }
 
 // Apply rate limiting and authentication middleware
-export default [requireAuth, chatSendLimiter, handler];
+export const middlewares = [requireAuth, chatSendLimiter, handler];
+
+export default createVercelHandler(middlewares);
