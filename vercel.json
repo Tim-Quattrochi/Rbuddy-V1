@@ -51,7 +51,7 @@
   ],
   "functions": {
     "api/**/*": {
-      "runtime": "@vercel/node@18.19.0",
+      "runtime": "@vercel/node@5.3.26",
       "maxDuration": 30,
       "excludeFiles": "**/*.test.ts **/*.test.js **/__tests__/** **/*.spec.ts **/*.spec.js **/node_modules/** **/.git/** **/coverage/**"
     }
