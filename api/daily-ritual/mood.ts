@@ -7,6 +7,7 @@ import { Response } from 'express';
 import ConversationEngine from '../../server/services/conversationEngine';
 import { moodEnum, type MoodOption } from '../../shared/schema';
 import { requireAuth, AuthenticatedRequest } from '../../server/middleware/auth';
+import { createVercelHandler } from '../_lib/vercel-handler';
 
 const engine = new ConversationEngine();
 
@@ -33,4 +34,8 @@ export async function handler(req: AuthenticatedRequest, res: Response) {
   }
 }
 
-export default [requireAuth, handler];
+// Export for Express server (middleware array)
+export const middlewares = [requireAuth, handler];
+
+// Export for Vercel serverless (wrapped function)
+export default createVercelHandler(middlewares);

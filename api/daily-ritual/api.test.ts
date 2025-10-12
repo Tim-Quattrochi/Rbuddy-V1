@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
-import moodHandler from './mood';
-import intentionHandler from './intention';
-import statsHandler from '../user/stats';
+import { middlewares as moodHandler } from './mood';
+import { middlewares as intentionHandler } from './intention';
+import { middlewares as statsHandler } from '../user/stats';
 import ConversationEngine from '../../server/services/conversationEngine';
 
 vi.mock('../../server/middleware/auth', () => ({

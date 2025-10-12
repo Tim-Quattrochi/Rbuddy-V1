@@ -61,12 +61,20 @@ rBuddy-v1/
 
 ### API Service Standards
 
-The backend uses Vercel Serverless Functions. New API routes are defined in the `api/` directory.
+The backend uses a **hybrid architecture**:
+- **Development**: Traditional Express server (`server/index.ts`)
+- **Production**: Vercel Serverless Functions (`api/` directory)
+
+All API endpoints must follow a **dual-export pattern** to work in both environments:
 
 ```typescript
 // Example: api/users/me.ts
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { Response } from 'express';
 import { requireAuth, AuthenticatedRequest } from '../../server/middleware/auth';
+import { createVercelHandler } from '../_lib/vercel-handler';
 
 async function handler(req: AuthenticatedRequest, res: Response) {
   const userId = req.userId!;
@@ -74,7 +82,42 @@ async function handler(req: AuthenticatedRequest, res: Response) {
   return res.status(200).json({ user });
 }
 
-export default [requireAuth, handler];
+// Export for Express server (middleware array)
+export const middlewares = [requireAuth, handler];
+
+// Export for Vercel serverless (wrapped function)
+export default createVercelHandler(middlewares);
+```
+
+**Why this pattern?**
+- Vercel serverless functions expect: `(req, res) => void`
+- Express uses middleware arrays: `[requireAuth, handler]`
+- The `createVercelHandler` wrapper in `api/_lib/vercel-handler.ts` converts the middleware array into a Vercel-compatible handler
+- Named `middlewares` export is used by `server/routes.ts` for local development
+- Default export is used by Vercel for serverless deployment
+
+**Registering Routes:**
+```typescript
+// server/routes.ts
+import { middlewares as meHandler } from '../api/user/me';
+
+export async function registerRoutes(app: Express): Promise<Server> {
+  // Use the named 'middlewares' export with spread operator
+  app.get("/api/users/me", ...meHandler);
+  // ...
+}
+```
+
+**Testing API Endpoints:**
+```typescript
+// api/user/api.test.ts
+import { middlewares as meHandler } from './me';
+
+// Test the middleware array
+await runMiddlewares(meHandler, mockReq, mockRes);
+```
+
+**For complete details**, see [`docs/vercel-deployment.md`](./docs/vercel-deployment.md)
 
 
 rbuddy consultant

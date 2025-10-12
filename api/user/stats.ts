@@ -7,6 +7,7 @@ import { db } from '../../server/storage';
 import { sessions } from '../../shared/schema';
 import { and, eq, gte, desc, or, isNotNull } from 'drizzle-orm';
 import { requireAuth, AuthenticatedRequest } from '../../server/middleware/auth';
+import { createVercelHandler } from '../_lib/vercel-handler';
 
 /**
  * Normalizes a date to midnight (00:00:00) for accurate day comparisons
@@ -116,4 +117,8 @@ export async function handler(req: AuthenticatedRequest, res: Response) {
   }
 }
 
-export default [requireAuth, handler];
+// Export for Express server (middleware array)
+export const middlewares = [requireAuth, handler];
+
+// Export for Vercel serverless (wrapped function)
+export default createVercelHandler(middlewares);
