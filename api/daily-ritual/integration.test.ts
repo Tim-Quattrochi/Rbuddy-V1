@@ -210,6 +210,23 @@ describe('Daily Ritual Integration Tests', () => {
       expect(latestInteraction.contentType).toBe('intention');
       expect(latestInteraction.body).toBe(intentionText);
     });
+
+    it('should log journal entry with journal_entry content type', async () => {
+      const result = await engine.handlePwaMoodSelection(testUserId, 'hopeful');
+      const journalText = 'Today I felt proud of staying consistent with my goals.';
+
+      await engine.handlePwaJournalEntry(result.sessionId, journalText);
+
+      const journalInteractions = await db.select()
+        .from(interactions)
+        .where(eq(interactions.sessionId, result.sessionId))
+        .orderBy(desc(interactions.createdAt));
+
+      const latestInteraction = journalInteractions[0];
+      expect(latestInteraction.contentType).toBe('journal_entry');
+      expect(latestInteraction.body).toBe(journalText);
+      expect(latestInteraction.direction).toBe('inbound');
+    });
   });
 
   describe('Streak Counting Verification', () => {

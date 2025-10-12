@@ -10,10 +10,10 @@ import { requireAuth, AuthenticatedRequest } from '../../server/middleware/auth'
 const engine = new ConversationEngine();
 
 export async function handler(req: AuthenticatedRequest, res: Response) {
-  const { sessionId, intentionText } = req.body;
+  const { sessionId, intentionText, type } = req.body;
   const userId = req.userId!; // Guaranteed by requireAuth middleware
 
-  if (!sessionId || !intentionText) {
+  if (typeof sessionId !== 'string' || sessionId.trim().length === 0) {
     return res.status(400).json({ error: 'sessionId and intentionText are required' });
   }
 
@@ -21,9 +21,17 @@ export async function handler(req: AuthenticatedRequest, res: Response) {
     return res.status(400).json({ error: 'intentionText must be a non-empty string' });
   }
 
+  const entryType = type === 'journal_entry' ? 'journal_entry' : 'intention';
+  const sanitizedText = intentionText.trim();
+
   try {
-    const result = await engine.handlePwaIntention(sessionId, intentionText);
-    return res.status(200).json(result);
+    if (entryType === 'journal_entry') {
+      await engine.handlePwaJournalEntry(sessionId.trim(), sanitizedText);
+    } else {
+      await engine.handlePwaIntention(sessionId.trim(), sanitizedText);
+    }
+
+    return res.status(200).json({ success: true, type: entryType });
 
   } catch (error) {
     console.error('Error saving PWA intention:', error);

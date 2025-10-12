@@ -7,7 +7,15 @@ export const channelEnum = pgEnum("channel", ["sms", "ivr", "pwa"]);
 export const moodEnum = pgEnum("mood", ["calm", "stressed", "tempted", "hopeful"]);
 export type MoodOption = "calm" | "stressed" | "tempted" | "hopeful";
 export const directionEnum = pgEnum("direction", ["inbound", "outbound"]);
-export const contentTypeEnum = pgEnum("content_type", ["text", "notification", "reminder", "mood_selection", "affirmation_view", "intention"]);
+export const contentTypeEnum = pgEnum("content_type", [
+  "text",
+  "notification",
+  "reminder",
+  "mood_selection",
+  "affirmation_view",
+  "intention",
+  "journal_entry",
+]);
 export const interactionStatusEnum = pgEnum("interaction_status", ["queued", "sent", "delivered", "failed", "synced"]);
 export const voiceCallStatusEnum = pgEnum("voice_call_status", ["queued", "ringing", "in-progress", "completed", "failed"]);
 export const messageTypeEnum = pgEnum("message_type", ["daily_reminder", "streak_celebration", "post_slip_encouragement"]);

@@ -99,14 +99,24 @@ describe('API Endpoints', () => {
   });
 
   describe('POST /api/daily-ritual/intention', () => {
-    it('should return success: true', async () => {
+    it('should return success response for intention', async () => {
       const req = createMockReq('POST', { sessionId: 'session-123', intentionText: 'My intention' });
       const res = createMockRes();
 
       await runMiddlewares(intentionHandler, req, res);
 
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ success: true });
+      expect(res.json).toHaveBeenCalledWith({ success: true, type: 'intention' });
+    });
+
+    it('should return success response for journal entry', async () => {
+      const req = createMockReq('POST', { sessionId: 'session-123', intentionText: 'My journal entry', type: 'journal_entry' });
+      const res = createMockRes();
+
+      await runMiddlewares(intentionHandler, req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({ success: true, type: 'journal_entry' });
     });
   });
 

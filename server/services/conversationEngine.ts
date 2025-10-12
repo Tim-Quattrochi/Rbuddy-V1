@@ -404,6 +404,38 @@ export default class ConversationEngine {
   }
 
   /**
+   * Handle journal entry submission from PWA
+   * @param sessionId - The session ID
+   * @param journalText - The user's journal entry
+   */
+  async handlePwaJournalEntry(sessionId: string, journalText: string): Promise<void> {
+    try {
+      console.log(`[ConversationEngine] Handling PWA journal entry for session ${sessionId}`);
+
+      const [session] = await this.dbClient.select().from(schema.sessions).where(eq(schema.sessions.id, sessionId));
+
+      if (!session) {
+        console.error(`[ConversationEngine] PWA journal entry handling failed: session not found for ID ${sessionId}`);
+        return;
+      }
+
+      await this.dbClient.insert(schema.interactions).values({
+        userId: session.userId,
+        sessionId,
+        direction: 'inbound',
+        channel: 'pwa',
+        contentType: 'journal_entry',
+        body: journalText,
+        status: 'synced',
+      });
+
+      console.log(`[ConversationEngine] PWA journal entry logged for session ${sessionId}`);
+    } catch (error) {
+      console.error(`[ConversationEngine] Failed to handle PWA journal entry for session ${sessionId}:`, error);
+    }
+  }
+
+  /**
    * Handle repair flow (rupture & repair) from PWA
    * @param userId - The user's ID
    * @param trigger - The selected trigger ("stress", "people", or "craving")
