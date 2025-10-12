@@ -1,8 +1,10 @@
+# CONTAINS OLD LOGIC FROM TWILIO CORE IDEA SMS BASED - DEPRECATED
+
 # Reentry Buddy Brownfield Enhancement Architecture
 
 **Version:** 1.0
 **Date:** October 10, 2025
-**Status:** 🚨 URGENT - 8-Day Deadline (October 17, 2025)
+**Status:** DEPRECATED
 
 ---
 

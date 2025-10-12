@@ -1,6 +1,6 @@
 ---
 name: "Reentry Buddy Project"
-description: "A comprehensive development guide for Reentry Buddy - a wellness-focused full-stack application for recovery support, based on React 19 + TypeScript + Express + PostgreSQL, including complete development standards and best practices tailored to this workspace's actual structure."
+description: "A comprehensive development guide for Reentry Buddy - a wellness-focused full-stack application for recovery support, based on React 18 + TypeScript + Express + PostgreSQL, including complete development standards and best practices tailored to this workspace's actual structure."
 ---
 
 # Reentry Buddy Project Development Guide
@@ -11,356 +11,246 @@ Reentry Buddy is a wellness-focused full-stack application designed to support i
 
 ## Tech Stack
 
-- **Frontend Framework**: React 19 + TypeScript (project is planned to be upgraded to React 19)
+- **Frontend Framework**: **React 18.3.1** + TypeScript (a future upgrade to React 19 is planned)
 - **Build Tool**: Vite
-- **Backend Framework**: Express.js + TypeScript
+- **Backend Framework**: Express.js + TypeScript (deployed as Vercel Serverless Functions)
 - **Database**: PostgreSQL with Drizzle ORM
 - **State Management**: TanStack Query (React Query)
 - **UI Components**: shadcn/ui with Radix UI primitives
 - **Styling**: Tailwind CSS
-- **Form Handling**: React Hook Form + Zod validation
-- **Authentication**: Passport.js with local strategy
+- **Authentication**: **Passport.js with Google OAuth 2.0 strategy**
 - **Icons**: Lucide React
 - **Code Quality**: ESLint + Prettier + TypeScript
 
 ## Project Structure
 
-```
-reentry-buddy/
+rBuddy-v1/
+├── api/                    # Vercel Serverless Functions (Backend Routes)
+│   └── auth/
+│       ├── google/
+│       │   └── index.ts      # Handles initial redirect
+│       └── google.callback.ts  # Handles the callback
+│       └── logout.ts         # Handles logout
 ├── client/                 # Frontend React application
-│   ├── public/
-│   │   ├── favicon.ico
-│   │   └── index.html
-│   ├── src/
-│   │   ├── components/     # Reusable components
-│   │   │   ├── ui/        # shadcn/ui components
-│   │   │   └── examples/  # Example components
-│   │   ├── pages/         # Page components
-│   │   │   ├── Landing.tsx
-│   │   │   ├── CheckIn.tsx
-│   │   │   └── not-found.tsx
-│   │   ├── hooks/         # Custom React hooks
-│   │   ├── lib/           # Utility functions and configurations
-│   │   ├── App.tsx
-│   │   └── main.tsx
-│   └── index.html
-├── server/                 # Backend Express application
-│   ├── index.ts           # Server entry point
-│   ├── routes.ts          # API routes
-│   ├── storage.ts         # Database connection
-│   └── vite.ts           # Vite development setup
+│   └── src/
+│       ├── components/
+│       │   ├── auth/
+│       │   ├── daily-ritual/
+│       │   └── ui/
+│       ├── hooks/
+│       │   └── useAuth.ts
+│       ├── lib/
+│       ├── pages/
+│       │   ├── DailyRitual.tsx
+│       │   ├── Landing.tsx
+│       │   └── Login.tsx
+│       └── App.tsx
+├── server/                 # Shared backend logic/services
+│   ├── services/
+│   │   ├── AuthService.ts
+│   │   └── conversationEngine.ts
+│   └── storage.ts
 ├── shared/                 # Shared types and schemas
-│   └── schema.ts          # Database schema and types
-├── .env.example           # Environment variables template
-├── package.json
-├── tsconfig.json
-├── vite.config.ts
-├── tailwind.config.ts
-├── drizzle.config.ts
-└── design_guidelines.md   # Wellness-focused design system
-```
+│   └── schema.ts
+├── docs/                   # Project documentation (PRD, Architecture, etc.)
+├── .env.example
+└── package.json
+
 
 ## Development Guidelines
 
-### Component Development Standards
+### API Service Standards
 
-1. **Function Components First**: Use function components and Hooks
-2. **TypeScript Types**: Define interfaces for all props
-3. **Component Naming**: Use PascalCase, file name matches component name
-4. **Single Responsibility**: Each component handles only one functionality
+The backend uses Vercel Serverless Functions. New API routes are defined in the `api/` directory.
 
-```tsx
-// Example: CheckInButton Component
-interface CheckInButtonProps {
-  variant: "primary" | "secondary" | "calm";
-  size?: "small" | "medium" | "large";
-  disabled?: boolean;
-  onClick?: () => void;
-  children: React.ReactNode;
+```typescript
+// Example: api/users/me.ts
+import { Response } from 'express';
+import { requireAuth, AuthenticatedRequest } from '../../server/middleware/auth';
+
+async function handler(req: AuthenticatedRequest, res: Response) {
+  const userId = req.userId!;
+  // ... logic to fetch user by ID
+  return res.status(200).json({ user });
 }
 
-export const CheckInButton: React.FC<CheckInButtonProps> = ({
-  variant,
-  size = "medium",
-  disabled = false,
-  onClick,
-  children,
-}) => {
-  return (
-    <button
-      className={`btn btn-${variant} btn-${size}`}
-      disabled={disabled}
-      onClick={onClick}
-    >
-      {children}
-    </button>
-  );
-};
-```
+export default [requireAuth, handler];
 
-### State Management Standards
 
-Using TanStack Query for server state management:
+rbuddy consultant
+Custom Gem
 
-```tsx
-// lib/queryClient.ts
-import { QueryClient } from "@tanstack/react-query";
+Show thinking
+Of course. I've updated your AGENTS.MD file to reflect all the recent architectural decisions we've made and to align with the actual state of your codebase.
 
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      retry: 1,
-    },
-  },
-});
-```
+Here is the complete, updated content for your AGENTS.MD file.
+
+Markdown
+
+---
+name: "Reentry Buddy Project"
+description: "A comprehensive development guide for Reentry Buddy - a wellness-focused full-stack application for recovery support, based on React 18 + TypeScript + Express + PostgreSQL, including complete development standards and best practices tailored to this workspace's actual structure."
+---
+
+# Reentry Buddy Project Development Guide
+
+## Project Overview
+
+Reentry Buddy is a wellness-focused full-stack application designed to support individuals in recovery. It provides daily check-ins, goal tracking, journaling, and emotional support features with a calming, accessible design system focused on trust and emotional safety.
+
+## Tech Stack
+
+- **Frontend Framework**: **React 18.3.1** + TypeScript (a future upgrade to React 19 is planned)
+- **Build Tool**: Vite
+- **Backend Framework**: Express.js + TypeScript (deployed as Vercel Serverless Functions)
+- **Database**: PostgreSQL with Drizzle ORM
+- **State Management**: TanStack Query (React Query)
+- **UI Components**: shadcn/ui with Radix UI primitives
+- **Styling**: Tailwind CSS
+- **Authentication**: **Passport.js with Google OAuth 2.0 strategy**
+- **Icons**: Lucide React
+- **Code Quality**: ESLint + Prettier + TypeScript
+
+## Project Structure
+
+rBuddy-v1/
+├── api/                    # Vercel Serverless Functions (Backend Routes)
+│   └── auth/
+│       ├── google/
+│       │   └── index.ts      # Handles initial redirect
+│       └── google.callback.ts  # Handles the callback
+│       └── logout.ts         # Handles logout
+├── client/                 # Frontend React application
+│   └── src/
+│       ├── components/
+│       │   ├── auth/
+│       │   ├── daily-ritual/
+│       │   └── ui/
+│       ├── hooks/
+│       │   └── useAuth.ts
+│       ├── lib/
+│       ├── pages/
+│       │   ├── DailyRitual.tsx
+│       │   ├── Landing.tsx
+│       │   └── Login.tsx
+│       └── App.tsx
+├── server/                 # Shared backend logic/services
+│   ├── services/
+│   │   ├── AuthService.ts
+│   │   └── conversationEngine.ts
+│   └── storage.ts
+├── shared/                 # Shared types and schemas
+│   └── schema.ts
+├── docs/                   # Project documentation (PRD, Architecture, etc.)
+├── .env.example
+└── package.json
+
+
+## Development Guidelines
 
 ### API Service Standards
 
-```tsx
-// server/routes.ts
-import express from "express";
-import { registerRoutes } from "./routes";
-
-const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-
-// API routes for check-ins, users, and wellness data
-app.use("/api/check-ins", checkInRoutes);
-app.use("/api/users", userRoutes);
-```
-
-## Environment Setup
-
-### Development Requirements
-
-- Node.js >= 19.0.0
-- npm >= 8.0.0 or yarn >= 1.22.0
-- PostgreSQL database
-
-### Installation Steps
+The backend uses Vercel Serverless Functions. New API routes are defined in the `api/` directory.
 
 ```bash
-# 1. Clone and navigate to project directory
-git clone <repository-url>
-cd reentry-buddy
+// Example: api/users/me.ts
+import { Response } from 'express';
+import { requireAuth, AuthenticatedRequest } from '../../server/middleware/auth';
 
-# 2. Install dependencies
-npm install
+async function handler(req: AuthenticatedRequest, res: Response) {
+  const userId = req.userId!;
+  // ... logic to fetch user by ID
+  return res.status(200).json({ user });
+}
 
-# 3. Set up database
-npm run db:push
+export default [requireAuth, handler];
+Environment Setup
+Environment Variables Configuration
+Your .env file should contain the following variables:
 
-# 4. Configure environment variables
-cp .env.example .env.local
+# .env.example
+DATABASE_URL="postgresql://user:password@host:port/db"
+NODE_ENV="development"
+PORT="5001"
 
-# 5. Start development server
-npm run dev
+# Authentication
+JWT_SECRET="your-super-secret-jwt-key"
+GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
 ```
 
-### Environment Variables Configuration
-
-```env
-# .env.local
-DATABASE_URL=postgresql://username:password@localhost:5432/reentry_buddy
-NODE_ENV=development
-PORT=5000 (5001 on mac)
-SESSION_SECRET=your-session-secret
-```
-
-## Routing Configuration
-
+### ROUTING CONFIGURATION
 ```tsx
 // client/src/App.tsx
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "./lib/queryClient";
 import Landing from "@/pages/Landing";
-import CheckIn from "@/pages/CheckIn";
-import NotFound from "@/pages/not-found";
+import Login from "@/pages/Login";
+import DailyRitual from "@/pages/DailyRitual";
+import ProtectedRoute from "@/components/auth/ProtectedRoute"; // Example component
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/check-in" element={<CheckIn />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </QueryClientProvider>
-  );
-}
-
-export default App;
-```
-
-## Database Schema
-
-```tsx
-// shared/schema.ts
-import { sql } from "drizzle-orm";
-import { pgTable, text, varchar } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
-
-export const users = pgTable("users", {
-  id: varchar("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
-});
-
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
-});
-
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type User = typeof users.$inferSelect;
-```
-
-## Testing Strategy
-
-### Unit Testing Example
-
-```tsx
-// Example test structure for wellness components
-import { render, screen, fireEvent } from "@testing-library/react";
-import { CheckInButton } from "../src/components/CheckInButton";
-
-describe("CheckInButton Component", () => {
-  test("renders button with wellness-focused text", () => {
-    render(<CheckInButton variant="primary">Check In for Today</CheckInButton>);
-    expect(screen.getByText("Check In for Today")).toBeInTheDocument();
-  });
-
-  test("calls onClick when clicked", () => {
-    const handleClick = vi.fn();
-    render(
-      <CheckInButton variant="primary" onClick={handleClick}>
-        Check In for Today
-      </CheckInButton>
-    );
-
-    fireEvent.click(screen.getByText("Check In for Today"));
-    expect(handleClick).toHaveBeenCalledTimes(1);
-  });
-});
-```
-
-## Performance Optimization
-
-### Code Splitting
-
-```tsx
-import { lazy, Suspense } from "react";
-
-const LazyCheckInForm = lazy(() => import("./components/CheckInForm"));
-
-function App() {
-  return (
-    <Suspense fallback={<div>Loading check-in form...</div>}>
-      <LazyCheckInForm />
-    </Suspense>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route 
+          path="/daily-ritual" 
+          element={
+            <ProtectedRoute>
+              <DailyRitual />
+            </ProtectedRoute>
+          } 
+        />
+        {/* Other routes */}
+      </Routes>
+    </BrowserRouter>
   );
 }
 ```
 
-### Memory Optimization
-
-```tsx
-import { memo, useMemo, useCallback } from "react";
-
-const WellnessCard = memo(({ data, onUpdate }) => {
-  const processedData = useMemo(() => {
-    return data.map((item) => ({ ...item, wellnessScore: item.score }));
-  }, [data]);
-
-  const handleUpdate = useCallback(
-    (id) => {
-      onUpdate(id);
-    },
-    [onUpdate]
-  );
-
-  return (
-    <div>
-      {processedData.map((item) => (
-        <div key={item.id} onClick={() => handleUpdate(item.id)}>
-          {item.name}
-        </div>
-      ))}
-    </div>
-  );
-});
-```
-
-## Deployment Configuration
-
-### Build Production Version
-
-```bash
-npm run build
-```
-
-### Vite Configuration Optimization
-
+### DATABASE SCHEMA
 ```ts
-// vite.config.ts
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+// shared/schema.ts (Excerpt)
+export const users = pgTable("users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  email: varchar("email").notNull().unique(),
+  googleId: varchar("google_id").unique(),
+  avatar_url: text("avatar_url"),
+  password: text("password"), // Nullable to support OAuth-only users
+});
 
-export default defineConfig({
-  plugins: [react()],
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ["react", "react-dom"],
-          ui: ["@radix-ui/react-dialog", "@radix-ui/react-button"],
-        },
-      },
-    },
-  },
-  server: {
-    port: 3000,
-    open: true,
-  },
+export const sessions = pgTable("sessions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  flowType: flowTypeEnum("flow_type").notNull(),
+  // ... other columns
 });
 ```
 
-## Common Issues
+### Common Issues
+Issue 1: Database Connection Errors
+Solution:
 
-### Issue 1: Database Connection Errors
+Verify DATABASE_URL environment variable is correctly set.
 
-**Solution**:
+Ensure your Neon/PostgreSQL database is active and accessible.
 
-- Verify DATABASE_URL environment variable is correctly set
-- Ensure PostgreSQL is running and accessible
-- Check database permissions for the configured user
-- Run `npm run db:push` to sync schema
+Run npm run db:push to sync your schema after any changes in shared/schema.ts.
 
-### Issue 2: TypeScript Type Errors
+Issue 2: Google OAuth Errors (e.g., redirect_uri_mismatch)
+Solution:
 
-**Solution**:
+Ensure the redirect URI in your Google Cloud Console exactly matches the one your backend is configured to use (e.g., http://localhost:5001/api/auth/google/callback).
 
-- Ensure all UI component imports from @/components/ui/\* are correct
-- Check that shared types are properly imported
-- Verify all environment variables have proper typing
-- Use `npm run check` for type checking
+Verify your GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables are correct.
 
-## Reference Resources
+---
 
-- [React Official Documentation](https://react.dev/)
-- [Express.js Documentation](https://expressjs.com/)
-- [Drizzle ORM Documentation](https://orm.drizzle.team/)
-- [TanStack Query Documentation](https://tanstack.com/query/)
-- [shadcn/ui Documentation](https://ui.shadcn.com/)
-- [Tailwind CSS Documentation](https://tailwindcss.com/)
-- [TypeScript Official Documentation](https://www.typescriptlang.org/)
-- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+### **Summary of Key Updates**
+
+* **Tech Stack**: Corrected the React version to `18.3.1` and updated the Authentication strategy to **Google OAuth 2.0**.
+* **Project Structure**: The diagram has been updated to reflect the actual Vercel serverless layout (`api/` directory) and the new component/page structure we designed.
+* **API & Routing**: Examples now show the correct API patterns (serverless functions) and the planned frontend routes (`/login`, `/daily-ritual`).
+* **Database Schema**: The example now shows the refined `users` table that supports Google OAuth by making the `password` nullable and adding `email` and `googleId`.
+* **Environment Variables**: Added the necessary `JWT_SECRET` and Google OAuth variables to the configuration example.

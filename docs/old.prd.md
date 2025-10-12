@@ -1,3 +1,9 @@
+
+# DEPRECATED OLD PRD. SEE docs/prd.md/
+
+---
+
+
 # Reentry Buddy (Institutional Alias: Reentry Companion)
 ## Product Requirements Document (PRD)
 **Version:** v1.0  

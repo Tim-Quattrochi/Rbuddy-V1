@@ -1,9 +1,9 @@
 # Reentry Buddy UI/UX Specification
 
-**Version:** v1.0
-**Date:** October 10, 2025
+**Version:** v2.0
+**Date:** October 12, 2025
 **Author:** Sally (UX Expert)
-**Status:** Draft - Pending User Testing & Stakeholder Approval
+**Status:** In Progress - Updated for PWA MVP
 
 ---
 
@@ -27,11 +27,13 @@
 
 ## Introduction
 
-This document defines the user experience goals, information architecture, user flows, and interface specifications for **Reentry Buddy**'s interaction system. It serves as the foundation for conversational interface design (SMS/IVR) and any administrative dashboard development, ensuring a trauma-informed, accessible, and user-centered experience.
+This document defines the user experience goals, information architecture, user flows, and interface specifications for **Reentry Buddy**'s Progressive Web Application (PWA). It serves as the foundation for the MVP implementation, ensuring a trauma-informed, accessible, and user-centered experience.
 
 ### Project Context
 
-Reentry Buddy is a digital recovery support system designed for justice-impacted individuals reentering society after incarceration. The primary interface is **SMS and IVR (text messages and voice calls)**, not a traditional app or website. This specification adapts UX best practices for conversational interfaces while planning for a Phase 2 admin dashboard for partner coaches.
+Reentry Buddy is a digital recovery support system designed for justice-impacted individuals reentering society after incarceration. The **MVP is a Progressive Web App (PWA)** that provides daily check-ins, streak tracking, rupture & repair flows, and journaling capabilities. The PWA offers an app-like experience accessible through any modern web browser, with offline capabilities and push notifications.
+
+**Note:** SMS and IVR (text messages and voice calls) are deferred to post-MVP phases. This specification focuses exclusively on the PWA interface.
 
 ---
 
@@ -41,33 +43,28 @@ Reentry Buddy is a digital recovery support system designed for justice-impacted
 
 #### Primary User: Returning Citizen (Justice-Impacted Individual)
 
-- **Context:** Within 12 months of release, active substance use recovery, limited digital literacy
-- **Device Access:** Basic flip phone or prepaid smartphone with limited data
+- **Context:** Within 12 months of release, active substance use recovery, varying digital literacy
+- **Device Access:** Smartphone with mobile browser (Android/iOS)
 - **Reading Level:** 6th grade or below preferred
 - **Trust Level:** Low initial trust in technology and institutions
-- **Needs:** Structure, consistency, compassion, non-judgmental support
-
-#### Secondary User: Recovery Coach/Case Manager
-
-- **Context:** Partner organization staff supporting returning citizens
-- **Device Access:** Smartphone or desktop computer
-- **Needs:** Aggregate insights (not individual PII), simple reporting, minimal training required
+- **Needs:** Structure, consistency, compassion, non-judgmental support, privacy
 
 ### Usability Goals
 
-1. **Zero-barrier access:** Any user can complete core tasks via SMS or voice call without smartphone, app installation, or data plan
-2. **Rapid comprehension:** Message content understandable within 3 seconds of reading/hearing
+1. **Low-barrier access:** Users can access via any modern mobile browser without app store installation
+2. **Rapid comprehension:** Interface content understandable within 3 seconds
 3. **Emotional safety:** Every interaction reinforces progress and provides non-judgmental support
-4. **Reliability:** System responds within 10 seconds; users trust it will always be there
-5. **Respectful privacy:** Users feel confident their information is anonymous and protected
+4. **Offline resilience:** Core check-in features work offline with background sync
+5. **Respectful privacy:** Users feel confident their information is secure and private
 
 ### Design Principles
 
-1. **Radical Simplicity** - Every word, every step must serve a clear purpose. Remove all friction.
+1. **Radical Simplicity** - Every element serves a clear purpose. Remove all friction.
 2. **Compassion First** - Language acknowledges struggle without judgment. "SLIP" not "relapse."
 3. **Progressive Disclosure** - Start with the simplest flow; reveal options only when needed.
 4. **Consistent Ritual** - Predictable patterns build trust and reduce cognitive load.
 5. **Accessible by Default** - Design for the most constrained user; everyone benefits.
+6. **Mobile First** - Optimize for touch, limited screen space, and one-handed use.
 
 ---
 
@@ -77,278 +74,265 @@ Reentry Buddy is a digital recovery support system designed for justice-impacted
 
 ```mermaid
 graph TD
-    A[Reentry Buddy System] --> B[User Channels]
-    A --> C[Admin/Coach Portal]
+    A[Reentry Buddy PWA] --> B[Public Pages]
+    A --> C[Authenticated Pages]
 
-    B --> B1[SMS Interface]
-    B --> B2[IVR Voice Interface]
+    B --> B1[Landing Page]
+    B --> B2[Login Page]
 
-    B1 --> B1a[Daily Ritual Flow]
-    B1 --> B1b[Rupture & Repair Flow]
-    B1 --> B1c[Encouragement Messages]
-    B1 --> B1d[System Commands]
+    B1 --> B2
 
-    B2 --> B2a[Daily Ritual Flow Voice]
-    B2 --> B2b[Repair Flow Voice]
+    C --> C1[Daily Ritual]
+    C --> C2[Rupture & Repair]
+    C --> C3[Journal]
+    C --> C4[User Profile]
 
-    B1d --> B1d1[SLIP - Trigger Repair]
-    B1d --> B1d2[STOP - Opt Out]
-    B1d --> B1d3[HELP - Get Info]
+    C1 --> C1a[Mood Selection]
+    C1 --> C1b[Affirmation Display]
+    C1 --> C1c[Intention Input]
+    C1 --> C1d[Streak Counter]
 
-    C --> C1[Dashboard Overview]
-    C --> C2[Engagement Metrics]
-    C --> C3[System Health]
+    C2 --> C2a[Trigger Identification]
+    C2 --> C2b[Repair Suggestions]
+    C2 --> C2c[Follow-up Scheduling]
 
-    C1 --> C1a[Active Users Count]
-    C1 --> C1b[Daily Check-in Rate]
-    C1 --> C1c[Recent Activity Feed]
-
-    C2 --> C2a[Mood Trends Aggregate]
-    C2 --> C2b[Repair Flow Usage]
-    C2 --> C2c[Streak Milestones]
-
-    C3 --> C3a[Message Delivery Status]
-    C3 --> C3b[Error Logs]
-    C3 --> C3c[Twilio Health]
+    C3 --> C3a[Journal Entry Form]
+    C3 --> C3b[Journal History]
 ```
 
 ### Navigation Structure
 
-**Primary "Navigation" (User Experience):**
-- **State-driven conversation:** Users navigate through flows via SMS replies (1-4) or DTMF tones (voice)
-- **Keyword commands:** Special keywords (`SLIP`, `STOP`, `HELP`) allow users to "jump" to different flows
-- **Time-based triggers:** System initiates conversations at scheduled times (daily ritual prompt)
-
-**Secondary Navigation (Admin Portal - Phase 2):**
-- **Top Navigation:** Dashboard | Metrics | System Health | Settings
-- **No deep hierarchy:** Maximum 2 levels to keep admin interface simple
-- **Breadcrumb Strategy:** Not needed for shallow navigation structure
+**Primary Navigation (PWA):**
+- **Header Navigation:** Persistent header with app logo, user menu, and "I slipped" button
+- **Main Routes:**
+  - `/` - Landing page (public)
+  - `/login` - Google OAuth login (public)
+  - `/daily-ritual` - Daily check-in flow (protected)
+  - `/journal` - Journaling feature (protected)
+  - `/profile` - User settings (protected, future)
+- **Protected Routes:** All authenticated pages redirect to `/login` if user is not authenticated
+- **Mobile Navigation:** Bottom navigation bar for main features (future enhancement)
 
 ---
 
 ## User Flows
 
-### Flow 1: Daily Ritual Flow (SMS)
+### Flow 1: Authentication Flow (Google OAuth)
+
+**User Goal:** Securely sign in to access the application
+
+**Entry Points:**
+- "Get Started" button on landing page
+- Direct navigation to `/login`
+- Redirect from protected routes when unauthenticated
+
+**Success Criteria:**
+- User successfully authenticates with Google
+- User is redirected to `/daily-ritual` page
+- Authentication state persists across sessions
+
+#### Flow Diagram
+
+```mermaid
+graph TD
+    Start[User visits app] --> A{Authenticated?}
+    A -->|No| B[Redirect to /login]
+    A -->|Yes| C[Show daily ritual]
+    
+    B --> D[Show "Sign in with Google" button]
+    D --> E[User clicks button]
+    E --> F[Navigate to /api/auth/google]
+    F --> G[Google OAuth popup/redirect]
+    G --> H{Auth successful?}
+    
+    H -->|Yes| I[Callback to /api/auth/google/callback]
+    H -->|No| J[Show error message]
+    
+    I --> K[Backend creates/finds user]
+    K --> L[Set HttpOnly session cookie]
+    L --> M[Redirect to /daily-ritual]
+    
+    J --> D
+```
+
+#### Edge Cases & Error Handling
+
+- **Google OAuth failure:** Display user-friendly error: "Unable to sign in with Google. Please try again."
+- **Network error:** Show retry option with clear messaging
+- **Session expiration:** Automatically redirect to login with message: "Your session has expired. Please sign in again."
+- **Callback error:** Log error details and show generic error message to user
+
+**Notes:**
+- Session uses HttpOnly cookies for security
+- TanStack Query manages global authentication state
+- `useAuth` hook provides authentication status throughout app
+
+---
+
+### Flow 2: Daily Ritual Flow (PWA)
 
 **User Goal:** Complete a 2-5 minute grounding check-in to build consistent recovery habits
 
 **Entry Points:**
-- Scheduled SMS prompt sent at user's preferred time (e.g., 9:00 AM)
-- User can also initiate by texting "CHECK" or "START" (optional keyword)
+- Direct navigation to `/daily-ritual` (if authenticated)
+- Daily push notification (future)
+- Header navigation link
 
 **Success Criteria:**
 - User completes mood selection
-- User receives affirmation
+- User sees personalized affirmation
 - Session logged with streak update
+- Intention optionally saved
 
 #### Flow Diagram
 
 ```mermaid
 graph TD
-    Start[System: Daily Prompt Sent] --> A[User receives SMS]
-    A --> B{User Action}
-
-    B -->|No reply within 4 hrs| Timeout[Log: No response]
-    B -->|Reply 1-4| C[System validates mood]
-
-    C --> D[System sends affirmation]
-    D --> E[System offers intention prompt]
-
-    E --> F{User responds?}
-    F -->|Yes, sets intention| G[System acknowledges intention]
-    F -->|No reply within 2 min| H[System closes gracefully]
-
-    G --> I[Log session + update streak]
-    H --> I
-    I --> End[Session complete]
-
-    Timeout --> Encourage[Mark for encouragement loop]
+    Start[User loads /daily-ritual] --> A[Fetch user stats]
+    A --> B[Display streak counter]
+    B --> C[Show mood selector]
+    
+    C --> D[User selects mood 1-4]
+    D --> E[POST /api/daily-ritual/mood]
+    E --> F[Show affirmation card]
+    
+    F --> G[Show intention input]
+    G --> H{User enters intention?}
+    
+    H -->|Yes| I[POST /api/daily-ritual/intention]
+    H -->|No| J[Skip intention]
+    
+    I --> K[Update streak optimistically]
+    J --> K
+    K --> L[Show success message]
+    L --> End[Session complete]
 ```
 
 #### Edge Cases & Error Handling
 
-- **Invalid response (not 1-4):** Send clarification: "Please reply with a number: 1=Struggling, 2=Getting by, 3=Good, 4=Great"
-- **Multiple rapid replies:** Process first valid response, ignore duplicates within 5 seconds
-- **User texts during wrong time:** System responds: "Thanks for reaching out! Your daily check-in will arrive tomorrow at [time]. Need support now? Text SLIP or HELP."
-- **Delivery failure:** Retry once after 5 minutes; log failure for monitoring
-- **User replies after timeout:** Accept late check-in, log as "late completion," still count toward streak
+- **API failure on mood submit:** Show error alert with retry button, preserve user selection
+- **Network offline:** Queue request for background sync when connection restored
+- **Stats fetch failure:** Allow check-in to proceed, show warning banner
+- **Duplicate check-in same day:** Show message: "You've already checked in today! Come back tomorrow."
+- **Loading states:** Display skeleton screens during all data fetches
 
 **Notes:**
-- Affirmation content should vary based on mood (1-4) to feel personalized
-- Streak milestone messages (5, 10, 30 days) can be injected here
-- Intention prompt is optional—many users will not set one, and that's okay
+- Affirmation content varies based on mood (1-4) to feel personalized
+- Streak milestones (5, 10, 30 days) trigger celebration toasts
+- Intention is optional—UI makes this clear with "Skip" option
+- Optimistic updates make UI feel instant
+
+
 
 ---
 
-### Flow 2: Daily Ritual Flow (IVR/Voice)
-
-**User Goal:** Complete daily check-in via voice call (for users who can't/won't text)
-
-**Entry Points:**
-- System places outbound call at scheduled time
-- User can call Twilio number directly
-
-**Success Criteria:**
-- User completes DTMF mood selection (press 1-4)
-- User hears affirmation message
-- Session logged
-
-#### Flow Diagram
-
-```mermaid
-graph TD
-    Start[System: Outbound call initiated] --> A{Call answered?}
-
-    A -->|No answer| B[Voicemail: Brief message]
-    A -->|Answered| C[Greeting message plays]
-
-    C --> D[Mood prompt plays]
-    D --> E[Gather DTMF input]
-
-    E --> F{Valid input 1-4?}
-    F -->|Invalid/timeout| G[Repeat prompt once]
-    G --> H{Second attempt valid?}
-    H -->|No| I[Graceful exit message]
-    H -->|Yes| J[Play affirmation]
-
-    F -->|Yes| J
-    J --> K[Offer intention prompt]
-
-    K --> L{User presses key for intention?}
-    L -->|Yes| M[Record intention audio 60sec max]
-    L -->|No/timeout| N[Thank you message]
-
-    M --> N
-    N --> O[Log session + streak]
-    O --> End[Call ends]
-
-    I --> P[Log: Incomplete]
-    B --> P
-```
-
-#### Edge Cases & Error Handling
-
-- **Call dropped mid-flow:** Mark as incomplete; send follow-up SMS: "We got disconnected. Text 1-4 to finish your check-in."
-- **Background noise/unclear input:** System should be forgiving—accept any DTMF 1-4 without voice recognition complexity
-- **User talks instead of pressing keys:** Play gentle redirect: "Please press a number from 1 to 4 on your phone"
-- **Voicemail reached:** Leave brief message: "This is Reentry Buddy. We'll try again tomorrow. You can also text us anytime at [number]."
-- **User calls during off-hours:** Play message: "Your daily check-in will be available tomorrow at [time]. For immediate support, press 1 for resources."
-
-**Notes:**
-- Voice recordings for intentions are optional and stored in S3 with 7-day TTL (60-second maximum)
-- Consider accessibility: slower speech pace, clear enunciation, minimal background music
-- Bilingual IVR (Phase 2): "Para español, oprima 2"
-
----
-
-### Flow 3: Rupture & Repair Flow ("SLIP")
+### Flow 3: Rupture & Repair Flow (PWA)
 
 **User Goal:** Receive compassionate, non-judgmental support after a relapse moment
 
 **Entry Points:**
-- User texts "SLIP" keyword at any time
-- System detects prolonged absence (7+ days) and offers repair flow
+- "I slipped" button in header (always visible when authenticated)
+- Direct navigation to repair flow
 
 **Success Criteria:**
-- User receives immediate empathetic response
-- User identifies trigger (optional)
-- User receives repair suggestion
-- Follow-up scheduled for next day
+- User completes repair flow in modal/dedicated view
+- User identifies trigger
+- User sees personalized repair suggestion
+- Streak reset gracefully with supportive messaging
 
 #### Flow Diagram
 
 ```mermaid
 graph TD
-    Start[User texts SLIP] --> A[Immediate response]
-
-    A --> B[Empathetic message]
-    B --> C[Ask: What triggered this?]
-
-    C --> D{User responds?}
-    D -->|Yes, describes trigger| E[Acknowledge trigger]
-    D -->|No reply within 10 min| F[Send gentle follow-up]
-
-    E --> G[Offer repair suggestions]
-    F --> G
-
-    G --> H[List 3 simple actions]
-    H --> I[User chooses or skips]
-
-    I --> J[Schedule next-day check-in]
-    J --> K[Reset streak gracefully]
-    K --> End[Session complete]
-
-    K --> L[24hr Follow-up SMS]
+    Start[User clicks "I slipped" button] --> A[Open repair flow modal]
+    A --> B[Show immediate empathetic message]
+    
+    B --> C[POST /api/repair/start]
+    C --> D[Display trigger selection]
+    
+    D --> E[User selects trigger type]
+    E --> F[Stress/People/Craving/Other]
+    
+    F --> G[Show personalized repair suggestions]
+    G --> H[Display 3 actionable steps]
+    
+    H --> I{User selects action?}
+    I -->|Yes| J[Acknowledge selection]
+    I -->|No/Skip| K[Show supportive closing]
+    
+    J --> K
+    K --> L[Update streak gracefully]
+    L --> M[Show closing message]
+    M --> N[Close modal/return to home]
 ```
 
 #### Edge Cases & Error Handling
 
-- **Multiple SLIP messages in one day:** Respond to first; subsequent ones get: "We're here with you. Check in tomorrow and let us know how you're doing."
-- **SLIP during active ritual flow:** Pause ritual, switch to repair flow immediately
-- **User texts SLIP but then goes silent:** Schedule follow-up anyway; don't assume crisis
-- **Trigger description is concerning (suicidal ideation):** Have pre-approved crisis resource message ready: "If you're in crisis, call 988 (Suicide & Crisis Lifeline). We'll check in with you tomorrow."
+- **API failure:** Allow user to complete flow locally, sync when connection restored
+- **Multiple slips same day:** Allow repeat access, show: "We're still here with you."
+- **Network offline:** Queue repair session for background sync
+- **User closes modal mid-flow:** Save progress, allow resume later
 
 **Notes:**
-- "Reset streak gracefully" means: Don't say "Streak broken." Say: "Your 12-day progress isn't lost—you're building skills every day. Let's start fresh tomorrow."
-- Repair suggestions should be micro-actions: "Take 3 deep breaths," "Drink a glass of water," "Text one person who cares"
-- Follow-up message should reference the SLIP without dwelling on it: "Checking in today. How are you feeling?"
+- "Reset streak gracefully" messaging: "Your [X]-day progress isn't lost—you're building skills every day. Let's start fresh tomorrow."
+- Repair suggestions are micro-actions: "Take 3 deep breaths," "Drink a glass of water," "Call someone who cares"
+- Flow is entirely self-contained in one view for simplicity
+- Crisis resources link always visible: "If you're in crisis, call 988 (Suicide & Crisis Lifeline)"
 
 ---
 
-### Flow 4: Encouragement Loop
+### Flow 4: Journaling Feature (PWA)
 
-**User Goal:** Receive gentle re-engagement prompts when inactive
+**User Goal:** Reflect on recovery journey through private journaling
 
 **Entry Points:**
-- System detects 3+ days of missed check-ins
-- Streak milestone achieved (5, 10, 30, 60 days)
+- Navigation to `/journal` page
+- "Add Entry" button from journal history
 
 **Success Criteria:**
-- User receives contextual motivational message
-- Message includes clear re-entry point
-- Does not feel punitive or nagging
+- User can create new journal entry
+- Entry is saved with timestamp
+- User can view past entries
+- All entries are private and secure
 
 #### Flow Diagram
 
 ```mermaid
 graph TD
-    Start[Scheduled job checks inactivity] --> A{Days inactive?}
-
-    A -->|3 days| B[Send gentle reminder]
-    A -->|7 days| C[Send stronger encouragement]
-    A -->|14 days| D[Send final check-in]
-    A -->|30+ days| E[Mark as dormant]
-
-    B --> F{User responds?}
-    C --> F
-    D --> F
-
-    F -->|Yes| G[Resume daily ritual]
-    F -->|Texts: BREAK| H[Pause for 7 days]
-    F -->|No| I[Continue monitoring]
-
-    E --> J[No further messages]
-    J --> K{User re-engages?}
-    K -->|Yes, texts in| L[Reactivate + welcome back]
-
-    H --> M[After 7 days: gentle return prompt]
-
-    Milestone[Streak milestone reached] --> N[Send celebration message]
-    N --> O[Include affirmation]
+    Start[User navigates to /journal] --> A[Load journal history]
+    A --> B[Display recent entries]
+    
+    B --> C[User clicks "New Entry"]
+    C --> D[Show journal entry form]
+    
+    D --> E[User writes entry]
+    E --> F[User clicks "Save"]
+    
+    F --> G[POST /api/journal]
+    G --> H{Save successful?}
+    
+    H -->|Yes| I[Show success toast]
+    H -->|No| J[Show error, preserve text]
+    
+    I --> K[Return to journal list]
+    K --> L[Show new entry in list]
+    
+    J --> M[Offer retry]
 ```
 
 #### Edge Cases & Error Handling
 
-- **User replies "STOP" to encouragement message:** Honor opt-out immediately
-- **User explains absence (jail, hospital):** System should accept any reply as engagement; offer to resume
-- **Encouragement sent right after SLIP flow:** Delay encouragement by 48 hours to avoid overwhelming user
-- **User hits 30 days inactive but then returns:** Warm welcome message, no guilt
+- **Network offline:** Save draft locally, sync when online
+- **Long entry:** No character limit, but show character count
+- **Empty entry:** Require at least 10 characters
+- **API failure:** Preserve text in form, allow retry
+- **Draft persistence:** Auto-save draft every 30 seconds
 
 **Notes:**
-- Tone progression: Day 3 = "We miss you," Day 7 = "You matter to us," Day 14 = "We're still here"
-- Milestone celebrations should be brief and genuine: "30 days of showing up for yourself. That takes courage."
-- Avoid excessive celebration that might feel patronizing
-- **NEW: "Taking a break" option** allows users to pause messages without opting out entirely
+- Journal entries use `contentType: 'journal_entry'` in interactions table
+- Entries are timestamped and sortable
+- Future: Add tags/categories for entries
+- Future: Search functionality across entries
 
 ---
 
@@ -356,17 +340,17 @@ graph TD
 
 ### Primary Design Files
 
-**SMS/IVR Content Repository:** Message templates will be stored in JSON configuration files within the codebase (e.g., `/config/messages.json`), allowing non-technical content updates without code changes.
-
-**Admin Dashboard Design:** To be created in Figma or similar tool (link TBD based on team preference).
+**Design Tool:** Figma (or similar) for high-fidelity mockups
+**Component Library:** shadcn/ui (already implemented in project)
+**Prototype Location:** `/docs/wireframes/` (to be created)
 
 ---
 
-### Key Screen Layouts (SMS Conversations)
+### Key Screen Layouts (PWA Views)
 
-#### Screen 1: Daily Ritual Flow (SMS Conversation)
+#### Screen 1: Login Page (`/login`)
 
-**Purpose:** Show the actual SMS conversation experience from the user's phone perspective
+**Purpose:** Authenticate users via Google OAuth
 
 ```
 ┌─────────────────────────────────┐
@@ -414,106 +398,175 @@ graph TD
 
 ---
 
-#### Screen 2: SLIP (Rupture & Repair) Flow
+#### Screen 2: Daily Ritual Page (`/daily-ritual`)
 
-**Purpose:** Show the compassionate crisis response experience
+**Purpose:** Complete daily check-in with mood selection and intention
 
 ```
-┌─────────────────────────────────┐
-│  Reentry Buddy          2:47 PM │
-├─────────────────────────────────┤
-│                                 │
-│              ┌────────────────┐ │
-│              │ SLIP           │ │
-│              └────────────────┘ │
-│                        2:47 PM  │
-│                                 │
-│  ┌───────────────────────────┐ │
-│  │ We're here with you.      │ │
-│  │ You're not alone. 💙       │ │
-│  └───────────────────────────┘ │
-│                      2:47 PM    │
-│                                 │
-│  ┌───────────────────────────┐ │
-│  │ Slips happen. What        │ │
-│  │ matters is what comes     │ │
-│  │ next.                     │ │
-│  └───────────────────────────┘ │
-│                                 │
-│  ┌───────────────────────────┐ │
-│  │ If you want to share,     │ │
-│  │ what triggered this?      │ │
-│  │ (You can also skip)       │ │
-│  └───────────────────────────┘ │
-│                                 │
-│              ┌────────────────┐ │
-│              │ Saw my old     │ │
-│              │ friend         │ │
-│              └────────────────┘ │
-│                        2:50 PM  │
-│                                 │
-│  ┌───────────────────────────┐ │
-│  │ That's really hard. Old   │ │
-│  │ connections can trigger   │ │
-│  │ old patterns.             │ │
-│  └───────────────────────────┘ │
-│                                 │
-│  ┌───────────────────────────┐ │
-│  │ Here are 3 things you     │ │
-│  │ can do right now:         │ │
-│  │                           │ │
-│  │ • Take 5 deep breaths     │ │
-│  │ • Drink a glass of water  │ │
-│  │ • Text someone who cares  │ │
-│  │                           │ │
-│  │ Which one feels doable?   │ │
-│  └───────────────────────────┘ │
-│                                 │
-│              ┌────────────────┐ │
-│              │ Water          │ │
-│              └────────────────┘ │
-│                        2:52 PM  │
-│                                 │
-│  ┌───────────────────────────┐ │
-│  │ Good choice. We'll check  │ │
-│  │ in with you tomorrow.     │ │
-│  │ You matter to us.         │ │
-│  └───────────────────────────┘ │
-└─────────────────────────────────┘
+┌─────────────────────────────────────┐
+│  ☰  Reentry Buddy    [I slipped] 👤 │  ← Header with slip button
+├─────────────────────────────────────┤
+│                                     │
+│        Daily Ritual                 │  ← Page title
+│    Your space for daily reflection  │
+│                                     │
+│  ┌───────────────────────────────┐ │
+│  │   🔥 Current Streak           │ │
+│  │                               │ │
+│  │         12 days               │ │  ← Streak counter
+│  │                               │ │
+│  └───────────────────────────────┘ │
+│                                     │
+│  How are you feeling today?         │  ← Mood prompt
+│                                     │
+│  ┌─────────┐  ┌─────────┐          │
+│  │    😔   │  │    😐   │          │  ← Mood buttons
+│  │         │  │         │          │     (large touch targets)
+│  │Strugg-  │  │Getting  │          │
+│  │ling     │  │  by     │          │
+│  │    1    │  │    2    │          │
+│  └─────────┘  └─────────┘          │
+│                                     │
+│  ┌─────────┐  ┌─────────┐          │
+│  │    🙂   │  │    😊   │          │
+│  │         │  │         │          │
+│  │  Good   │  │  Great  │          │
+│  │    3    │  │    4    │          │
+│  └─────────┘  └─────────┘          │
+│                                     │
+└─────────────────────────────────────┘
+
+[After mood selection, shows:]
+
+┌─────────────────────────────────────┐
+│  ☰  Reentry Buddy    [I slipped] 👤 │
+├─────────────────────────────────────┤
+│                                     │
+│  ┌───────────────────────────────┐ │
+│  │                               │ │
+│  │   Getting by is honest.       │ │  ← Affirmation card
+│  │   That takes strength.        │ │
+│  │                               │ │
+│  └───────────────────────────────┘ │
+│                                     │
+│  Set an intention for today?        │  ← Optional intention
+│  (Optional - you can skip)          │
+│                                     │
+│  ┌───────────────────────────────┐ │
+│  │ Type your intention...        │ │  ← Text input
+│  │                               │ │
+│  └───────────────────────────────┘ │
+│                                     │
+│  [Save]              [Skip]         │  ← Action buttons
+│                                     │
+└─────────────────────────────────────┘
 ```
+
+**Key Elements:**
+- Persistent header with "I slipped" button always visible
+- Large, emoji-based mood buttons for easy selection
+- Streak counter for motivation
+- Affirmation appears after mood selection
+- Optional intention input with clear skip option
+- Mobile-optimized touch targets
 
 ---
 
-#### Screen 3: Encouragement Message with "Taking a Break" Option
+#### Screen 3: Rupture & Repair Modal
 
-**Purpose:** Re-engage inactive users while respecting their agency
+**Purpose:** Provide immediate compassionate support after a slip
 
 ```
-┌─────────────────────────────────┐
-│  Reentry Buddy          9:00 AM │
-├─────────────────────────────────┤
-│                                 │
-│  ┌───────────────────────────┐ │
-│  │ Hey, we miss you.         │ │
-│  └───────────────────────────┘ │
-│                                 │
-│  ┌───────────────────────────┐ │
-│  │ No pressure—just          │ │
-│  │ checking in. Reply        │ │
-│  │ anytime, or text BREAK    │ │
-│  │ if you need space.        │ │
-│  │                           │ │
-│  │ We'll be here.            │ │
-│  └───────────────────────────┘ │
-│                                 │
-│              ┌────────────────┐ │
-│              │ BREAK          │ │
-│              └────────────────┘ │
-│                        9:15 AM  │
-│                                 │
-│  ┌───────────────────────────┐ │
-│  │ Got it. Taking a break is │ │
-│  │ okay.                     │ │
+┌─────────────────────────────────────┐
+│  ☰  Reentry Buddy    [I slipped] 👤 │
+├─────────────────────────────────────┤
+│  ╔═══════════════════════════════╗ │
+│  ║                               ║ │  ← Modal overlay
+│  ║  [×]                          ║ │     (close button)
+│  ║                               ║ │
+│  ║   We're here with you. 💙      ║ │  ← Immediate empathy
+│  ║   You're not alone.           ║ │
+│  ║                               ║ │
+│  ║  ─────────────────────────    ║ │
+│  ║                               ║ │
+│  ║   Slips happen. What matters  ║ │  ← Reframe
+│  ║   is what comes next.         ║ │
+│  ║                               ║ │
+│  ║  ─────────────────────────    ║ │
+│  ║                               ║ │
+│  ║   What triggered this?        ║ │  ← Trigger selection
+│  ║   (You can also skip)         ║ │
+│  ║                               ║ │
+│  ║   ┌───────────┐ ┌──────────┐ ║ │
+│  ║   │  Stress   │ │  People  │ ║ │  ← Trigger options
+│  ║   └───────────┘ └──────────┘ ║ │
+│  ║   ┌───────────┐ ┌──────────┐ ║ │
+│  ║   │  Craving  │ │   Other  │ ║ │
+│  ║   └───────────┘ └──────────┘ ║ │
+│  ║                               ║ │
+│  ║   [Skip]                      ║ │
+│  ║                               ║ │
+│  ╚═══════════════════════════════╝ │
+│                                     │
+└─────────────────────────────────────┘
+
+[After trigger selection:]
+
+┌─────────────────────────────────────┐
+│  ╔═══════════════════════════════╗ │
+│  ║  [×]                          ║ │
+│  ║                               ║ │
+│  ║   That's really hard.         ║ │  ← Acknowledge
+│  ║   Stress can be overwhelming. ║ │
+│  ║                               ║ │
+│  ║  Here are 3 things you can    ║ │  ← Repair suggestions
+│  ║  do right now:                ║ │
+│  ║                               ║ │
+│  ║  • Take 5 deep breaths        ║ │
+│  ║  • Drink a glass of water     ║ │
+│  ║  • Call someone who cares     ║ │
+│  ║                               ║ │
+│  ║  Which one feels doable?      ║ │
+│  ║                               ║ │
+│  ║  ┌─────┐ ┌──────┐ ┌────────┐ ║ │
+│  ║  │Breath││Water│ │ Call   │ ║ │  ← Action buttons
+│  ║  └─────┘ └──────┘ └────────┘ ║ │
+│  ║                               ║ │
+│  ║  [Skip]                       ║ │
+│  ║                               ║ │
+│  ╚═══════════════════════════════╝ │
+└─────────────────────────────────────┘
+
+[Final screen:]
+
+┌─────────────────────────────────────┐
+│  ╔═══════════════════════════════╗ │
+│  ║  [×]                          ║ │
+│  ║                               ║ │
+│  ║   Good choice.                ║ │  ← Closing message
+│  ║                               ║ │
+│  ║   Your 12-day progress isn't  ║ │  ← Graceful reset
+│  ║   lost—you're building skills ║ │
+│  ║   every day.                  ║ │
+│  ║                               ║ │
+│  ║   Let's start fresh tomorrow. ║ │
+│  ║                               ║ │
+│  ║   We'll check in with you.    ║ │
+│  ║   You matter to us.           ║ │
+│  ║                               ║ │
+│  ║  [Close]                      ║ │  ← Close modal
+│  ║                               ║ │
+│  ╚═══════════════════════════════╝ │
+└─────────────────────────────────────┘
+```
+
+**Key Elements:**
+- Full-screen modal for focus and privacy
+- Multi-step flow with clear progression
+- Trigger-specific empathetic responses
+- Actionable, simple repair suggestions
+- Graceful streak reset messaging
+- Crisis hotline link visible at bottom (988)
 │  └───────────────────────────┘ │
 │                                 │
 │  ┌───────────────────────────┐ │
@@ -578,129 +631,158 @@ graph TD
 
 ### Design System Approach
 
-**For SMS/IVR Interface:**
-We will create a **Message Pattern Library** - reusable message templates with consistent tone, structure, and formatting rules.
+**Current Implementation:** shadcn/ui (React-based component library)
+**Styling:** Tailwind CSS with custom theme configuration
+**Icons:** Lucide React  
+**Location:** `client/src/components/ui/`
 
-**For Admin Dashboard (Phase 2):**
-We will use an existing design system to accelerate development:
-- **Recommendation:** Tailwind UI or shadcn/ui (React-based, accessible by default)
-- **Rationale:** Fast implementation, well-documented, accessible out-of-the-box
-
----
-
-### Core Message Patterns (SMS/IVR)
-
-#### Pattern 1: Prompt Message
-
-**Purpose:** Ask user for input (mood, trigger, etc.)
-
-**Structure:**
-```
-[Greeting] [Question] [Options with numbers]
-```
-
-**Examples:**
-- "Good morning! How are you feeling today? 1=Struggling 2=Getting by 3=Good 4=Great"
-- "What triggered this? 1=Person 2=Place 3=Emotion 4=Other (You can also skip)"
-
-**Usage Guidelines:**
-- Always provide 2-4 numbered options
-- Keep total message <160 characters when possible
-- Make "skip" option explicit if optional
+The project already uses shadcn/ui, which provides accessible, customizable components built on Radix UI primitives. All new components should follow these established patterns.
 
 ---
 
-#### Pattern 2: Affirmation Message
+### Core PWA Component Patterns
 
-**Purpose:** Validate user's response and provide emotional support
+#### Pattern 1: Mood Selector Component
+
+**Purpose:** Allow users to select their current mood state
+
+**Location:** `client/src/components/daily-ritual/MoodSelector.tsx`
 
 **Structure:**
+```tsx
+interface MoodSelectorProps {
+  onSelectMood: (mood: MoodOption) => void;
+}
 ```
-[Acknowledge emotion] [Affirming statement]
-```
 
-**Examples:**
-- "Struggling is real. You're here anyway—that's courage."
-- "Getting by is honest. That takes strength."
-- "Feeling good is a gift. Enjoy it."
+**Design Guidelines:**
+- 4 large, tappable buttons in 2x2 grid
+- Each button shows emoji + text label + number
+- Minimum 56px touch target (accessibility)
+- Clear visual feedback on hover/press
+- Mobile-first responsive design
 
-**Variants:**
-- Response to mood 1 (Struggling): Emphasize courage/persistence
-- Response to mood 2 (Getting by): Validate honesty/effort
-- Response to mood 3-4 (Good/Great): Celebrate without over-praising
-
-**Usage Guidelines:**
-- Never use "but" or minimize emotions
-- Keep to 2 sentences maximum
-- Avoid excessive exclamation marks (can feel fake)
+**Usage Examples:**
+- Primary use: Daily Ritual page mood selection
+- Reusable for any mood-tracking features
 
 ---
 
-#### Pattern 3: Crisis Response Message
+#### Pattern 2: Affirmation Card Component
 
-**Purpose:** Provide immediate compassionate support during SLIP moments
+**Purpose:** Display personalized affirmation after mood selection
+
+**Location:** `client/src/components/daily-ritual/AffirmationCard.tsx`
 
 **Structure:**
+```tsx
+interface AffirmationCardProps {
+  affirmation: string;
+  mood?: MoodOption; // Optional for styling variation
+}
 ```
-[Immediate empathy] [Reframe] [Next step]
-```
 
-**Example:**
-- Message 1: "We're here with you. You're not alone. 💙"
-- Message 2: "Slips happen. What matters is what comes next."
-- Message 3: "If you want to share, what triggered this? (You can also skip)"
+**Design Guidelines:**
+- Card with gentle background color based on mood
+- Centered text with comfortable line height (1.6)
+- Fade-in animation (300ms)
+- Optional icon/emoji accent
+- Max-width 400px for readability
 
-**States:**
-- **Immediate (0-10 seconds):** First empathetic message
-- **Supportive (10-30 seconds):** Reframe message
-- **Guiding (30+ seconds):** Next step prompt
-
-**Usage Guidelines:**
-- First message must arrive <10 seconds
-- Use 💙 emoji strategically (pending device compatibility testing)
-- Never use words like "relapse," "failure," "mistake"
+**Mood-Specific Styling:**
+- Mood 1 (Struggling): Soft purple background, supportive messaging
+- Mood 2 (Getting by): Neutral blue background, affirming messaging
+- Mood 3-4 (Good/Great): Light green background, celebratory messaging
 
 ---
 
-#### Pattern 4: Encouragement Message
+#### Pattern 3: Streak Counter Component
 
-**Purpose:** Re-engage inactive users without guilt or pressure
+**Purpose:** Display user's current check-in streak
+
+**Location:** `client/src/components/daily-ritual/StreakCounter.tsx`
 
 **Structure:**
-```
-[Gentle observation] [Permission/no pressure] [Clear re-entry option]
+```tsx
+interface StreakCounterProps {
+  streak: number;
+  showMilestone?: boolean;
+}
 ```
 
-**Examples:**
-- Day 3: "Hey, we miss you. No pressure—just checking in. Reply anytime, or text BREAK if you need space. We'll be here."
-- Day 7: "You matter to us. Come back when you're ready. Text START anytime."
-- Day 14: "We're still here. Text anytime."
+**Design Guidelines:**
+- Prominent fire emoji (🔥) or custom streak icon
+- Large number display (2rem minimum)
+- Subtle animation on milestone achievements (5, 10, 30, 60 days)
+- Card container with gentle shadow
 
-**Usage Guidelines:**
-- Escalate warmth, not pressure
-- Always include "no pressure" framing
-- Provide BREAK option (user agency)
+**Milestone Celebrations:**
+- 5 days: Subtle pulse animation + toast notification
+- 10 days: Confetti animation + congratulatory message
+- 30+ days: Special badge + extended celebration
 
 ---
 
-#### Pattern 5: Milestone Celebration
+#### Pattern 4: Repair Flow Modal Component
 
-**Purpose:** Recognize achievement without excessive enthusiasm
+**Purpose:** Multi-step compassionate support flow after slip
+
+**Location:** `client/src/components/repair/RepairFlow.tsx`
 
 **Structure:**
-```
-[Achievement statement] [User agency emphasis] [Brief celebration]
+```tsx
+interface RepairFlowProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onComplete: (data: RepairData) => void;
+}
 ```
 
-**Examples:**
-- "5 days of showing up for yourself."
-- "10 days. That takes commitment."
-- "30 days of building new patterns. You did this."
+**Design Guidelines:**
+- Full-screen modal overlay for focus
+- Multi-step wizard pattern (3-4 steps)
+- Progress indicator at top
+- Large, clear action buttons
+- Skip option always visible
+- Crisis resources link in footer
 
-**Usage Guidelines:**
-- Keep brief (1-2 sentences)
-- Focus on user's agency: "You did this" not "We're so proud"
-- Optionally use ✨ for 30+ day milestones (pending testing)
+**Flow Steps:**
+1. Immediate empathy message
+2. Trigger identification (optional)
+3. Repair suggestions (3 actionable items)
+4. Closing message with streak reset
+
+---
+
+#### Pattern 5: Journal Entry Component
+
+**Purpose:** Create and display journal entries
+
+**Location:** `client/src/components/journal/JournalEntry.tsx`
+
+**Structure:**
+```tsx
+interface JournalEntryProps {
+  entry?: JournalEntry;
+  onSave: (text: string) => void;
+  onCancel: () => void;
+  isEditing: boolean;
+}
+```
+
+**Design Guidelines:**
+- Auto-expanding textarea
+- Character count indicator
+- Auto-save draft every 30 seconds
+- Encouraging prompt/tip below text area
+- Clear save/cancel buttons
+- Timestamp display when viewing
+
+**Entry List Pattern:**
+- Reverse chronological order (newest first)
+- Preview with "Read more" truncation
+- Date/time badge
+- Gentle hover effect
 
 ---
 
@@ -718,94 +800,125 @@ We will use an existing design system to accelerate development:
 - Voice: Third-person formal (for grants, partnerships)
 - Purpose: Establish credibility with funders and institutions
 
-**Brand Guidelines:** To be developed (no existing guideline link at this time)
+**Brand Guidelines:** To be developed in future sprint
 
 ---
 
-### Color Palette (Admin Dashboard - Phase 2)
+### Color Palette (PWA Application)
 
-Since the primary interface is SMS/IVR (no colors visible to end users), color palette applies only to the admin dashboard.
+The application uses a carefully chosen palette that promotes calm and emotional safety.
 
-| Color Type | Hex Code | Usage |
-|------------|----------|-------|
-| Primary | #2563EB (Blue) | Primary actions, links, active states |
-| Secondary | #7C3AED (Purple) | Secondary actions, highlights |
-| Accent | #10B981 (Green) | Success states, positive metrics |
-| Success | #059669 (Dark Green) | Confirmations, streak achievements |
-| Warning | #F59E0B (Amber) | Cautions, approaching thresholds |
-| Error | #DC2626 (Red) | Errors, failed deliveries |
-| Neutral | #6B7280 (Gray) | Text, borders, backgrounds |
+| Color Type | Hex Code | Tailwind Class | Usage |
+|------------|----------|----------------|-------|
+| Primary | #2563EB | blue-600 | Primary buttons, links, active states |
+| Secondary | #7C3AED | purple-600 | Secondary actions, accents |
+| Accent (Success) | #10B981 | emerald-500 | Success states, streak achievements, positive metrics |
+| Mood: Struggling | #9333EA | purple-600 | Mood 1 affirmations, repair flow |
+| Mood: Getting By | #3B82F6 | blue-500 | Mood 2 affirmations |
+| Mood: Good/Great | #10B981 | emerald-500 | Mood 3-4 affirmations |
+| Warning | #F59E0B | amber-500 | Cautions, approaching limits |
+| Error | #DC2626 | red-600 | Errors, critical actions |
+| Neutral Gray | #6B7280 | gray-500 | Text, borders, backgrounds |
+| Background | #F9FAFB | gray-50 | Page background |
+| Surface | #FFFFFF | white | Cards, modals, elevated surfaces |
+
+**Accessibility Note:** All color combinations meet WCAG 2.1 AA contrast requirements (4.5:1 for normal text, 3:1 for large text).
 
 ---
 
 ### Typography
 
 #### Font Families
-- **Primary (Admin Dashboard):** Inter or System UI (sans-serif)
-- **Secondary (Documentation):** Georgia or System Serif
-- **Monospace (Technical data):** SF Mono or Consolas
+- **Primary (UI):** System font stack: `-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`
+- **Headings:** Same as primary (consistency)
+- **Monospace (code/technical):** `ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace`
 
-**For SMS/IVR:** Typography doesn't apply - messages display in user's device default font.
+**Rationale:** System fonts provide optimal performance, native feel, and excellent readability across all devices.
 
-#### Type Scale (Admin Dashboard)
+#### Type Scale (Tailwind-based)
 
-| Element | Size | Weight | Line Height |
-|---------|------|--------|-------------|
-| H1 | 30px / 1.875rem | Bold (700) | 1.2 |
-| H2 | 24px / 1.5rem | Semibold (600) | 1.3 |
-| H3 | 20px / 1.25rem | Semibold (600) | 1.4 |
-| Body | 16px / 1rem | Regular (400) | 1.5 |
-| Small | 14px / 0.875rem | Regular (400) | 1.4 |
+| Element | Size | Tailwind Class | Weight | Line Height |
+|---------|------|----------------|--------|-------------|
+| H1 (Page Title) | 30px / 1.875rem | text-3xl | font-bold (700) | leading-tight (1.25) |
+| H2 (Section) | 24px / 1.5rem | text-2xl | font-semibold (600) | leading-snug (1.375) |
+| H3 (Subsection) | 20px / 1.25rem | text-xl | font-semibold (600) | leading-snug (1.375) |
+| Body | 16px / 1rem | text-base | font-normal (400) | leading-relaxed (1.625) |
+| Small | 14px / 0.875rem | text-sm | font-normal (400) | leading-normal (1.5) |
+| Tiny | 12px / 0.75rem | text-xs | font-normal (400) | leading-normal (1.5) |
+
+**Reading Level Consideration:** All user-facing content should be written at or below 6th-grade reading level.
 
 ---
 
 ### Iconography
 
-**Icon Library:** Heroicons or Lucide (open-source, accessible)
+**Icon Library:** Lucide React (already implemented)
+**Location:** Imported from `lucide-react` package
 
 **Usage Guidelines:**
-- Use icons sparingly in admin dashboard
-- Always pair icons with text labels (accessibility)
+- Use icons sparingly—only when they enhance comprehension
+- Always pair icons with text labels for accessibility
 - 20px minimum touch target for interactive icons
+- 24px default size for most icons
+- Use consistent stroke-width (2px default)
 
-**SMS/IVR:** Emojis only (💙, ✨) - pending user testing validation
+**Commonly Used Icons:**
+- Check-in: `Calendar`, `Heart`
+- Mood: Emoji (😔 😐 🙂 😊) not icons
+- Slip button: `AlertCircle` or `LifeBuoy`
+- Journal: `BookOpen`, `PenTool`
+- Profile: `User`
+- Logout: `LogOut`
+- Close: `X`
+- Navigation: `Menu`, `ChevronRight`, `ChevronLeft`
+
+**Emoji Usage:**
+- Fire emoji (🔥) for streaks
+- Blue heart (💙) for empathy/support messages
+- Sparkles (✨) for major milestones (30+ days)
 
 ---
 
 ### Spacing & Layout
 
-**Grid System:** 8px base unit (multiples of 8 for consistent spacing)
+**Grid System:** 4px base unit (Tailwind default)
 
-**Spacing Scale:**
-- xs: 4px
-- sm: 8px
-- md: 16px
-- lg: 24px
-- xl: 32px
-- 2xl: 48px
+**Spacing Scale (Tailwind):**
+- 1: 4px
+- 2: 8px
+- 3: 12px
+- 4: 16px
+- 6: 24px
+- 8: 32px
+- 12: 48px
+- 16: 64px
 
-**Admin Dashboard Layout:**
-- Max content width: 1280px
-- Padding: 24px (desktop), 16px (mobile)
-- Card spacing: 16px gap between elements
+**PWA Layout Constraints:**
+- Max content width: 768px (tablet width) for optimal readability
+- Side padding: 16px (mobile), 24px (tablet+)
+- Card spacing: 16px gap between cards
+- Section spacing: 32px-48px vertical gaps
+- Component internal padding: 16px-24px
 
 ---
 
-### SMS/IVR-Specific Style Guidelines
+### Content & Voice Guidelines
 
-Since users experience the system through text and voice, "style" manifests in **tone and language**:
+Since users primarily interact through the web interface, tone and language are critical:
 
 #### Tone Principles
-1. **Conversational, not clinical:** "We're here with you" not "System activated"
-2. **Direct, not vague:** "Text SLIP" not "Reach out if needed"
-3. **Affirming, not judgmental:** "Getting by is honest" not "Improve your mood"
-4. **Brief, not wordy:** Max 2 sentences per message when possible
+1. **Conversational, not clinical:** "We're here with you" not "Session initiated"
+2. **Direct, not vague:** "Click the button" not "Consider selecting the option if desired"
+3. **Affirming, not judgmental:** "Getting by is honest" not "You should feel better"
+4. **Brief but complete:** Clear without being terse
+5. **Empowering, not patronizing:** "You're building skills" not "Good job!"
 
 #### Language Rules
 - **Reading level:** 6th grade or below
 - **Sentence structure:** Subject-verb-object (simple)
 - **Word choice:** Common words, avoid jargon
-- **Active voice:** "You're building skills" not "Skills are being built"
+- **Active voice preferred:** "You're building" not "Skills are being built"
+- **Contractions okay:** "you're" not "you are" (more natural)
 - **Contractions:** Use naturally ("you're" not "you are")
 
 #### Forbidden Words/Phrases
@@ -829,92 +942,144 @@ Since users experience the system through text and voice, "style" manifests in *
 
 ### Key Requirements
 
-#### Visual (Admin Dashboard - Phase 2)
+#### Visual Accessibility
 
 **Color contrast ratios:**
-- Text: 4.5:1 minimum for normal text, 3:1 for large text (18px+)
+- Normal text (16px): 4.5:1 minimum
+- Large text (18px+ or 14px+ bold): 3:1 minimum
 - Interactive elements: 3:1 minimum for borders and icons
-- All color combinations in the palette must meet these ratios
+- All color combinations in the palette meet these ratios
 
 **Focus indicators:**
-- Visible keyboard focus outline (2px solid, high-contrast color)
+- Visible keyboard focus outline (2px solid ring, high-contrast color)
 - Focus order follows logical page structure (top-to-bottom, left-to-right)
+- Custom focus styles using Tailwind's `focus:ring-2 focus:ring-blue-500`
 - Skip-to-main-content link for keyboard users
 
-**Text sizing:**
+**Text sizing & zoom:**
 - User can zoom to 200% without loss of functionality
 - No fixed pixel heights on text containers
 - Responsive breakpoints preserve readability
+- Minimum 16px base font size
 
-#### Interaction
+**Color independence:**
+- Never rely on color alone to convey information
+- Use icons, text labels, or patterns in addition to color
+- Error states use both red color AND error icon + text
+
+#### Interaction & Navigation
 
 **Keyboard navigation:**
 - All interactive elements reachable via Tab key
 - Enter/Space activates buttons and links
 - Escape closes modals and dropdowns
-- Arrow keys navigate within components (dropdowns, date pickers)
+- Arrow keys navigate within components (mood selector, trigger buttons)
+- Modal focus trap (focus stays within modal when open)
 
 **Screen reader support:**
-- Semantic HTML5 elements (`<nav>`, `<main>`, `<article>`)
-- ARIA labels for icon-only buttons
-- ARIA live regions for dynamic content updates (new metrics loading)
+- Semantic HTML5 elements (`<nav>`, `<main>`, `<article>`, `<section>`, `<button>`)
+- ARIA labels for icon-only buttons: `<button aria-label=\"I slipped\">`
+- ARIA live regions for dynamic content: toast notifications, streak updates
 - Form inputs have associated `<label>` elements
+- Loading states announced: `aria-live=\"polite\"` for data fetching
 
-**Touch targets (for tablet access):**
+**Touch targets (mobile-first):**
 - Minimum 44×44px touch target for all interactive elements
+- 48×48px preferred for primary actions
 - 8px minimum spacing between adjacent touch targets
+- Mood selector buttons: 56×56px minimum
 
-#### Content
+#### Content Accessibility
 
 **Alternative text:**
-- All charts/graphs have text alternatives describing key data
-- Decorative images use `alt=""` (null alt)
+- Decorative images/icons use `alt=\"\"` (null alt)
+- Meaningful images have descriptive alt text
 - Icon buttons have `aria-label` attributes
+- SVG icons use `aria-hidden=\"true\"` when paired with text
 
 **Heading structure:**
-- Logical hierarchy (H1 → H2 → H3, no skipping)
+- Logical hierarchy (H1 → H2 → H3, no skipping levels)
 - One H1 per page (page title)
 - Headings describe content accurately
+- `DailyRitual` page: H1 \"Daily Ritual\", H2 for sections
 
-**Form labels:**
-- Every input has visible `<label>`
-- Error messages clearly associated with fields
-- Required fields indicated visually and programmatically
+**Form labels & errors:**
+- Every input has visible `<label>` element
+- Error messages use `aria-describedby` to associate with fields
+- Required fields indicated with `aria-required=\"true\"` and visual indicator
+- Success/error states announced to screen readers
+
+**Loading & empty states:**
+- Loading spinners have `aria-label=\"Loading...\"`
+- Empty states provide helpful messaging: \"No journal entries yet. Create your first entry!\"
+- Skeleton screens for perceived performance
 
 ---
 
-### SMS/IVR-Specific Accessibility (WE ARE NOT USING SMS/IVR FOR MVP)
+### PWA-Specific Accessibility Considerations
 
-**SMS Accessibility:**
-- ✅ Accessible to users with visual impairments (screen readers can read texts)
-- ✅ Accessible to users with hearing impairments (text-based)
-- ✅ Accessible to users with cognitive disabilities (simple language, numbered options)
-- ✅ Accessible to users with motor disabilities (minimal input required: 1-4 or simple keywords)
+**Progressive Enhancement:**
+- Core functionality works without JavaScript (forms submit, links navigate)
+- JavaScript enhances experience (optimistic updates, animations)
+- Offline mode gracefully degrades with clear messaging
 
-**IVR Accessibility:**
-- ✅ Accessible to users with visual impairments (audio-based)
-- ✅ Accessible to users with cognitive disabilities (slow speech pace, clear options)
-- ⚠️ **Not accessible** to users with hearing impairments (provide SMS alternative)
-- ⚠️ **Challenging** for users with speech impairments (use DTMF tones instead of voice recognition)
+**Mobile Accessibility:**
+- Large touch targets (44×44px minimum)
+- Sufficient contrast for outdoor viewing
+- Readable text sizes without pinch-zoom
+- No horizontal scrolling required
+- One-handed operation possible for core tasks
 
-**Key Design Decisions:**
-- Always provide BOTH SMS and IVR options
-- Voice recordings for intentions are optional (not required for participation)
-- All critical interactions work via DTMF tones (no voice recognition required)
+**Cognitive Accessibility:**
+- Simple, clear language (6th-grade reading level)
+- Consistent navigation and interaction patterns
+- Gentle, non-distracting animations
+- Ample time for interactions (no auto-timeouts on critical actions)
+- Option to \"Skip\" any optional steps
+
+**Crisis Support Accessibility:**
+- 988 crisis hotline link always visible in repair flow
+- Link opens phone dialer on mobile devices
+- Clear, large text for crisis resources
+- High-priority keyboard focus order
 
 ---
 
 ### Testing Strategy
 
-**Admin Dashboard Testing:**
-1. **Automated tools:**
-   - axe DevTools (browser extension) during development
-   - Lighthouse accessibility audit (part of CI/CD)
-   - WAVE tool (final pre-launch check)
+**Automated Testing:**
+1. **axe DevTools** (browser extension) - Run during development on every component
+2. **Lighthouse accessibility audit** - Part of CI/CD pipeline, must score 95+
+3. **eslint-plugin-jsx-a11y** - Catches accessibility issues during development
+4. **Vitest + @testing-library/react** - Unit tests include accessibility assertions
 
-2. **Manual testing:**
-   - Keyboard-only navigation test
-   - Screen reader test (NVDA on Windows, VoiceOver on Mac)
+**Manual Testing:**
+1. **Keyboard-only navigation test:**
+   - Unplug mouse, navigate entire app with keyboard only
+   - Test all interactive elements, modals, forms
+   - Verify focus order is logical
+   
+2. **Screen reader test:**
+   - **macOS:** VoiceOver (Cmd+F5 to enable)
+   - **Windows:** NVDA (free, open-source)
+   - **iOS:** VoiceOver (Settings > Accessibility)
+   - **Android:** TalkBack (Settings > Accessibility)
+   
+3. **Color contrast validation:**
+   - WebAIM Contrast Checker
+   - Browser DevTools contrast tool
+   - Test with color blindness simulators
+   
+4. **Zoom test:**
+   - Test at 200% browser zoom
+   - Test with OS-level zoom enabled
+   - Verify no horizontal scrolling, all content accessible
+
+**User Testing:**
+- Include at least 1-2 users with disabilities in usability testing
+- Test with users who rely on screen readers
+- Test with users who navigate keyboard-only
+- Gather feedback on cognitive load and clarity
    - Color contrast validation (WebAIM contrast checker)
    - Zoom test (200% browser zoom)
 
@@ -940,43 +1105,106 @@ Since users experience the system through text and voice, "style" manifests in *
 
 ## Responsiveness Strategy
 
-### Breakpoints (Admin Dashboard Only)
+### Mobile-First Approach
 
-Since SMS/IVR interfaces are device-agnostic, responsiveness only applies to the Phase 2 admin dashboard.
+The PWA is designed with a mobile-first philosophy, as most users will access it via smartphone.
 
-| Breakpoint | Min Width | Max Width | Target Devices |
-|------------|-----------|-----------|----------------|
-| Mobile | 0px | 639px | Smartphones (portrait) |
-| Tablet | 640px | 1023px | Tablets (portrait/landscape), large phones |
-| Desktop | 1024px | 1279px | Laptops, small desktop monitors |
-| Wide | 1280px | - | Large desktop monitors, external displays |
+### Breakpoints (Tailwind CSS)
+
+| Breakpoint | Min Width | Tailwind Class | Target Devices |
+|------------|-----------|----------------|----------------|
+| Mobile (default) | 0px | (none) | Smartphones (portrait) |
+| sm | 640px | sm: | Smartphones (landscape), large phones |
+| md | 768px | md: | Tablets (portrait) |
+| lg | 1024px | lg: | Tablets (landscape), small laptops |
+| xl | 1280px | xl: | Desktops, large screens |
+| 2xl | 1536px | 2xl: | Large desktops (rarely needed) |
 
 ---
 
-### Adaptation Patterns
+### Adaptation Patterns by Screen Size
 
-**Layout Changes:**
-- **Mobile:** Single-column layout, stacked metric cards
-- **Tablet:** 2-column grid for metric cards, side-by-side charts
-- **Desktop:** 3-column grid for metrics, expanded charts with more detail
-- **Wide:** Max width of 1280px to prevent excessive line lengths
+**Mobile (0-639px) - PRIMARY TARGET:**
+- Single-column layout throughout
+- Full-width cards (16px side padding)
+- Mood buttons in 2×2 grid (large touch targets)
+- Bottom spacing for iOS safe area
+- Fixed header with sticky "I slipped" button
+- Modals take full screen height
 
-**Navigation Changes:**
-- **Mobile:** Hamburger menu (collapsible)
-- **Tablet/Desktop:** Horizontal tab navigation
-- **Wide:** Persistent sidebar navigation (optional enhancement)
+**Tablet (640-1023px):**
+- Max content width: 640px, centered
+- Mood buttons slightly larger with more spacing
+- Journal entries in 2-column grid on wider tablets
+- Repair modal uses centered card (not full-screen)
+- Side padding increased to 24px
 
-**Content Priority:**
-- **Mobile:** Show only current week metrics, hide historical comparison
-- **Tablet:** Add week-over-week comparison
-- **Desktop:** Show full historical trends and detailed breakdowns
-- **Wide:** Add additional context (chart legends, annotations)
+**Desktop (1024px+):**
+- Max content width: 768px, centered
+- Hover states on all interactive elements
+- Keyboard shortcuts visible
+- Optional sidebar navigation (future)
+- Repair modal max-width 600px, centered
 
-**Interaction Changes:**
-- **Mobile:** Larger touch targets (48×48px minimum), simplified date picker
-- **Tablet:** Standard touch targets (44×44px), full-featured date picker
-- **Desktop:** Mouse-optimized interactions, hover states, tooltips
-- **Wide:** No changes from desktop
+---
+
+### Component Responsiveness
+
+**Header Component:**
+- Mobile: Compact, icon-only "I slipped" button
+- Tablet+: Full text on buttons
+- Consistent across all sizes
+
+**Mood Selector:**
+- Mobile: 2×2 grid, 48% width each button, large tap targets
+- Tablet: 2×2 grid, fixed button size (120px), more spacing
+- Desktop: Same as tablet with hover effects
+
+**Streak Counter:**
+- Mobile: Full-width card, icon + number + label stacked
+- Tablet+: Horizontal layout (icon left, text right)
+
+**Journal Entry:**
+- Mobile: Full-width list, single column
+- Tablet: 2-column masonry grid
+- Desktop: 2-column with wider spacing
+
+**Repair Modal:**
+- Mobile: Full-screen overlay
+- Tablet+: Centered card, max-width 600px
+
+---
+
+### Touch vs Mouse Optimization
+
+**Touch-Optimized (Mobile/Tablet):**
+- Larger touch targets (44-56px minimum)
+- No hover-dependent interactions
+- Swipe gestures for navigation (future)
+- Pull-to-refresh on lists (future)
+- Bottom navigation bar (future)
+
+**Mouse-Optimized (Desktop):**
+- Hover states show additional context
+- Keyboard shortcuts enabled
+- Tooltips on icon buttons
+- Right-click context menus (future)
+
+---
+
+### Testing Requirements
+
+**Device Testing:**
+- iPhone SE (smallest modern iPhone)
+- iPhone 14 Pro (standard size)
+- iPad (tablet)
+- Android phone (various sizes)
+- Desktop browser (Chrome, Firefox, Safari)
+
+**Orientation Testing:**
+- Portrait and landscape modes
+- Rotation transitions smooth
+- No content cut off or hidden
 
 ---
 
@@ -984,85 +1212,385 @@ Since SMS/IVR interfaces are device-agnostic, responsiveness only applies to the
 
 ### Motion Principles
 
-For this project, animation strategy differs significantly between the SMS/IVR interface (minimal/none) and the admin dashboard (subtle enhancements).
-
 **Overall Principles:**
-1. **Purpose over decoration** - Every animation must serve a functional purpose
+1. **Purpose over decoration** - Every animation must serve a functional purpose (feedback, guidance, or delight)
 2. **Respect user preferences** - Honor `prefers-reduced-motion` system setting
-3. **Performance first** - Animations must never cause lag or delay critical content
+3. **Performance first** - Use CSS transforms and opacity (GPU-accelerated)
 4. **Subtle over showy** - Understated transitions build trust; flashy animations feel unprofessional
+5. **Consistent timing** - Use consistent duration/easing across similar interactions
+
+**Accessibility:** All animations should be wrapped in a `prefers-reduced-motion` media query check:
+```css
+@media (prefers-reduced-motion: no-preference) {
+  /* animations here */
+}
+```
 
 ---
 
-### Key Animations (Admin Dashboard - Phase 2)
+### Key Animations (PWA)
 
-- **Loading States:** Skeleton screens fade in → actual content cross-fades (300ms, ease-in-out)
-- **Metric Updates:** Numbers count up from previous value to new value (800ms, ease-out)
-- **Chart Transitions:** Bars/lines animate from 0 to value on first load (600ms, cubic-bezier)
-- **Notification Toasts:** Slide in from top, fade out after 5 seconds (250ms in, 200ms out)
-- **Modal Open/Close:** Fade + scale 0.95 → 1.0 (200ms, ease-in-out)
+#### Page Transitions
+- **Page load:** Fade-in on route change (200ms, ease-in)
+- **Back navigation:** Slide-right animation (250ms, ease-out)
+- **Forward navigation:** Slide-left animation (250ms, ease-out)
+
+#### Component Animations
+
+**Loading States:**
+- Skeleton screens fade in immediately (0ms delay)
+- Actual content cross-fades from skeleton (300ms, ease-in-out)
+- Spinner rotation (continuous, linear)
+
+**Mood Selection:**
+- Buttons scale slightly on press: `scale(0.95)` (100ms, ease-out)
+- Selected mood: subtle pulse once (400ms, ease-in-out)
+- Affirmation card fades + slides up (300ms, ease-out, 100ms delay)
+
+**Streak Counter:**
+- Number increment animation on update (500ms, ease-out)
+- Milestone celebrations:
+  - 5 days: Gentle pulse (600ms)
+  - 10 days: Double pulse + scale (800ms)
+  - 30+ days: Confetti effect (1200ms, playful)
+
+**Repair Modal:**
+- Open: Fade background + scale modal 0.95 → 1.0 (250ms, ease-out)
+- Step transitions: Slide content left/right (300ms, ease-in-out)
+- Close: Reverse of open animation (200ms, ease-in)
+
+**Toast Notifications:**
+- Enter: Slide down from top + fade in (250ms, ease-out)
+- Exit: Fade out after 4 seconds (200ms, ease-in)
+- Hover: Pause auto-dismiss timer
+
+**Form Interactions:**
+- Input focus: Border color transition (150ms, ease-in-out)
+- Error shake: Horizontal shake animation (400ms, ease-out)
+- Success: Checkmark draw animation (600ms, ease-in-out)
 
 ---
 
-### SMS/IVR "Micro-interactions"
+### Micro-interactions
 
-Since there's no visual animation in SMS/IVR, "micro-interactions" manifest as **timing and sequencing**:
+**Button Press:**
+- Scale down to 0.97 on `active` state
+- Color darkens slightly
+- Haptic feedback on mobile (if supported)
 
-#### Message Delivery Timing
-- **Immediate response** (<2 seconds): System confirms receipt of user input
-- **Sequential messages** (1-2 second delay): Creates conversational rhythm
-- **Follow-up messages** (24 hours later): Demonstrates system reliability
+**Card Hover (Desktop):**
+- Subtle lift: `translateY(-2px)` + shadow increase (200ms)
+- Border highlight (200ms)
 
-#### IVR Audio Cues
-- **Confirmation tone:** Brief audible beep after DTMF input (200ms)
-- **Transition pause:** 500ms silence between prompt sections
-- **Completion tone:** Pleasant chime after session complete (300ms)
+**Pull-to-Refresh (Future):**
+- Spinner appears at top
+- Elastic bounce animation
+- Success checkmark when complete
+
+**Streak Achievement:**
+- Number counts up from previous to new
+- Fire emoji pulses
+- Subtle background color flash (green)
+
+---
+
+### Animation Timing Reference
+
+| Duration | Use Case | Easing |
+|----------|----------|--------|
+| 100ms | Micro-interactions (button press) | ease-out |
+| 150ms | Color/border transitions | ease-in-out |
+| 200-250ms | Modal open/close | ease-out |
+| 300ms | Content fades, page transitions | ease-in-out |
+| 400-600ms | Celebrations, emphasis | ease-out |
+| 800ms+ | Major milestones only | custom cubic-bezier |
+
+---
+
+### Performance Optimization
+
+**Use GPU-Accelerated Properties Only:**
+- ✅ `transform: translate/scale/rotate`
+- ✅ `opacity`
+- ❌ `width`, `height`, `top`, `left` (causes reflow)
+
+**Reduce Animation Complexity:**
+- Limit simultaneous animations to 3-4 elements
+- Use `will-change` sparingly (only during animation)
+- Remove `will-change` after animation completes
 
 ---
 
 ## Performance Considerations
 
-### Performance Goals
+### Performance Goals (PWA)
 
+**Core Web Vitals Targets:**
+- **LCP (Largest Contentful Paint):** <2.5 seconds
+- **FID (First Input Delay):** <100ms
+- **CLS (Cumulative Layout Shift):** <0.1
+- **TTI (Time to Interactive):** <3.5 seconds on 3G
 
-<disrefard SMS and IVR references. These are post MVP goals.>
-**SMS/IVR:** 
-- **Message delivery:** <10 seconds from trigger to user receipt
-- **Response latency:** <2 seconds from user input to system reply
-- **IVR pickup:** <3 rings for outbound calls, instant for inbound
+**Lighthouse Scores (Minimum):**
+- Performance: 90+
+- Accessibility: 95+
+- Best Practices: 95+
+- SEO: 90+
+- PWA: 100
 
-**Admin Dashboard:**
-- **Page load:** <2 seconds for initial paint (LCP)
-- **Interaction response:** <100ms for UI feedback (e.g., button click)
-- **Chart rendering:** <500ms for data visualization
+**User-Perceived Performance:**
+- Page navigation: <200ms (client-side routing)
+- Button click feedback: <50ms (optimistic UI)
+- API response display: <1 second
+- Offline mode: Instant (service worker cache)
 
-### Design Strategies
+---
 
-**SMS/IVR Performance:**
-1. **Message queuing:** Pre-render common messages to reduce generation time
-2. **Twilio optimization:** Use Messaging Service for better deliverability/speed
-3. **IVR pre-loading:** Cache audio files at CDN edge locations
+### Design Strategies for Performance
 
-**Admin Dashboard Performance:**
-1. **Code splitting:** Load dashboard components only when needed
-2. **Data pagination:** Limit initial data load to current week
-3. **Lazy loading:** Defer chart rendering until viewport visible
-4. **Caching:** Cache static metrics data for 5-minute intervals
-5. **Image optimization:** Use WebP format, responsive image sizing
+#### Code Optimization
+
+**1. Code Splitting:**
+- Lazy-load routes: Each page is a separate bundle
+- Lazy-load heavy components (repair modal, journal)
+- Dynamic imports for non-critical features
+```tsx
+const RepairFlow = lazy(() => import('./components/repair/RepairFlow'));
+```
+
+**2. Bundle Size:**
+- Target: <200KB initial bundle (gzipped)
+- Tree-shake unused code
+- Use lightweight alternatives (date-fns instead of moment.js)
+- Analyze bundle with `vite-bundle-visualizer`
+
+**3. Image Optimization:**
+- Use modern formats (WebP with PNG fallback)
+- Lazy-load images below the fold
+- Use appropriate sizes (srcset for responsive images)
+- Compress all images (TinyPNG, Squoosh)
+
+---
+
+#### Data & API Optimization
+
+**1. Caching Strategy:**
+- TanStack Query: 5-minute stale time for user stats
+- Aggressive caching for static content
+- Service worker caches API responses for offline
+
+**2. Optimistic Updates:**
+- Update UI immediately on user action
+- Revert if API call fails
+- Example: Mood selection, journal save
+
+**3. Request Optimization:**
+- Batch multiple small requests when possible
+- Use HTTP/2 multiplexing
+- Implement request debouncing for search/filter
+
+---
+
+#### Rendering Optimization
+
+**1. React Performance:**
+- Use `React.memo()` for expensive components
+- Memoize callbacks with `useCallback`
+- Memoize computed values with `useMemo`
+- Avoid inline function definitions in render
+
+**2. CSS Performance:**
+- Use Tailwind's JIT mode (already enabled)
+- Purge unused CSS (automatic with Tailwind)
+- Minimize CSS-in-JS (prefer Tailwind classes)
+- Use `content-visibility: auto` for long lists
+
+**3. Loading Strategies:**
+- Skeleton screens for perceived performance
+- Progressive loading (critical content first)
+- Preload critical resources
+- Defer non-critical scripts
+
+---
+
+#### PWA-Specific Optimizations
+
+**1. Service Worker Caching:**
+- Cache-first for static assets
+- Network-first for API calls with fallback
+- Background sync for offline mutations
+
+**2. App Shell Pattern:**
+- Cache shell HTML/CSS/JS immediately
+- Load dynamic content after shell renders
+- Instant subsequent page loads
+
+**3. Offline Support:**
+- Queue failed API calls for retry
+- Show clear offline indicators
+- Allow journal drafts to save locally
+
+---
+
+### Performance Monitoring
+
+**Development:**
+- Lighthouse audit before each PR
+- React DevTools Profiler for component analysis
+- Network tab monitoring for API calls
+
+**Production:**
+- Real User Monitoring (RUM) via Vercel Analytics
+- Track Core Web Vitals
+- Monitor error rates and API latencies
+- Set up performance budgets and alerts
+
+**Performance Budget:**
+- JS bundle: <200KB (gzipped)
+- CSS bundle: <50KB (gzipped)
+- Total page weight: <500KB
+- API response time: p95 <500ms
 
 ---
 
 ## Next Steps
 
-### Immediate Actions
+### Immediate Actions (Current Sprint)
 
-1. **Stakeholder Review** - Share this document with Alex (PM), Winston (Architect), and Mary (Analyst) for feedback and approval
+1. **✅ Complete Authentication Flow (Epic 1)**
+   - Finish implementing Stories 1.1-1.4
+   - Test Google OAuth end-to-end
+   - Verify protected routes work correctly
 
-2. **User Testing Preparation** - Begin recruiting 5-10 participants using materials in [docs/testing/recruitment-and-consent.md](docs/testing/recruitment-and-consent.md)
+2. **🔄 Fix Daily Ritual Persistence (Story 3.1)**
+   - Connect frontend to authenticated API calls
+   - Remove placeholder AUTH_TOKEN
+   - Test streak counter updates
+   - Verify data persistence
 
-3. **Message Template Development** - Create JSON configuration files for all message patterns defined in Component Library section
+3. **Implement Remaining Core Features**
+   - Story 4.1: Rupture & Repair Flow
+   - Story 5.1: Journaling Feature
+   - Test all flows end-to-end
 
-4. **Twilio Sandbox Testing** - Validate message delivery timing, character limits, and emoji rendering on target devices
+---
+
+### Short-Term (Next 2-4 Weeks)
+
+1. **User Testing & Iteration**
+   - Recruit 5-8 participants for usability testing
+   - Test with users who have recovery experience
+   - Focus on emotional safety, clarity, ease of use
+   - Iterate based on feedback
+
+2. **Accessibility Audit**
+   - Run axe DevTools on all pages
+   - Complete keyboard navigation testing
+   - Test with screen readers (VoiceOver, NVDA)
+   - Fix all WCAG 2.1 AA violations
+
+3. **Performance Optimization**
+   - Run Lighthouse audits on all pages
+   - Optimize bundle size (<200KB target)
+   - Implement service worker caching
+   - Add offline support for core features
+
+4. **Content Development**
+   - Finalize affirmation messages for all moods
+   - Write repair suggestions for all triggers
+   - Create supportive microcopy throughout app
+   - Review all text at 6th-grade reading level
+
+---
+
+### Medium-Term (1-2 Months)
+
+1. **PWA Enhancements**
+   - Implement push notifications for daily check-ins
+   - Add install prompt for "Add to Home Screen"
+   - Create app icons and splash screens
+   - Test offline functionality thoroughly
+
+2. **Additional Features**
+   - Goal setting and tracking
+   - Weekly reflection prompts
+   - Resource library (crisis lines, support groups)
+   - Customizable check-in time preferences
+
+3. **Analytics & Monitoring**
+   - Implement privacy-friendly analytics
+   - Track core metrics (DAU, check-in completion rate)
+   - Monitor error rates and performance
+   - Set up alerting for critical issues
+
+---
+
+### Long-Term (3-6 Months)
+
+1. **Post-MVP Features (Phase 2)**
+   - SMS/IVR integration (deferred from MVP)
+   - Admin dashboard for partner coaches
+   - Aggregate reporting and insights
+   - Multi-language support (Spanish priority)
+
+2. **Advanced Features**
+   - Peer support connections (moderated)
+   - Progress visualization and trends
+   - Integration with recovery apps
+   - Telehealth appointment scheduling
+
+3. **Scale & Growth**
+   - Partner with recovery organizations
+   - Pilot program with 50-100 users
+   - Gather longitudinal data on engagement
+   - Iterate based on real-world usage
+
+---
+
+### Design Handoff Checklist
+
+Before declaring this spec "complete":
+
+- [x] All user flows documented with diagrams
+- [x] Key screen wireframes created
+- [x] Component patterns defined
+- [x] Accessibility requirements specified
+- [x] Responsive strategy documented
+- [x] Performance goals established
+- [ ] User testing complete (5+ participants)
+- [ ] Feedback incorporated into spec
+- [ ] High-fidelity mockups created (Figma)
+- [ ] Component props/interfaces documented
+- [ ] Animation specifications finalized
+
+---
+
+### Open Questions & Decisions Needed
+
+1. **Push Notifications Timing:**
+   - What time should daily check-in reminders be sent?
+   - Should users be able to customize this?
+   - How many reminder notifications before we stop?
+
+2. **Data Retention:**
+   - How long should we keep journal entries?
+   - Should users be able to export their data?
+   - What happens to data if user deletes account?
+
+3. **Crisis Resources:**
+   - Which crisis resources to feature prominently?
+   - Should we detect crisis language in journal entries?
+   - What's our protocol if user indicates self-harm?
+
+4. **Streak Reset Philosophy:**
+   - After repair flow, does streak reset to 0 or preserve progress?
+   - Current design: Reset with supportive messaging
+   - Alternative: "Flexible streaks" that allow occasional misses
+
+5. **Privacy & Anonymity:**
+   - Do users need to provide real names?
+   - How do we handle Google profile data (name, photo)?
+   - Should users be able to use pseudonyms?
 
 5. **Define Voice Recordings** - Script and record IVR audio prompts (or identify text-to-speech provider)
 
@@ -1114,17 +1642,21 @@ Comprehensive user testing materials have been created and saved to:
 
 | Date | Version | Description | Author |
 |------|---------|-------------|--------|
-| 2025-10-10 | v1.0 | Initial UI/UX specification created | Sally (UX Expert) |
-| _TBD_ | v1.1 | Updated based on user testing results | _TBD_ |
+| 2025-10-10 | v1.0 | Initial UI/UX specification created for SMS/IVR system | Sally (UX Expert) |
+| 2025-10-12 | v2.0 | **Major Update:** Completely revised for PWA implementation. Removed all SMS/IVR content. Added Google OAuth authentication, PWA-specific wireframes, updated component patterns, accessibility requirements, and responsiveness strategy for mobile-first PWA. | Sally (UX Expert) |
 
 ---
 
 **Document Metadata**
-- **Version:** v1.0
-- **Status:** Draft - Pending User Testing & Stakeholder Approval
+- **Version:** v2.0
+- **Status:** In Progress - Updated for PWA MVP
 - **Owner:** Sally (UX Expert)
 - **Repository Path:** `/docs/front-end-spec.md`
-- **Next Review:** After user testing completion
+- **Next Review:** After Epic 1 (Authentication) completion and user testing
+- **Related Documents:**
+  - `/docs/prd.md` - Product Requirements
+  - `/docs/architecture.md` - Technical Architecture
+  - `/docs/stories/` - Implementation stories
 
 ---
 
