@@ -2,12 +2,119 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist/public",
   "framework": "vite",
-  
-  "routes": [{ "src": "/api/(.*)", "dest": "/api/$1" }],
+  "installCommand": "npm ci",
+  "regions": ["iad1"],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://nextmoment.app"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization, X-Requested-With"
+        },
+        {
+          "key": "Access-Control-Allow-Credentials",
+          "value": "true"
+        }
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1",
+      "headers": {
+        "Cache-Control": "no-cache, no-store, must-revalidate"
+      }
+    },
+    {
+      "src": "/health",
+      "dest": "/api/health",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "src": "/((?!api/|health|_next/|favicon.ico|robots.txt|sitemap.xml).*)",
+      "dest": "/index.html",
+      "headers": {
+        "Cache-Control": "public, max-age=0, must-revalidate"
+      }
+    },
+    {
+      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|webp|woff|woff2))",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "src": "/404",
+      "status": 404,
+      "dest": "/404.html"
+    }
+  ],
   "functions": {
-    "api/**/*.js": {
-      "runtime": "@vercel/node@4.0.0",
-      "excludeFiles": "**/*.test.ts,**/__tests__/**"
+    "api/**/*": {
+      "runtime": "@vercel/node@18.19.0",
+      "maxDuration": 30,
+      "excludeFiles": [
+        "**/*.test.ts",
+        "**/*.test.js",
+        "**/__tests__/**",
+        "**/*.spec.ts",
+        "**/*.spec.js",
+        "**/node_modules/**",
+        "**/.git/**",
+        "**/coverage/**"
+      ],
+      "environment": {
+        "NODE_ENV": "production"
+      }
+    },
+    "api/health.js": {
+      "runtime": "@vercel/node@18.19.0",
+      "maxDuration": 5
+    }
+  },
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "build": {
+    "env": {
+      "BUILD_TIME": "@build-time"
     }
   }
 }
