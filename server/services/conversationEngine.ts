@@ -315,46 +315,49 @@ export default class ConversationEngine {
    * @param userId - The user's ID
    * @param mood - The selected mood
    */
-  async handlePwaMoodSelection(userId: string, mood: MoodOption): Promise<void> {
-    try {
-      console.log(`[ConversationEngine] Handling PWA mood selection for user ${userId}`);
+  async handlePwaMoodSelection(userId: string, mood: MoodOption): Promise<{ sessionId: string; affirmation: string }> {
+    console.log(`[ConversationEngine] Handling PWA mood selection for user ${userId}`);
 
-      // 1. Create a new session
-      const [newSession] = await this.dbClient.insert(schema.sessions).values({
-        userId,
-        flowType: 'daily-ritual',
-        channel: 'pwa',
-        mood,
-      }).returning();
+    // 1. Create a new session
+    const [newSession] = await this.dbClient.insert(schema.sessions).values({
+      userId,
+      flowType: 'daily-ritual',
+      channel: 'pwa',
+      mood,
+    }).returning();
 
-      console.log(`[ConversationEngine] PWA session created: ${newSession.id}`);
+    console.log(`[ConversationEngine] PWA session created: ${newSession.id}`);
 
-      // 2. Log the mood selection as an interaction
-      await this.dbClient.insert(schema.interactions).values({
-        userId,
-        sessionId: newSession.id,
-        direction: 'inbound',
-        channel: 'pwa',
-        contentType: 'mood_selection',
-        body: mood,
-        status: 'synced',
-      });
+    // 2. Log the mood selection as an interaction
+    await this.dbClient.insert(schema.interactions).values({
+      userId,
+      sessionId: newSession.id,
+      direction: 'inbound',
+      channel: 'pwa',
+      contentType: 'mood_selection',
+      body: mood,
+      status: 'synced',
+    });
 
-      // 3. Log the affirmation as a separate interaction
-      await this.dbClient.insert(schema.interactions).values({
-        userId,
-        sessionId: newSession.id,
-        direction: 'outbound',
-        channel: 'pwa',
-        contentType: 'affirmation_view',
-        body: AFFIRMATIONS[mood],
-        status: 'synced',
-      });
+    const affirmation = AFFIRMATIONS[mood];
 
-      console.log(`[ConversationEngine] PWA mood selection and affirmation logged for session ${newSession.id}`);
-    } catch (error) {
-      console.error(`[ConversationEngine] Failed to handle PWA mood selection for user ${userId}:`, error);
-    }
+    // 3. Log the affirmation as a separate interaction
+    await this.dbClient.insert(schema.interactions).values({
+      userId,
+      sessionId: newSession.id,
+      direction: 'outbound',
+      channel: 'pwa',
+      contentType: 'affirmation_view',
+      body: affirmation,
+      status: 'synced',
+    });
+
+    console.log(`[ConversationEngine] PWA mood selection and affirmation logged for session ${newSession.id}`);
+
+    return {
+      sessionId: newSession.id,
+      affirmation,
+    };
   }
 
   /**
