@@ -13,21 +13,19 @@ import { middlewares as meHandler } from "../api/user/me";
 
 
 // Import Auth route handlers
-import googleAuthHandler from "../api/auth/google/index";
+import { middlewares as googleAuthHandler } from "../api/auth/google/index";
 import googleCallbackHandler from "../api/auth/google.callback";
 import { middlewares as logoutHandler } from "../api/auth/logout";
 
 // Import Repair route handlers
 import { middlewares as repairStartHandler } from "../api/repair/start";
 
-// Import Chat route handlers
-import { middlewares as chatSendHandler } from "../api/chat/send";
-import { middlewares as chatHistoryHandler } from "../api/chat/history";
-import { middlewares as chatClearHandler } from "../api/chat/clear";
+// Import Chat route handler (shared across actions)
+import { middlewares as chatHandler } from "../api/chat/[action]";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth Routes
-  app.get("/api/auth/google", googleAuthHandler);
+  app.get("/api/auth/google", ...googleAuthHandler);
   app.get("/api/auth/google/callback", googleCallbackHandler);
   app.post("/api/auth/logout", ...logoutHandler);
   
@@ -46,9 +44,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/user/stats", ...statsHandler);
   
   // Chat Routes
-  app.post("/api/chat/send", ...chatSendHandler);
-  app.get("/api/chat/history", ...chatHistoryHandler);
-  app.delete("/api/chat/clear", ...chatClearHandler);
+  app.post("/api/chat/send", ...chatHandler);
+  app.get("/api/chat/history", ...chatHandler);
+  app.delete("/api/chat/clear", ...chatHandler);
 
   const httpServer = createServer(app);
 

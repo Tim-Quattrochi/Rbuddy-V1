@@ -6,7 +6,7 @@
  * - 100 requests per hour per IP (fallback)
  */
 
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import type { Request } from 'express';
 
 // Rate limiter for chat send endpoint
@@ -26,11 +26,11 @@ export const chatSendLimiter = rateLimit({
     if (userId) {
       return `user:${userId}`;
     }
-    const forwardedFor = req.headers["x-forwarded-for"];
-    const fallbackIp = req.socket?.remoteAddress;
-    const rawIp = req.ip || forwardedFor || fallbackIp || "unknown";
-    const ip = Array.isArray(rawIp) ? rawIp[0] : rawIp;
-    return `ip:${ip}`;
+  const forwardedFor = req.headers["x-forwarded-for"];
+  const fallbackIp = req.socket?.remoteAddress;
+  const rawIp = req.ip || forwardedFor || fallbackIp || "127.0.0.1";
+  const ip = Array.isArray(rawIp) ? rawIp[0] : rawIp;
+  return `ip:${ipKeyGenerator(ip)}`;
   },
   // Skip rate limiting if API key is missing (will fail at service level)
   skip: (req) => {
@@ -71,8 +71,8 @@ export const chatGeneralLimiter = rateLimit({
     }
     const forwardedFor = req.headers["x-forwarded-for"];
     const fallbackIp = req.socket?.remoteAddress;
-    const rawIp = req.ip || forwardedFor || fallbackIp || "unknown";
+    const rawIp = req.ip || forwardedFor || fallbackIp || "127.0.0.1";
     const ip = Array.isArray(rawIp) ? rawIp[0] : rawIp;
-    return `ip:${ip}`;
+    return `ip:${ipKeyGenerator(ip)}`;
   }
 });

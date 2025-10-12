@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { handler } from './send';
+import { handleSend } from './[action]';
 
 // Mock the AI Chat Service
 vi.mock('../../server/services/aiChatService', () => {
@@ -40,7 +40,7 @@ describe('Chat API - Send Message', () => {
     req.userId = undefined;
     const res = createMockRes();
 
-    await handler(req, res);
+  await handleSend(req, res);
 
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith({ error: 'Unauthorized' });
@@ -50,7 +50,7 @@ describe('Chat API - Send Message', () => {
     const req = createMockReq('user-123', { message: '' });
     const res = createMockRes();
 
-    await handler(req, res);
+  await handleSend(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({ error: 'Message is required' });
@@ -60,7 +60,7 @@ describe('Chat API - Send Message', () => {
     const req = createMockReq('user-123', { message: 'a'.repeat(1001) });
     const res = createMockRes();
 
-    await handler(req, res);
+  await handleSend(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({ error: 'Message too long (max 1000 characters)' });
@@ -70,7 +70,7 @@ describe('Chat API - Send Message', () => {
     const req = createMockReq('user-123', { message: 'Hello, how are you?' });
     const res = createMockRes();
 
-    await handler(req, res);
+  await handleSend(req, res);
 
     expect(res.json).toHaveBeenCalledWith({
       response: 'This is a test AI response',
