@@ -1,0 +1,244 @@
+# Quality Gate: Story 12 - PWA Daily Ritual Flow Implementation
+# Generated: 2025-10-11
+# Status: CONCERNS - Critical gaps in offline and database testing
+
+story:
+  id: s12
+  title: "PWA Daily Ritual Flow Implementation"
+  epic: "pwa-pivot"
+  status: "ready-for-review"
+
+trace:
+  totals:
+    requirements: 10
+    full: 6
+    partial: 3
+    none: 1
+  coverage_percentage: 60
+  planning_ref: 'docs/qa/assessments/s12-trace-20251011.md'
+
+  # Requirements with FULL coverage
+  covered:
+    - ac: 'AC1'
+      description: 'Daily Check-in Screen Displayed'
+      coverage: 'full'
+      tests:
+        - 'MoodSelector.test.tsx::renders four mood buttons'
+
+    - ac: 'AC2'
+      description: 'Four Mood Buttons Displayed'
+      coverage: 'full'
+      tests:
+        - 'MoodSelector.test.tsx::renders four mood buttons'
+
+    - ac: 'AC4'
+      description: 'Affirmation Card Display'
+      coverage: 'full'
+      tests:
+        - 'AffirmationCard.test.tsx::renders the affirmation text'
+        - 'conversationEngine.test.ts::Story 4 tests'
+
+    - ac: 'AC5'
+      description: 'Intention Input Field'
+      coverage: 'full'
+      tests:
+        - 'IntentionInput.test.tsx::renders the input field'
+        - 'IntentionInput.test.tsx::calls onSaveIntention with input value'
+        - 'IntentionInput.test.tsx::does not call onSaveIntention if empty'
+
+    - ac: 'AC7'
+      description: 'Streak Counter Display'
+      coverage: 'full'
+      tests:
+        - 'StreakCounter.test.tsx::renders the streak number'
+        - 'StreakCounter.test.tsx::renders 0 days correctly'
+        - 'api.test.ts::GET /api/user/stats'
+      concerns:
+        - 'No regression tests for streak calculation algorithm'
+        - 'Critical bug fixed in S12-critical-fixes but not covered by tests'
+
+  # Requirements with PARTIAL coverage
+  partial:
+    - ac: 'AC3'
+      description: 'Mood Selection API Call'
+      coverage: 'partial'
+      reason: 'Component and API tested separately, integration not validated'
+      tests:
+        - 'MoodSelector.test.tsx::calls onSelectMood'
+        - 'api.test.ts::POST /api/daily-ritual/mood'
+      gaps:
+        - 'No test validates actual HTTP request from frontend to backend'
+        - 'No test for network error handling'
+        - 'No test for JWT authentication flow'
+
+    - ac: 'AC6'
+      description: 'Intention Saved via API'
+      coverage: 'partial'
+      reason: 'API endpoint tested, frontend integration not validated'
+      tests:
+        - 'api.test.ts::POST /api/daily-ritual/intention'
+      gaps:
+        - 'No test validates actual API call from IntentionInput'
+        - 'No test for network error handling'
+        - 'No test for session validation'
+
+  # Requirements with NO coverage
+  uncovered:
+    - ac: 'AC8'
+      description: 'Offline Functionality'
+      reason: 'No automated tests for PWA offline capabilities'
+      severity: 'critical'
+      manual_testing: 'Documented in s12-developer-test-report.md'
+      gaps:
+        - 'No E2E tests for offline UI behavior'
+        - 'No tests for service worker caching'
+        - 'No tests for optimistic update rollback'
+
+    - ac: 'AC9'
+      description: 'Background Sync & Queuing'
+      reason: 'No automated tests for background sync implementation'
+      severity: 'critical'
+      manual_testing: 'Manual validation required'
+      gaps:
+        - 'No tests for request queuing'
+        - 'No tests for sync on reconnection'
+        - 'No tests for 24-hour retention window'
+        - 'No tests for optimistic update implementation'
+
+    - ac: 'AC10'
+      description: 'Database Logging with PWA Channel'
+      reason: 'No tests verify channel=pwa in database'
+      severity: 'critical'
+      implementation: 'Code updated in S12-critical-fixes'
+      gaps:
+        - 'No validation that interactions logged with channel=pwa'
+        - 'No tests for new content types (mood_selection, affirmation_view, intention)'
+        - 'API tests use mocked database, no actual insert validation'
+
+  notes: |
+    See full traceability matrix: docs/qa/assessments/s12-trace-20251011.md
+
+    CRITICAL GAPS SUMMARY:
+    1. Offline & Background Sync (AC #8, #9) - Zero automated coverage for core PWA features
+    2. Database Logging (AC #10) - No validation of audit trail compliance
+    3. Streak Calculation Regression Risk (AC #7) - Fixed bug lacks regression tests
+    4. API Integration (AC #3, #6) - Component and API tested separately
+
+    RISK ASSESSMENT: HIGH
+    - 3 critical ACs have no automated coverage
+    - Core PWA functionality relies entirely on manual testing
+    - Database logging compliance not validated
+    - Recent critical fixes not protected by regression tests
+
+# Gate Decision Matrix
+decision:
+  status: 'CONCERNS'
+  rationale: |
+    Good component-level coverage (60% full) but critical gaps in:
+    - PWA offline functionality (AC #8, #9)
+    - Database audit trail validation (AC #10)
+    - Integration test coverage (AC #3, #6)
+    - Regression test protection for critical fixes (AC #7)
+
+  blocking_issues:
+    - issue: 'AC8-AC9-OFFLINE'
+      severity: 'critical'
+      description: 'No automated tests for offline functionality or background sync'
+      impact: 'Core PWA feature untested; high risk of production failures'
+      recommendation: 'Implement E2E tests with Playwright/Cypress before production'
+
+    - issue: 'AC10-DB-LOGGING'
+      severity: 'critical'
+      description: 'No validation that database logging includes channel=pwa'
+      impact: 'Cannot verify compliance with audit trail requirements'
+      recommendation: 'Add integration tests with test database'
+
+    - issue: 'AC7-REGRESSION'
+      severity: 'high'
+      description: 'Streak calculation bug fixed but no regression tests'
+      impact: 'Risk of reintroducing critical bug in future changes'
+      recommendation: 'Add unit tests for streak calculation algorithm'
+
+  concerns:
+    - 'API integration tests use mocked database (no actual data validation)'
+    - 'Frontend-backend integration not tested end-to-end'
+    - 'Authentication flow (JWT) not covered in integration tests'
+    - 'No performance testing for offline sync queue'
+
+  path_to_pass:
+    - 'Implement Priority 1 E2E tests for offline flow (AC #8, #9)'
+    - 'Add integration tests for database logging (AC #10)'
+    - 'Add regression tests for streak calculation (AC #7)'
+    - 'Minimum integration tests for API calls (AC #3, #6)'
+    - 'Manual QA sign-off for background sync functionality'
+
+# Recommended Actions
+actions:
+  immediate:
+    - action: 'BLOCK production deployment'
+      reason: 'Critical PWA features lack automated coverage'
+      gates: ['AC8', 'AC9', 'AC10']
+
+    - action: 'Add regression tests for streak calculation'
+      reason: 'Protect critical bug fix from regression'
+      effort: 'Low'
+      priority: 'P0'
+
+    - action: 'Manual QA validation required'
+      reason: 'Automated E2E tests not yet implemented'
+      scope: 'Offline functionality, background sync, database logging'
+
+  short_term:
+    - action: 'Implement E2E test suite'
+      tools: 'Playwright or Cypress'
+      coverage: 'AC #8, #9 (offline flow, background sync)'
+      effort: 'High'
+      priority: 'P0'
+
+    - action: 'Add database integration tests'
+      tools: 'Vitest + Test Database'
+      coverage: 'AC #10 (logging validation)'
+      effort: 'Medium'
+      priority: 'P0'
+
+    - action: 'Add API integration tests'
+      tools: 'Vitest + MSW or real API'
+      coverage: 'AC #3, #6 (frontend-backend flow)'
+      effort: 'Medium'
+      priority: 'P1'
+
+  long_term:
+    - action: 'Implement Lighthouse CI'
+      reason: 'Automated PWA score validation'
+      priority: 'P2'
+
+    - action: 'Add performance tests for sync queue'
+      reason: 'Validate background sync under load'
+      priority: 'P2'
+
+# Test Metrics
+metrics:
+  test_files: 7
+  unit_tests: 15
+  integration_tests: 6
+  e2e_tests: 0
+  manual_tests: 'documented'
+
+  coverage_by_type:
+    unit:
+      count: 12
+      coverage: 'Components well tested'
+    integration:
+      count: 6
+      coverage: 'API structure validated, DB mocked'
+    e2e:
+      count: 0
+      coverage: 'None - critical gap'
+
+# References
+references:
+  story: 'docs/stories/s12.md'
+  fixes: 'docs/stories/s12-critical-fixes.md'
+  trace: 'docs/qa/assessments/s12-trace-20251011.md'
+  prd: 'docs/prd.md'
+  manual_tests: 'docs/testing/s12-developer-test-report.md'

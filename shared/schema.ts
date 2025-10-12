@@ -17,7 +17,10 @@ export const followUpStatusEnum = pgEnum("follow_up_status", ["pending", "sent",
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
-  password: text("password").notNull(),
+  password: text("password"), // Made nullable for OAuth users
+  email: varchar("email").notNull().unique(), // Required for OAuth
+  googleId: varchar("google_id").unique(), // OAuth provider ID
+  avatarUrl: text("avatar_url"), // User profile picture
   phoneNumber: text("phone_number"),
   deviceToken: jsonb("device_token"), // Push notification subscription object
   preferredTime: varchar("preferred_time", { length: 5 }), // "09:00" format

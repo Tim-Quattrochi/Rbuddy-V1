@@ -883,7 +883,7 @@ Since users experience the system through text and voice, "style" manifests in *
 
 ---
 
-### SMS/IVR-Specific Accessibility
+### SMS/IVR-Specific Accessibility (WE ARE NOT USING SMS/IVR FOR MVP)
 
 **SMS Accessibility:**
 - ✅ Accessible to users with visual impairments (screen readers can read texts)
@@ -1024,7 +1024,9 @@ Since there's no visual animation in SMS/IVR, "micro-interactions" manifest as *
 
 ### Performance Goals
 
-**SMS/IVR:**
+
+<disrefard SMS and IVR references. These are post MVP goals.>
+**SMS/IVR:** 
 - **Message delivery:** <10 seconds from trigger to user receipt
 - **Response latency:** <2 seconds from user input to system reply
 - **IVR pickup:** <3 rings for outbound calls, instant for inbound
