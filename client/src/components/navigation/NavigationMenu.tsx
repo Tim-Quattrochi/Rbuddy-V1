@@ -90,7 +90,7 @@ export function NavigationMenu({ onOpenRepair }: NavigationMenuProps) {
             }`}
           >
             <Home className="h-5 w-5" />
-            <span>Daily Ritual</span>
+            {isAuthenticated && <span>Daily Ritual</span>}
           </Link>
 
           <Separator className="my-4" />
