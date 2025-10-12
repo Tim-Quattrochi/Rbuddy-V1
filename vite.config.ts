@@ -2,6 +2,9 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [
@@ -108,20 +111,32 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      "@": path.resolve(import.meta.dirname, "client", "src"),
-      "@shared": path.resolve(import.meta.dirname, "shared"),
-      "@assets": path.resolve(import.meta.dirname, "attached_assets"),
-    },
+      // since root is client, @ points to client/src
+      '@': path.resolve(__dirname, 'client', 'src'),
+      '@shared': path.resolve(__dirname, 'shared'),
+      '@assets': path.resolve(__dirname, 'attached_assets')
+    }
   },
-  root: path.resolve(import.meta.dirname, "client"),
+  root: path.resolve(__dirname, "client"),
+  publicDir: path.resolve(__dirname, "public"),
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist/public"),
-    emptyOutDir: true,
+    outDir: path.resolve(__dirname, "dist/public"),
+    emptyOutDir: true
   },
   server: {
-    fs: {
-      strict: true,
-      deny: ["**/.*"],
-    },
+    proxy: {
+      "/api": {
+        target: process.env.NODE_ENV === "production" ? "https://rbuddy-v1.vercel.app" : "http://localhost:3000",
+        changeOrigin: true,
+        secure: false
+      },
+    }
+  },
+  optimizeDeps: {
+    include: ["react/jsx-runtime"],
   },
 });
+
+
+
+
