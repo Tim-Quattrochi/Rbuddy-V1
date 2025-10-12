@@ -15,6 +15,22 @@ export interface AuthenticatedRequest extends Request {
   userId?: string;
 }
 
+/**
+ * Parse cookies from Cookie header (for Vercel serverless compatibility)
+ */
+function parseCookies(cookieHeader: string | undefined): Record<string, string> {
+  if (!cookieHeader) return {};
+  
+  return cookieHeader.split(';').reduce((cookies, cookie) => {
+    const [name, ...rest] = cookie.split('=');
+    const value = rest.join('=').trim();
+    if (name && value) {
+      cookies[name.trim()] = decodeURIComponent(value);
+    }
+    return cookies;
+  }, {} as Record<string, string>);
+}
+
 export function requireAuth(
   req: AuthenticatedRequest,
   res: Response,
@@ -30,8 +46,15 @@ export function requireAuth(
     }
     
     // If no Authorization header, try to get token from cookie
-    if (!token && req.cookies && req.cookies.auth_token) {
-      token = req.cookies.auth_token;
+    // Handle both Express cookie-parser (req.cookies) and manual parsing (for Vercel)
+    if (!token) {
+      if (req.cookies && req.cookies.auth_token) {
+        token = req.cookies.auth_token;
+      } else {
+        // Manually parse cookies for Vercel serverless functions
+        const cookies = parseCookies(req.headers.cookie);
+        token = cookies.auth_token;
+      }
     }
     
     if (!token) {
