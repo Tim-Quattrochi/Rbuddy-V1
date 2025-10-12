@@ -4,7 +4,7 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import pg from 'pg';
 const { Pool } = pg;
 
-import * as schema from '../../shared/schema';
+import * as schema from '../../shared/schema.js';
 import { eq } from 'drizzle-orm';
 
 if (!process.env.DATABASE_URL) {
