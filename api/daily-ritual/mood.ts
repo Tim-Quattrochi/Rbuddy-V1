@@ -1,7 +1,7 @@
 
 import { Response } from 'express';
 import ConversationEngine from '../../server/services/conversationEngine';
-import type { MoodOption } from '../../shared/schema';
+import { moodEnum, type MoodOption } from '../../shared/schema';
 import { requireAuth, AuthenticatedRequest } from '../../server/middleware/auth';
 
 const engine = new ConversationEngine();
