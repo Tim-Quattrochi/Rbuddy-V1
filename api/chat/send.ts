@@ -30,7 +30,9 @@ export async function handler(req: AuthenticatedRequest, res: Response) {
     console.error('[Chat API] Error:', error);
     return res.status(500).json({ 
       error: 'Failed to process message',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      ...(process.env.NODE_ENV === 'development' && {
+        details: error instanceof Error ? error.message : 'Unknown error'
+      })
     });
   }
 }
