@@ -32,10 +32,23 @@ export const chatSendLimiter = rateLimit({
   },
   // Skip rate limiting if API key is missing (will fail at service level)
   skip: (req) => {
-    return !process.env.OPENAI_API_KEY && 
-           !process.env.GEMINI_API_KEY && 
-           !process.env.MISTRAL_API_KEY &&
-           !process.env.PERPLEXITY_API_KEY;
+    // Determine provider from request or environment
+    const provider = (req.body && req.body.provider) ||
+                     (req.query && req.query.provider) ||
+                     process.env.AI_PROVIDER;
+    switch (provider) {
+      case 'openai':
+        return !process.env.OPENAI_API_KEY;
+      case 'gemini':
+        return !process.env.GEMINI_API_KEY;
+      case 'mistral':
+        return !process.env.MISTRAL_API_KEY;
+      case 'perplexity':
+        return !process.env.PERPLEXITY_API_KEY;
+      default:
+        // If provider is unknown, do not skip rate limiting
+        return false;
+    }
   }
 });
 
