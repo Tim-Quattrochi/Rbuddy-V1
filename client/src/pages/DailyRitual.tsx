@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { MoodSelector } from "@/components/daily-ritual/MoodSelector";
 import { AffirmationCard } from "@/components/daily-ritual/AffirmationCard";
 import { IntentionInput } from "@/components/daily-ritual/IntentionInput";
+import { JournalInput } from "@/components/daily-ritual/JournalInput";
 import { StreakCounter } from "@/components/daily-ritual/StreakCounter";
 import type { MoodOption } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
@@ -44,13 +45,22 @@ async function postMood(variables: { mood: MoodOption }) {
   return res.json();
 }
 
-async function postIntention(variables: { sessionId: string; intentionText: string }) {
-  const { sessionId, intentionText } = variables;
+async function postIntention(variables: { sessionId: string; intentionText: string; type?: "intention" | "journal_entry" }) {
+  const { sessionId, intentionText, type } = variables;
+  const payload: Record<string, string> = {
+    sessionId,
+    intentionText,
+  };
+
+  if (type) {
+    payload.type = type;
+  }
+
   const res = await fetch("/api/daily-ritual/intention", {
     method: "POST",
     credentials: "include", // Send cookies with request
     headers: getAuthHeaders(),
-    body: JSON.stringify({ sessionId, intentionText }),
+    body: JSON.stringify(payload),
   });
   if (!res.ok) {
     throw new Error("Network response was not ok");
@@ -114,7 +124,8 @@ export default function DailyRitualPage() {
     });
 
   const intentionMutation = useMutation({
-    mutationFn: postIntention,
+    mutationFn: ({ sessionId, intentionText }: { sessionId: string; intentionText: string }) =>
+      postIntention({ sessionId, intentionText, type: "intention" }),
     onSuccess: () => {
       toast({
         title: "Intention saved",
@@ -135,6 +146,28 @@ export default function DailyRitualPage() {
     },
   });
 
+  const journalMutation = useMutation({
+    mutationFn: ({ sessionId, intentionText }: { sessionId: string; intentionText: string }) =>
+      postIntention({ sessionId, intentionText, type: "journal_entry" }),
+    onSuccess: () => {
+      toast({
+        title: "Journal entry saved",
+        description: "Your reflection has been added to your ritual.",
+      });
+    },
+    onError: (err: Error) => {
+      const isAuthError = err.message.includes("401") || err.message.includes("Unauthorized");
+
+      toast({
+        variant: "destructive",
+        title: isAuthError ? "Session expired" : "Error saving journal entry",
+        description: isAuthError
+          ? "Your session has expired. Please log in again."
+          : "Unable to save your journal entry. Please try again.",
+      });
+    },
+  });
+
   const handleSelectMood = (mood: MoodOption) => {
     setSelectedMood(mood);
     moodMutation.mutate({ mood });
@@ -143,6 +176,11 @@ export default function DailyRitualPage() {
   const handleSaveIntention = (intention: string) => {
     if (!sessionId) return;
     intentionMutation.mutate({ sessionId, intentionText: intention });
+  };
+
+  const handleSaveJournal = async (entry: string) => {
+    if (!sessionId) return;
+    await journalMutation.mutateAsync({ sessionId, intentionText: entry });
   };
 
   const affirmation = queryClient.getQueryData<string>(['affirmation']);
@@ -232,6 +270,9 @@ export default function DailyRitualPage() {
                 <AffirmationCard affirmation={affirmation} />
             ) : null}
             <IntentionInput onSaveIntention={handleSaveIntention} />
+            {sessionId && (
+              <JournalInput onSaveJournal={handleSaveJournal} isSaving={journalMutation.isPending} />
+            )}
           </div>
         )}
       </div>
