@@ -2,7 +2,7 @@
 import { Response } from 'express';
 import { db } from '../../server/storage';
 import { sessions } from '../../shared/schema';
-import { and, eq, gte, desc, or } from 'drizzle-orm';
+import { and, eq, gte, desc, or, isNotNull } from 'drizzle-orm';
 import { requireAuth, AuthenticatedRequest } from '../../server/middleware/auth';
 
 /**
@@ -41,6 +41,9 @@ async function calculateStreak(userId: string): Promise<number> {
   }
 
   const today = normalizeToMidnight(new Date());
+  if (!userSessions[0].createdAt) {
+    return 0;
+  }
   const mostRecentSessionDate = normalizeToMidnight(new Date(userSessions[0].createdAt));
   
   // Check if the most recent session is today or yesterday
@@ -56,7 +59,11 @@ async function calculateStreak(userId: string): Promise<number> {
 
   // Count consecutive days going backwards from most recent
   for (let i = 1; i < userSessions.length; i++) {
-    const currentDate = normalizeToMidnight(new Date(userSessions[i].createdAt));
+    const createdAt = userSessions[i].createdAt;
+    if (!createdAt) {
+      continue;
+    }
+    const currentDate = normalizeToMidnight(new Date(createdAt));
     const daysDiff = daysBetween(currentDate, previousDate);
 
     if (daysDiff === 1) {
@@ -79,7 +86,7 @@ async function getMoodTrends(userId: string): Promise<any> {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    const recentSessions = await db.select().from(sessions).where(and(eq(sessions.userId, userId), gte(sessions.createdAt, sevenDaysAgo)));
+    const recentSessions = await db.select().from(sessions).where(and(eq(sessions.userId, userId), isNotNull(sessions.createdAt), gte(sessions.createdAt, sevenDaysAgo)));
 
     const moodTrends = recentSessions.reduce((acc, session) => {
         if(session.mood){
