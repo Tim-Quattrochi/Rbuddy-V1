@@ -5,10 +5,10 @@
  * Story 5: Adds database persistence for sessions and messages
  */
 
-import { db } from '../storage';
-import * as schema from '../../../shared/schema';
+import { db } from '../storage.js';
+import * as schema from '../../../shared/schema.js';
 import { eq, and, or, isNull } from 'drizzle-orm';
-import type { MoodOption } from '../../../shared/schema';
+import type { MoodOption } from '../../../shared/schema.js';
 
 export interface ConversationContext {
   mood?: MoodOption;

@@ -4,11 +4,11 @@ dotenv.config();
 
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 
-import { requireAuth, AuthenticatedRequest } from '../_lib/middleware/auth';
-import { storage, db } from '../_lib/storage';
-import { sessions } from '../../shared/schema';
+import { requireAuth, AuthenticatedRequest } from '../_lib/middleware/auth.js';
+import { storage, db } from '../_lib/storage.js';
+import { sessions } from '../../shared/schema.js';
 import { and, eq, gte, desc, or, isNotNull } from 'drizzle-orm';
-import { createVercelHandler } from '../_lib/vercel-handler';
+import { createVercelHandler } from '../_lib/vercel-handler.js';
 
 function normalizeToMidnight(date: Date): Date {
   const normalized = new Date(date);

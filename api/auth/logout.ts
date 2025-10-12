@@ -1,6 +1,6 @@
 import { Response } from 'express';
-import { requireAuth, AuthenticatedRequest } from '../_lib/middleware/auth';
-import { createVercelHandler } from '../_lib/vercel-handler';
+import { requireAuth, AuthenticatedRequest } from '../_lib/middleware/auth.js';
+import { createVercelHandler } from '../_lib/vercel-handler.js';
 import dotenv from 'dotenv';
 
 // Ensure environment variables are loaded

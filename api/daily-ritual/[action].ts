@@ -3,10 +3,10 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { Request, Response, NextFunction, RequestHandler } from 'express';
-import { requireAuth, AuthenticatedRequest } from '../_lib/middleware/auth';
-import { createVercelHandler } from '../_lib/vercel-handler';
-import ConversationEngine from '../_lib/services/conversationEngine';
-import { moodEnum, type MoodOption } from '../../shared/schema';
+import { requireAuth, AuthenticatedRequest } from '../_lib/middleware/auth.js';
+import { createVercelHandler } from '../_lib/vercel-handler.js';
+import ConversationEngine from '../_lib/services/conversationEngine.js';
+import { moodEnum, type MoodOption } from '../../shared/schema.js';
 
 const engine = new ConversationEngine();
 

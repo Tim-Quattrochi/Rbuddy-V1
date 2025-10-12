@@ -9,8 +9,8 @@ import OpenAI from 'openai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Mistral } from '@mistralai/mistralai';
 import Perplexity from '@perplexity-ai/perplexity_ai';
-import { db } from '../storage';
-import * as schema from '../../../shared/schema';
+import { db } from '../storage.js';
+import * as schema from '../../../shared/schema.js';
 import { eq, desc } from 'drizzle-orm';
 
 type AIProvider = 'openai' | 'gemini' | 'anthropic' | 'mistral' | 'perplexity';
@@ -42,7 +42,7 @@ export default class AIChatService {
     const provider = (process.env.AI_PROVIDER || 'openai').toLowerCase() as AIProvider;
     this.provider = provider;
 
-    console.log(process.env.GEMINI_API_KEY);
+ 
 
     switch (provider) {
       case 'openai':

@@ -5,8 +5,8 @@ dotenv.config();
 import { Request, Response } from 'express';
 import passport from 'passport';
 import { Strategy as GoogleStrategy, Profile, VerifyCallback } from 'passport-google-oauth20';
-import { storage } from '../_lib/storage';
-import { createVercelHandler } from "../_lib/vercel-handler";
+import { storage } from '../_lib/storage.js';
+import { createVercelHandler } from "../_lib/vercel-handler.js";
 
 // Configure Passport inline for serverless (avoids module resolution issues)
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;

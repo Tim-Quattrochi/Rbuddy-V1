@@ -1,10 +1,10 @@
 import type { Response } from "express";
 import { and, desc, eq } from "drizzle-orm";
-import type { AuthenticatedRequest } from "../_lib/middleware/auth";
-import { requireAuth } from "../_lib/middleware/auth";
-import { db } from "../_lib/storage";
-import { interactions } from "../../shared/schema";
-import { createVercelHandler } from "../_lib/vercel-handler";
+import type { AuthenticatedRequest } from "../_lib/middleware/auth.js";
+import { requireAuth } from "../_lib/middleware/auth.js";
+import { db } from "../_lib/storage.js";
+import { interactions } from "../../shared/schema.js";
+import { createVercelHandler } from "../_lib/vercel-handler.js";
 
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 50;

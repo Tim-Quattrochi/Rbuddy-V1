@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
     "build:client": "vite build",
-    "build:api": "tsc api/_lib/*.ts api/_lib/middleware/*.ts api/auth/google.ts api/auth/google.callback.ts api/auth/logout.ts api/user/*.ts --outDir dist/api --target es2020 --module esnext --moduleResolution node --allowJs --esModuleInterop --skipLibCheck",
+    "build:api": "tsc --project tsconfig.api.json",
     "build:server": "tsc -p tsconfig.json --outDir dist/server",
     "build": "npm run build:client && npm run build:api && npm run build:server",
     "start": "NODE_ENV=production node dist/index.js",

@@ -3,9 +3,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { Response } from 'express';
-import ConversationEngine from '../_lib/services/conversationEngine';
-import { requireAuth, AuthenticatedRequest } from '../_lib/middleware/auth';
-import { createVercelHandler } from '../_lib/vercel-handler';
+import ConversationEngine from '../_lib/services/conversationEngine.js';
+import { requireAuth, AuthenticatedRequest } from '../_lib/middleware/auth.js';
+import { createVercelHandler } from '../_lib/vercel-handler.js';
 
 const engine = new ConversationEngine();
 
