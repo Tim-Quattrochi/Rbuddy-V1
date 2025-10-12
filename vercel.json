@@ -11,7 +11,8 @@
   "functions": {
     "api/**/*.ts": {
       "includeFiles": "{server/**,shared/**}",
-      "excludeFiles": "{**/*.test.ts,**/__tests__/**}"
+      "excludeFiles": "{**/*.test.ts,**/__tests__/**,**/_lib/**}"
     }
-  }
+  },
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./api"
 }
