@@ -3,9 +3,12 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { Request, Response, NextFunction } from 'express';
-import passport from '../../server/services/AuthService';
+import passport, { configurePassport } from '../../server/services/AuthService';
 import { generateToken } from '../../server/middleware/auth';
 import type { User } from '../../server/storage';
+
+// Ensure Passport is configured (required for Vercel serverless)
+configurePassport();
 
 /**
  * Handles Google OAuth callback
@@ -49,4 +52,8 @@ async function handler(req: Request, res: Response, next: NextFunction) {
   )(req, res, next);
 }
 
+// Export for Express server (middleware array)
+export const middlewares = [handler];
+
+// Export for Vercel serverless (NOT using createVercelHandler because passport needs special handling)
 export default handler;

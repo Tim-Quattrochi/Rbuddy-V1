@@ -4,7 +4,7 @@ import { storage } from "./storage";
 
 // Import API route handlers
 
-import journalHistoryHandler from "../api/journal/history";
+import { middlewares as journalHistoryHandler } from "../api/journal/history";
 import { middlewares as dailyRitualHandler } from "../api/daily-ritual/[action]";
 import { middlewares as userHandler } from "../api/user/[action]";
 
@@ -12,7 +12,7 @@ import { middlewares as userHandler } from "../api/user/[action]";
 
 // Import Auth route handlers
 import { middlewares as googleAuthHandler } from "../api/auth/google/index";
-import googleCallbackHandler from "../api/auth/google.callback";
+import { middlewares as googleCallbackHandler } from "../api/auth/google.callback";
 import { middlewares as logoutHandler } from "../api/auth/logout";
 
 // Import Repair route handlers
@@ -24,7 +24,7 @@ import { middlewares as chatHandler } from "../api/chat/[action]";
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth Routes
   app.get("/api/auth/google", ...googleAuthHandler);
-  app.get("/api/auth/google/callback", googleCallbackHandler);
+  app.get("/api/auth/google/callback", ...googleCallbackHandler);
   app.post("/api/auth/logout", ...logoutHandler);
   
   // User Routes

@@ -1,7 +1,13 @@
+// Load environment variables FIRST
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { Request, Response } from 'express';
-import passport from '../../../server/services/AuthService';
+import passport, { configurePassport } from '../../../server/services/AuthService';
 import { createVercelHandler } from "../../_lib/vercel-handler";
 
+// Ensure Passport is configured (required for Vercel serverless)
+configurePassport();
 
 /**
  * Initiates Google OAuth flow

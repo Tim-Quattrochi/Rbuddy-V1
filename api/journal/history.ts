@@ -1,10 +1,10 @@
-
 import type { Response } from "express";
 import { and, desc, eq } from "drizzle-orm";
 import type { AuthenticatedRequest } from "../../server/middleware/auth";
 import { requireAuth } from "../../server/middleware/auth";
 import { db } from "../../server/storage";
 import { interactions } from "../../shared/schema";
+import { createVercelHandler } from "../_lib/vercel-handler";
 
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 50;
@@ -103,4 +103,8 @@ export async function handler(req: AuthenticatedRequest, res: Response) {
   }
 }
 
-export default [requireAuth, handler];
+// Export for Express server (middleware array)
+export const middlewares = [requireAuth, handler];
+
+// Export for Vercel serverless (wrapped function)
+export default createVercelHandler(middlewares);
