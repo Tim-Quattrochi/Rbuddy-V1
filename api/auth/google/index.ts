@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import passport from '../../../server/services/AuthService';
+import { createVercelHandler } from "../../_lib/vercel-handler";
+
 
 /**
  * Initiates Google OAuth flow
@@ -12,4 +14,6 @@ async function handler(req: Request, res: Response) {
   })(req, res);
 }
 
-export default handler;
+export const middlewares = [handler];
+
+export default createVercelHandler(middlewares);
