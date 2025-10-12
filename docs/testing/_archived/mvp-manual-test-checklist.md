@@ -1,4 +1,4 @@
-# Reentry Buddy - MVP Manual Test Checklist
+# Next Moment - MVP Manual Test Checklist
 
 **Version**: 1.0
 **Date**: October 10, 2025

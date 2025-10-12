@@ -380,7 +380,7 @@ export default class ConversationEngine {
 
       if (!session) {
         console.error(`[ConversationEngine] PWA intention handling failed: session not found for ID ${sessionId}`);
-        return;
+        throw new Error('Session not found');
       }
 
       // 2. Update the session with the intention
@@ -400,6 +400,7 @@ export default class ConversationEngine {
       console.log(`[ConversationEngine] PWA intention logged for session ${sessionId}`);
     } catch (error) {
       console.error(`[ConversationEngine] Failed to handle PWA intention for session ${sessionId}:`, error);
+      throw error;
     }
   }
 
@@ -416,7 +417,7 @@ export default class ConversationEngine {
 
       if (!session) {
         console.error(`[ConversationEngine] PWA journal entry handling failed: session not found for ID ${sessionId}`);
-        return;
+        throw new Error('Session not found');
       }
 
       await this.dbClient.insert(schema.interactions).values({
@@ -432,6 +433,7 @@ export default class ConversationEngine {
       console.log(`[ConversationEngine] PWA journal entry logged for session ${sessionId}`);
     } catch (error) {
       console.error(`[ConversationEngine] Failed to handle PWA journal entry for session ${sessionId}:`, error);
+      throw error;
     }
   }
 

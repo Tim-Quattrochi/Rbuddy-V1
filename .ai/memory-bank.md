@@ -1,4 +1,4 @@
-# Reentry Buddy - Project Memory Bank
+# Next Moment - Project Memory Bank
 **Last Updated**: 2025-10-11
 **Project Status**: Story 12 Critical Fixes Complete - Ready for QA Re-Review
 
@@ -6,7 +6,7 @@
 
 ## 🎯 Project Overview
 
-**Name**: Reentry Buddy  
+**Name**: Next Moment  
 **Purpose**: Wellness-focused PWA for recovery support with daily check-ins, goal tracking, and emotional support  
 **Tech Stack**: React 19 + TypeScript, Express, PostgreSQL, Drizzle ORM, TanStack Query, shadcn/ui, Tailwind CSS  
 **Current Phase**: MVP Implementation - Story 12 Complete with Critical Fixes

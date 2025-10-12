@@ -176,7 +176,7 @@ describe('Header component', () => {
 
       renderHeader();
 
-      expect(screen.getByText('Reentry Buddy')).toBeInTheDocument();
+      expect(screen.getByText('Next Moment')).toBeInTheDocument();
       expect(screen.getByTestId('link-home')).toHaveAttribute('href', '/');
     });
 
@@ -213,7 +213,7 @@ describe('Header component', () => {
       renderHeader();
 
       // Should still render header, just without user info
-      expect(screen.getByText('Reentry Buddy')).toBeInTheDocument();
+      expect(screen.getByText('Next Moment')).toBeInTheDocument();
       expect(screen.queryByTestId('mock-navigation-menu')).not.toBeInTheDocument();
     });
   });
@@ -238,7 +238,7 @@ describe('Header component', () => {
         });
 
         const { unmount } = renderHeader({ onOpenRepair: mockOnOpenRepair });
-        expect(screen.getByText('Reentry Buddy')).toBeInTheDocument();
+        expect(screen.getByText('Next Moment')).toBeInTheDocument();
         
         if (isAuthenticated) {
           expect(screen.getByTestId('mock-navigation-menu')).toBeInTheDocument();

@@ -1,7 +1,7 @@
-# Reentry Buddy Documentation Index
+# Next Moment Documentation Index
 
 **Last Updated:** October 12, 2025  
-**Project:** Reentry Buddy v1 (rBuddy-v1)  
+**Project:** Next Moment v1 (rBuddy-v1)  
 **Status:** Active Development
 
 ---

@@ -51,8 +51,15 @@ export function NavigationMenu({ onOpenRepair }: NavigationMenuProps) {
       <SheetContent side="left" className="w-72">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
-            <Heart className="h-5 w-5 text-primary" />
-            Reentry Buddy
+                <img
+            src="/nm-logo.png"
+            decoding="async"
+            width={210}
+            height={29}
+    
+            alt="Next Moment Logo"
+            className="h-12 w-20 object-contain"
+          />
           </SheetTitle>
           {user && (
             <p className="text-sm text-muted-foreground text-left" data-testid="nav-user-email">

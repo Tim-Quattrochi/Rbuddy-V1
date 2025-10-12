@@ -16,8 +16,8 @@ export default defineConfig({
         "maskable-icon-*.png",
       ],
       manifest: {
-        name: "Reentry Buddy",
-        short_name: "Reentry Buddy",
+        name: "Next Moment",
+        short_name: "Next Moment",
         description: "Daily recovery support ritual for your reentry journey",
         theme_color: "#1a202e",
         background_color: "#ffffff",

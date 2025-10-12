@@ -2,7 +2,7 @@
 Date: October 11, 2025 (Updated)
 Handoff From: BMad Orchestrator (Phase 3 Complete)
 Handoff To: Next BMad Agent / Developer
-Project: Reentry Buddy v1 - PWA Pivot Implementation
+Project: Next Moment v1 - PWA Pivot Implementation
 
 📍 Current State
 What Just Happened

@@ -11,9 +11,23 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { ApiError } from "@/lib/queryClient";
 
 // Use cookie-based authentication (auth_token cookie set by OAuth)
 // No need for Authorization header - cookies are sent automatically with credentials: 'include'
+
+function isUnauthorizedError(error: unknown): boolean {
+  if (error instanceof ApiError) {
+    return error.status === 401;
+  }
+
+  if (typeof error === "object" && error !== null && "status" in error) {
+    return (error as { status?: number }).status === 401;
+  }
+
+  const message = (error as Error | undefined)?.message ?? "";
+  return message.includes("401") || message.toLowerCase().includes("unauthorized");
+}
 
 function getAuthHeaders(): HeadersInit {
   return {
@@ -21,14 +35,21 @@ function getAuthHeaders(): HeadersInit {
   };
 }
 
+async function parseJsonOrThrow(res: Response) {
+  if (!res.ok) {
+    const message = res.statusText
+      ? `${res.status} ${res.statusText}`
+      : `Request failed with status ${res.status}`;
+  throw new ApiError({ status: res.status, message });
+  }
+  return res.json();
+}
+
 async function fetchUserStats() {
   const res = await fetch("/api/user/stats", {
     credentials: "include", // Send cookies with request
   });
-  if (!res.ok) {
-    throw new Error("Network response was not ok");
-  }
-  return res.json();
+  return parseJsonOrThrow(res);
 }
 
 async function postMood(variables: { mood: MoodOption }) {
@@ -39,10 +60,7 @@ async function postMood(variables: { mood: MoodOption }) {
     headers: getAuthHeaders(),
     body: JSON.stringify({ mood }),
   });
-  if (!res.ok) {
-    throw new Error("Network response was not ok");
-  }
-  return res.json();
+  return parseJsonOrThrow(res);
 }
 
 async function postIntention(variables: { sessionId: string; intentionText: string; type?: "intention" | "journal_entry" }) {
@@ -62,10 +80,7 @@ async function postIntention(variables: { sessionId: string; intentionText: stri
     headers: getAuthHeaders(),
     body: JSON.stringify(payload),
   });
-  if (!res.ok) {
-    throw new Error("Network response was not ok");
-  }
-  return res.json();
+  return parseJsonOrThrow(res);
 }
 
 export default function DailyRitualPage() {
@@ -108,7 +123,7 @@ export default function DailyRitualPage() {
         queryClient.setQueryData(['userStats'], context?.previousStats);
 
         // Check if it's an authentication error
-        const isAuthError = err.message.includes('401') || err.message.includes('Unauthorized');
+        const isAuthError = isUnauthorizedError(err);
 
         toast({
           variant: "destructive",
@@ -134,7 +149,7 @@ export default function DailyRitualPage() {
     },
     onError: (err: Error) => {
       // Check if it's an authentication error
-      const isAuthError = err.message.includes('401') || err.message.includes('Unauthorized');
+      const isAuthError = isUnauthorizedError(err);
 
       toast({
         variant: "destructive",
@@ -156,7 +171,7 @@ export default function DailyRitualPage() {
       });
     },
     onError: (err: Error) => {
-      const isAuthError = err.message.includes("401") || err.message.includes("Unauthorized");
+      const isAuthError = isUnauthorizedError(err);
 
       toast({
         variant: "destructive",

@@ -382,7 +382,18 @@ describe('DailyRitual Integration Tests', () => {
       });
 
       // Mock 401 error
-      fetchMock.mockRejectedValueOnce(new Error('401 Unauthorized'));
+      fetchMock.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        statusText: 'Unauthorized',
+        json: async () => ({ message: 'Unauthorized' }),
+      });
+
+      // Subsequent invalidated stats fetch
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ streakCount: 5 }),
+      });
 
       const calmButton2 = screen.getByRole('button', { name: /calm/i });
       await user.click(calmButton2);
@@ -397,6 +408,91 @@ describe('DailyRitual Integration Tests', () => {
           })
         );
       });
+
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/daily-ritual/mood',
+        expect.objectContaining({ method: 'POST' })
+      );
+    });
+
+    it('shows session expired guidance when journal submission returns 401', async () => {
+      const user = userEvent.setup();
+      const mockUser = {
+        id: 'test-user-id',
+        username: 'testuser',
+        email: 'test@example.com',
+      };
+
+      mockUseAuth.mockReturnValue({
+        user: mockUser,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+        logout: vi.fn(),
+        isLoggingOut: false,
+        refetch: vi.fn(),
+      });
+
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ streakCount: 5 }),
+      });
+
+      renderWithProviders(<DailyRitualPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText('5 Days')).toBeInTheDocument();
+      });
+
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          sessionId: 'test-session-123',
+          affirmation: 'You are doing great!',
+        }),
+      });
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ streakCount: 6 }),
+      });
+      fetchMock.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        statusText: 'Unauthorized',
+        json: async () => ({ message: 'Unauthorized' }),
+      });
+
+      const calmButton = screen.getAllByRole('button').find((button) =>
+        button.textContent?.toLowerCase().includes('calm')
+      );
+
+      expect(calmButton).toBeDefined();
+      await user.click(calmButton!);
+
+      await waitFor(() => {
+        expect(screen.getByText('You are doing great!')).toBeInTheDocument();
+      });
+
+  const journalTextarea = screen.getAllByLabelText(/Daily Journal/i)[0];
+      await user.type(journalTextarea, 'This is a reflective journal entry.');
+
+      const saveJournalButton = screen.getByRole('button', { name: /save journal/i });
+      await user.click(saveJournalButton);
+
+      await waitFor(() => {
+        expect(mockToast).toHaveBeenCalledWith(
+          expect.objectContaining({
+            variant: 'destructive',
+            title: 'Session expired',
+            description: 'Your session has expired. Please log in again.',
+          })
+        );
+      });
+
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/daily-ritual/intention',
+        expect.objectContaining({ method: 'POST' })
+      );
     });
   });
 

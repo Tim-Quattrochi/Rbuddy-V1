@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { NavigationMenu } from "@/components/navigation/NavigationMenu";
 import { UserMenu } from "@/components/navigation/UserMenu";
 
+
 interface HeaderProps {
   onOpenRepair?: () => void;
 }
@@ -18,11 +19,18 @@ export default function Header({ onOpenRepair }: HeaderProps) {
           {isAuthenticated && onOpenRepair && (
             <NavigationMenu onOpenRepair={onOpenRepair} />
           )}
-          
-          <Link to="/" className="flex items-center gap-2" data-testid="link-home">
-            <Heart className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold">Reentry Buddy</span>
-          </Link>
+     
+  <Link to="/" className="flex items-center gap-2" aria-label="Navigate to home">
+  <img
+    src="/logo-4.png"
+    alt="Next Moment Logo"
+  
+    decoding="async"
+    fetchPriority="high"
+    className="h-38 w-auto object-contain"
+  />
+</Link>
+
 
           {isAuthenticated && (
             <nav className="hidden md:flex items-center gap-6 ml-6">

@@ -13,7 +13,7 @@ export default function CheckIn() {
       <main className="flex-1 py-12 md:py-16">
         <div className="container mx-auto">
           <h1 className="text-3xl font-bold text-center mb-12" data-testid="text-page-title">
-            Reentry Buddy
+            Next Moment
           </h1>
           
           {!showForm ? (

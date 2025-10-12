@@ -2,7 +2,7 @@
   <!-- Background circle -->
   <circle cx="256" cy="256" r="256" fill="#1a202e"/>
   
-  <!-- Letter "R" and "B" stylized for Reentry Buddy -->
+  <!-- Letter "R" and "B" stylized for Next Moment -->
   <text x="256" y="340" font-family="Arial, sans-serif" font-size="280" font-weight="bold" fill="#ffffff" text-anchor="middle">RB</text>
   
   <!-- Accent circle representing support/wellness -->

@@ -1,4 +1,4 @@
-# Reentry Buddy UI/UX Specification
+# Next Moment UI/UX Specification
 
 **Version:** v2.0
 **Date:** October 12, 2025
@@ -27,11 +27,11 @@
 
 ## Introduction
 
-This document defines the user experience goals, information architecture, user flows, and interface specifications for **Reentry Buddy**'s Progressive Web Application (PWA). It serves as the foundation for the MVP implementation, ensuring a trauma-informed, accessible, and user-centered experience.
+This document defines the user experience goals, information architecture, user flows, and interface specifications for **Next Moment**'s Progressive Web Application (PWA). It serves as the foundation for the MVP implementation, ensuring a trauma-informed, accessible, and user-centered experience.
 
 ### Project Context
 
-Reentry Buddy is a digital recovery support system designed for justice-impacted individuals reentering society after incarceration. The **MVP is a Progressive Web App (PWA)** that provides daily check-ins, streak tracking, rupture & repair flows, and journaling capabilities. The PWA offers an app-like experience accessible through any modern web browser, with offline capabilities and push notifications.
+Next Moment is a digital recovery support system designed for justice-impacted individuals reentering society after incarceration. The **MVP is a Progressive Web App (PWA)** that provides daily check-ins, streak tracking, rupture & repair flows, and journaling capabilities. The PWA offers an app-like experience accessible through any modern web browser, with offline capabilities and push notifications.
 
 **Note:** SMS and IVR (text messages and voice calls) are deferred to post-MVP phases. This specification focuses exclusively on the PWA interface.
 
@@ -74,7 +74,7 @@ Reentry Buddy is a digital recovery support system designed for justice-impacted
 
 ```mermaid
 graph TD
-    A[Reentry Buddy PWA] --> B[Public Pages]
+    A[Next Moment PWA] --> B[Public Pages]
     A --> C[Authenticated Pages]
 
     B --> B1[Landing Page]
@@ -354,7 +354,7 @@ graph TD
 
 ```
 ┌─────────────────────────────────┐
-│  Reentry Buddy          9:00 AM │
+│  Next Moment          9:00 AM │
 ├─────────────────────────────────┤
 │                                 │
 │  ┌───────────────────────────┐ │
@@ -404,7 +404,7 @@ graph TD
 
 ```
 ┌─────────────────────────────────────┐
-│  ☰  Reentry Buddy    [I slipped] 👤 │  ← Header with slip button
+│  ☰  Next Moment    [I slipped] 👤 │  ← Header with slip button
 ├─────────────────────────────────────┤
 │                                     │
 │        Daily Ritual                 │  ← Page title
@@ -439,7 +439,7 @@ graph TD
 [After mood selection, shows:]
 
 ┌─────────────────────────────────────┐
-│  ☰  Reentry Buddy    [I slipped] 👤 │
+│  ☰  Next Moment    [I slipped] 👤 │
 ├─────────────────────────────────────┤
 │                                     │
 │  ┌───────────────────────────────┐ │
@@ -478,7 +478,7 @@ graph TD
 
 ```
 ┌─────────────────────────────────────┐
-│  ☰  Reentry Buddy    [I slipped] 👤 │
+│  ☰  Next Moment    [I slipped] 👤 │
 ├─────────────────────────────────────┤
 │  ╔═══════════════════════════════╗ │
 │  ║                               ║ │  ← Modal overlay
@@ -587,7 +587,7 @@ graph TD
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  Reentry Buddy Admin Dashboard        [Week: Oct 3-9, 2025] │
+│  Next Moment Admin Dashboard        [Week: Oct 3-9, 2025] │
 ├─────────────────────────────────────────────────────────────┤
 │                                                               │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
@@ -790,7 +790,7 @@ interface JournalEntryProps {
 
 ### Visual Identity
 
-**User-Facing Brand:** **Reentry Buddy**
+**User-Facing Brand:** **Next Moment**
 - Tone: Warm, friendly, accessible
 - Voice: First-person ("we"), conversational
 - Purpose: Build trust and emotional connection

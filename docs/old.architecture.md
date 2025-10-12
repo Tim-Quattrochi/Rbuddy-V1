@@ -1,4 +1,4 @@
-# Reentry Buddy Brownfield Enhancement Architecture
+# Next Moment Brownfield Enhancement Architecture
 
 **Version:** 1.0
 **Date:** October 10, 2025
@@ -16,7 +16,7 @@
 
 ## Introduction
 
-This document outlines the architectural approach for transforming **Reentry Buddy** from a web-based wellness application into an SMS/IVR-first recovery support system for justice-impacted individuals.
+This document outlines the architectural approach for transforming **Next Moment** from a web-based wellness application into an SMS/IVR-first recovery support system for justice-impacted individuals.
 
 ### Critical Context
 
@@ -427,7 +427,7 @@ export default function Dashboard() {
 
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Reentry Buddy - Live Demo</h1>
+      <h1 className="text-3xl font-bold mb-6">Next Moment - Live Demo</h1>
 
       <div className="grid grid-cols-3 gap-4">
         <Card>
@@ -577,7 +577,7 @@ graph TB
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Say voice="alice">Hi, this is Reentry Buddy. How's your mood today? Press 1 for calm, 2 for stressed, 3 for tempted, 4 for hopeful.</Say>
+  <Say voice="alice">Hi, this is Next Moment. How's your mood today? Press 1 for calm, 2 for stressed, 3 for tempted, 4 for hopeful.</Say>
   <Gather input="dtmf" numDigits="1" action="/api/webhooks/twilio/voice/gather"/>
 </Response>
 ```
@@ -1032,7 +1032,7 @@ describe('POST /api/webhooks/twilio/sms', () => {
 
 ### Story Manager Handoff
 
-**Task**: Implement Reentry Buddy SMS/IVR pivot with investor demo dashboard
+**Task**: Implement Next Moment SMS/IVR pivot with investor demo dashboard
 
 **Key Integration Requirements** (validated with user):
 - Use existing Express.js codebase (convert to Vercel serverless)

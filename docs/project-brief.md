@@ -1,8 +1,8 @@
-# Project Brief: Reentry Buddy
+# Project Brief: Next Moment
 
 ## Executive Summary
 
-Reentry Buddy is a compassionate, low-barrier digital companion designed to assist justice-impacted individuals in recovery. It addresses the critical problem of relapse caused by a lack of daily structure and accessible support.
+Next Moment is a compassionate, low-barrier digital companion designed to assist justice-impacted individuals in recovery. It addresses the critical problem of relapse caused by a lack of daily structure and accessible support.
 
 **Primary User:**  
 The "Returning Citizen in Recovery"—a recently released individual who has access to a smartphone (often via the Lifeline program) and requires a simple, non-judgmental digital tool.
@@ -30,7 +30,7 @@ Justice-impacted individuals in early recovery face a high risk of relapse due t
 
 ## Proposed Solution
 
-Reentry Buddy provides support through an accessible Progressive Web App (PWA) that functions offline. The solution is built around these core features:
+Next Moment provides support through an accessible Progressive Web App (PWA) that functions offline. The solution is built around these core features:
 
 - **Google Authentication:** Simple, secure, and passwordless sign-in
 - **Daily Ritual Flow (F1):** A simple, 2–5 minute daily check-in to build structure and self-awareness

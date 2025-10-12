@@ -9,7 +9,7 @@ export default function Hero() {
       <section className="py-16 md:py-24 px-4 md:px-6">
         <div className="container mx-auto max-w-4xl text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-6" data-testid="text-hero-title">
-            Reentry Buddy helps formerly incarcerated individuals avoid relapse
+            Next Moment helps formerly incarcerated individuals avoid relapse
           </h1>
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto" data-testid="text-hero-subtitle">
             Build daily structure and accountability through check-ins, goal setting, and journaling. 

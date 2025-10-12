@@ -1,5 +1,5 @@
 # Participant Recruitment & Consent Materials
-## Reentry Buddy User Testing
+## Next Moment User Testing
 
 ---
 
@@ -38,7 +38,7 @@ Email: [Email Address]
 Your privacy is protected. You don't need to share personal recovery details.
 
 ---
-Reentry Buddy Project | Community Feedback Session
+Next Moment Project | Community Feedback Session
 ```
 
 ---
@@ -136,9 +136,9 @@ Reentry Buddy Project | Community Feedback Session
 
 ## Informed Consent Form
 
-**REENTRY BUDDY USER TESTING - INFORMED CONSENT**
+**Next Moment USER TESTING - INFORMED CONSENT**
 
-**Study Title:** Message Design Feedback for Reentry Buddy Support System
+**Study Title:** Message Design Feedback for Next Moment Support System
 **Researcher:** [Your Name/Organization]
 **Date:** [Date]
 

@@ -1,5 +1,5 @@
 
-## **🪴 Reentry Buddy —Project Brief**
+## **🪴 Next Moment —Project Brief**
 
 Version: Draft v1  
 Prepared by: Mary (Analyst, Team Fullstack)  
@@ -115,7 +115,7 @@ Phase 2 – Expansion
 
 # **📘 Product Requirements Document (PRD)**
 
-## **Project: Reentry Buddy – Tier 1 MVP (SMS/IVR Edition)**
+## **Project: Next Moment – Tier 1 MVP (SMS/IVR Edition)**
 
 Version: 1.0 | Date: October 2025  
 Owner: Mary (Business Analyst, Team Fullstack)  
@@ -130,7 +130,7 @@ Collaborators: Product Manager, Architect, UX, Reentry Program Advisors
 Justice-impacted individuals in early reentry with substance abuse histories often struggle with structure, emotional regulation, and relapse prevention.  
 Many recovery apps require smartphones, data plans, and high digital literacy — all barriers in this population.
 
-Reentry Buddy provides a simple daily ritual and recalibration support through SMS or voice (IVR) to help individuals build consistency and resilience.
+Next Moment provides a simple daily ritual and recalibration support through SMS or voice (IVR) to help individuals build consistency and resilience.
 
 ---
 
@@ -182,7 +182,7 @@ Goal: Establish daily grounding and positive reinforcement habit via SMS or IVR.
 
 User Entry Points:
 
-* Receives daily SMS or call (“Reentry Buddy check-in time\!”)  
+* Receives daily SMS or call (“Next Moment check-in time\!”)  
 * Or can dial/txt short code anytime (e.g., *“Text CHECKIN to 74747”*)
 
 Flow (SMS Example):
@@ -207,7 +207,7 @@ Flow (SMS Example):
 
 Flow (IVR Example):  
 Voice prompt uses calm, affirming tone.  
-“Hi Marcus, this is Reentry Buddy checking in. How’s your mood? Press 1 for calm, 2 for stressed…”  
+“Hi Marcus, this is Next Moment checking in. How’s your mood? Press 1 for calm, 2 for stressed…”  
 System reads short reflection or grounding statement, then optional voice-recorded intention.
 
 Data Logged:
@@ -352,7 +352,7 @@ Data Logged:
 
 1. Should voice journaling be available at MVP stage or reserved for Phase 2?  
 2. Should participants earn “streak badges” or keep the experience purely reflective?  
-3. Will reentry orgs handle onboarding, or should Reentry Buddy support self-enrollment?  
+3. Will reentry orgs handle onboarding, or should Next Moment support self-enrollment?  
 4. Should we support bilingual (English/Spanish) content at launch?
 
 ---
@@ -390,13 +390,13 @@ Data Logged:
 
 ### **Appendix B — IVR Voice Prompts Sample**
 
-* “Hi, this is Reentry Buddy — let’s take two minutes together.”  
+* “Hi, this is Next Moment — let’s take two minutes together.”  
 * “Press 1 if you’re calm, 2 if stressed, 3 if tempted, 4 if hopeful.”  
 * “That’s honest — good job checking in. Remember, every day you show up, you strengthen your freedom.”
 
 ---
 
-# **✅ Reentry Buddy — Final MVP Brief (Tier 1 SMS/IVR Approach)**
+# **✅ Next Moment — Final MVP Brief (Tier 1 SMS/IVR Approach)**
 
 ### **Prepared by: Mary (Business Analyst)**
 
@@ -512,7 +512,7 @@ Justice-impacted individuals in early reentry frequently relapse due to lack of 
 
 ### **Product Vision Statement**
 
-Reentry Buddy is a compassionate, low-barrier digital companion that helps justice-impacted individuals in recovery rebuild daily structure and emotional regulation through simple, accessible SMS or voice (IVR) interactions.
+Next Moment is a compassionate, low-barrier digital companion that helps justice-impacted individuals in recovery rebuild daily structure and emotional regulation through simple, accessible SMS or voice (IVR) interactions.
 
 It aims to deliver consistency, connection, and encouragement in moments where traditional digital support systems fail due to low access, literacy, or trust.
 
@@ -520,7 +520,7 @@ Our “why”:
 
 * Recovery and reentry are fragile, especially in the first 6–12 months.  
 * Digital inequity isolates the most vulnerable.  
-* Reentry Buddy restores human-centered connection via the simplest available technology — a basic phone.
+* Next Moment restores human-centered connection via the simplest available technology — a basic phone.
 
 North Star Metric: Sustained daily ritual engagement rate (completion ≥ 60% over 14 days).
 
@@ -538,7 +538,7 @@ North Star Metric: Sustained daily ritual engagement rate (completion ≥ 60% ov
 
 ### **Key Differentiators**
 
-| Aspect | Reentry Buddy | Typical Recovery Apps |
+| Aspect | Next Moment | Typical Recovery Apps |
 | ----- | ----- | ----- |
 | Access | SMS & IVR — any phone | Smartphone & data required |
 | Tone | Peer-like, affirming | Often clinical or punitive |
@@ -550,7 +550,7 @@ North Star Metric: Sustained daily ritual engagement rate (completion ≥ 60% ov
 
 ### **Vision Summary**
 
-Reentry Buddy transforms everyday mobile communication (text or call) into a ritual of self-care and reflection, offering individuals in reentry a small, consistent success moment each day.  
+Next Moment transforms everyday mobile communication (text or call) into a ritual of self-care and reflection, offering individuals in reentry a small, consistent success moment each day.  
 It stands as a bridge between behavioral recovery, reentry support, and accessible digital health — lightweight yet deeply human.
 
 ---
@@ -676,12 +676,12 @@ Context:
 
 Behavioral Focus:  
 The system supports habit formation, emotional regulation, and relapse resilience through short, structured check-ins.  
-While not a clinical treatment tool, Reentry Buddy acts as a behavioral reinforcement and recovery companion.
+While not a clinical treatment tool, Next Moment acts as a behavioral reinforcement and recovery companion.
 
 
 ---
 
-## **🧩 Name Assessment: “Reentry Buddy”**
+## **🧩 Name Assessment: “Next Moment”**
 
 ### **1\. Linguistic and Emotional Tone Analysis**
 
@@ -713,7 +713,7 @@ Summary: The name strikes a tone of *friendliness and accessibility* but risks s
 
 | Name | Tone | Perception |
 | ----- | ----- | ----- |
-| Reentry Buddy | Friendly, casual | Trustworthy but non-institutional |
+| Next Moment | Friendly, casual | Trustworthy but non-institutional |
 | Reentry Coach | Professional, empowering | Formal but approachable |
 | Reentry Guide | Supportive, neutral | Professional yet simple |
 | Recovery Path | Reflective, hopeful | Emotionally balanced |
@@ -726,7 +726,7 @@ Summary: The name strikes a tone of *friendliness and accessibility* but risks s
 ### **4\. Recommendation**
 
 Primary Recommendation:  
-✅ *Retain “Reentry Buddy” for the MVP and early-stage pilot,* given:
+✅ *Retain “Next Moment” for the MVP and early-stage pilot,* given:
 
 * Its plain-language accessibility (6th-grade level).  
 * Emotional safety for justice-impacted participants.  
@@ -737,7 +737,7 @@ A dual-branding model can balance tone across contexts:
 
 | Use Context | Recommended Label |
 | ----- | ----- |
-| User-facing (SMS/IVR) | “Reentry Buddy” |
+| User-facing (SMS/IVR) | “Next Moment” |
 | Institutional / PRD / Grant documents | “Reentry Companion” or “Reentry Coach” |
 
 ---
@@ -755,7 +755,7 @@ A dual-branding model can balance tone across contexts:
 
 ### **6\. Final Recommendation Summary**
 
-* Retain “Reentry Buddy” for pilot MVP to preserve trust and approachability.  
+* Retain “Next Moment” for pilot MVP to preserve trust and approachability.  
 * Evaluate name perception with participants during early testing.  
 * If feedback skews toward “too casual,” transition to “Reentry Coach” or “Reentry Companion” for broader rollout.  
 * Maintain 6th-grade readability and non-stigmatizing language in all brand materials regardless of final name.
@@ -765,15 +765,15 @@ A dual-branding model can balance tone across contexts:
 **📜 Branding Decision Memo (for Integration Reference)**
 
 Decision Context:  
-Project name *“Reentry Buddy”* tested positively for accessibility and emotional warmth but may sound overly casual in institutional settings. To balance tone, we adopt a dual-brand strategy for clarity and professionalism.
+Project name *“Next Moment”* tested positively for accessibility and emotional warmth but may sound overly casual in institutional settings. To balance tone, we adopt a dual-brand strategy for clarity and professionalism.
 
 | Context | Name Used | Rationale |
 | ----- | ----- | ----- |
-| User-facing (SMS/IVR, website, materials) | Reentry Buddy | Plain, friendly, relatable; encourages engagement among returning citizens. |
+| User-facing (SMS/IVR, website, materials) | Next Moment | Plain, friendly, relatable; encourages engagement among returning citizens. |
 | Institutional / Partner / PRD Documentation | Reentry Companion | Professional tone for funders, agencies, and partner communications. |
 
 Action:  
-PRD will reference the project as “Reentry Buddy (Institutional alias: Reentry Companion)” throughout.  
+PRD will reference the project as “Next Moment (Institutional alias: Reentry Companion)” throughout.  
 Tone in all content will remain trauma-informed, nonjudgmental, and written at a 6th-grade reading level.
 
 ---
@@ -784,7 +784,7 @@ Now resuming the PRD Section 3: Functional Scope and Requirements with branding 
 
 ## **⚙️ Section 3 — Functional Scope and Requirements**
 
-Product Name: *Reentry Buddy (Institutional alias: Reentry Companion)*
+Product Name: *Next Moment (Institutional alias: Reentry Companion)*
 
 ---
 
@@ -939,7 +939,7 @@ Flow: Aggregate check-in logs → generate weekly SMS digest or dashboard snapsh
 | ----- | ----- |
 | Technical simplicity | All flows must run on basic SMS and IVR devices. |
 | User data privacy | Minimal collection; anonymous IDs; explicit opt-out. |
-| Tone and branding | User-facing brand: *Reentry Buddy* (friendly); Institutional alias: *Reentry Companion* (professional). |
+| Tone and branding | User-facing brand: *Next Moment* (friendly); Institutional alias: *Reentry Companion* (professional). |
 | Trauma-informed design | Language must be supportive, not directive. |
 | Engagement model | Encourage consistency through affirmation, not gamification. |
 
@@ -1132,7 +1132,7 @@ Acceptance Criteria:
 
 ### **4.1 System Overview**
 
-Reentry Buddy operates as a conversation-driven behavioral support platform built on top of reliable telephony and messaging infrastructure.  
+Next Moment operates as a conversation-driven behavioral support platform built on top of reliable telephony and messaging infrastructure.  
 Its architecture emphasizes:
 
 * Low-access functionality: works on any device capable of sending/receiving texts or voice calls.  
@@ -1220,7 +1220,7 @@ Inbound:
 
 Example TwiML:
 
-`<Response> <Say voice="alice">Hi, this is Reentry Buddy. How’s your mood today?</Say> <Gather input="dtmf" numDigits="1" action="/voice/mood-response"/> </Response>`
+`<Response> <Say voice="alice">Hi, this is Next Moment. How’s your mood today?</Say> <Gather input="dtmf" numDigits="1" action="/voice/mood-response"/> </Response>`
 
 Follow-up:
 

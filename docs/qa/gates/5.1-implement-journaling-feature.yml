@@ -1,0 +1,8 @@
+schema: 1
+story: "5.1"
+gate: PASS
+status_reason: "Session-expiry handling now surfaces auth-specific messaging and journaling meets acceptance criteria."
+reviewer: "Quinn"
+updated: "2025-10-12T21:00:00Z"
+top_issues: []
+waiver: { active: false }

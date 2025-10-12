@@ -158,7 +158,7 @@
    - Navigate to deployed URL
 
 2. **Install PWA:**
-   - Banner should appear: "Add Reentry Buddy to Home screen"
+   - Banner should appear: "Add Next Moment to Home screen"
    - Tap "Install"
 
 3. **Expected Results:**

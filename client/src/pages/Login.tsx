@@ -49,7 +49,7 @@ const LoginPage = () => {
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-bold">
-              Welcome to Reentry Buddy
+              Welcome to Next Moment
             </CardTitle>
             <CardDescription className="text-base">
               Sign in to continue your recovery journey

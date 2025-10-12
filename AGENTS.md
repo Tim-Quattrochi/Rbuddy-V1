@@ -1,13 +1,13 @@
 ---
-name: "Reentry Buddy Project"
-description: "A comprehensive development guide for Reentry Buddy - a wellness-focused full-stack application for recovery support, based on React 18 + TypeScript + Express + PostgreSQL, including complete development standards and best practices tailored to this workspace's actual structure."
+name: "Next Moment Project"
+description: "A comprehensive development guide for Next Moment - a wellness-focused full-stack application for recovery support, based on React 18 + TypeScript + Express + PostgreSQL, including complete development standards and best practices tailored to this workspace's actual structure."
 ---
 
-# Reentry Buddy Project Development Guide
+# Next Moment Project Development Guide
 
 ## Project Overview
 
-Reentry Buddy is a wellness-focused full-stack application designed to support individuals in recovery. It provides daily check-ins, goal tracking, journaling, and emotional support features with a calming, accessible design system focused on trust and emotional safety.
+Next Moment is a wellness-focused full-stack application designed to support individuals in recovery. It provides daily check-ins, goal tracking, journaling, and emotional support features with a calming, accessible design system focused on trust and emotional safety.
 
 ## Tech Stack
 
@@ -88,15 +88,15 @@ Here is the complete, updated content for your AGENTS.MD file.
 Markdown
 
 ---
-name: "Reentry Buddy Project"
-description: "A comprehensive development guide for Reentry Buddy - a wellness-focused full-stack application for recovery support, based on React 18 + TypeScript + Express + PostgreSQL, including complete development standards and best practices tailored to this workspace's actual structure."
+name: "Next Moment Project"
+description: "A comprehensive development guide for Next Moment - a wellness-focused full-stack application for recovery support, based on React 18 + TypeScript + Express + PostgreSQL, including complete development standards and best practices tailored to this workspace's actual structure."
 ---
 
-# Reentry Buddy Project Development Guide
+# Next Moment Project Development Guide
 
 ## Project Overview
 
-Reentry Buddy is a wellness-focused full-stack application designed to support individuals in recovery. It provides daily check-ins, goal tracking, journaling, and emotional support features with a calming, accessible design system focused on trust and emotional safety.
+Next Moment is a wellness-focused full-stack application designed to support individuals in recovery. It provides daily check-ins, goal tracking, journaling, and emotional support features with a calming, accessible design system focused on trust and emotional safety.
 
 ## Tech Stack
 

@@ -1,6 +1,6 @@
 # Introduction
 
-This document outlines the architectural approach for transforming **Reentry Buddy** from a web-based wellness application into an SMS/IVR-first recovery support system for justice-impacted individuals.
+This document outlines the architectural approach for transforming **Next Moment** from a web-based wellness application into an SMS/IVR-first recovery support system for justice-impacted individuals.
 
 ## Critical Context
 

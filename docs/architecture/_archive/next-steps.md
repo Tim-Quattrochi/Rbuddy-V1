@@ -40,7 +40,7 @@
 
 ## Story Manager Handoff
 
-**Task**: Implement Reentry Buddy SMS/IVR pivot with investor demo dashboard
+**Task**: Implement Next Moment SMS/IVR pivot with investor demo dashboard
 
 **Key Integration Requirements** (validated with user):
 - Use existing Express.js codebase (convert to Vercel serverless)

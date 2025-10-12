@@ -1,8 +1,8 @@
-# Reentry Buddy Corrective & Enhancement Architecture
+# Next Moment Corrective & Enhancement Architecture
 
 ## Table of Contents
 
-- [Reentry Buddy Corrective & Enhancement Architecture](#table-of-contents)
+- [Next Moment Corrective & Enhancement Architecture](#table-of-contents)
   - [1. Introduction](#1-introduction)
   - [2. Enhancement Scope and Integration Strategy](#2-enhancement-scope-and-integration-strategy)
   - [3. Tech Stack](#3-tech-stack)

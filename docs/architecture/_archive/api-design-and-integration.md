@@ -57,7 +57,7 @@
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Say voice="alice">Hi, this is Reentry Buddy. How's your mood today? Press 1 for calm, 2 for stressed, 3 for tempted, 4 for hopeful.</Say>
+  <Say voice="alice">Hi, this is Next Moment. How's your mood today? Press 1 for calm, 2 for stressed, 3 for tempted, 4 for hopeful.</Say>
   <Gather input="dtmf" numDigits="1" action="/api/webhooks/twilio/voice/gather"/>
 </Response>
 ```

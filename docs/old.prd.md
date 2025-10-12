@@ -4,7 +4,7 @@
 ---
 
 
-# Reentry Buddy (Institutional Alias: Reentry Companion)
+# Next Moment (Institutional Alias: Reentry Companion)
 ## Product Requirements Document (PRD)
 **Version:** v1.0  
 **Date:** October 2025  
@@ -16,7 +16,7 @@
 ## 1. Vision
 
 ### 1.1 Purpose
-Reentry Buddy (institutional alias *Reentry Companion*) is a digital recovery support system designed for justice-impacted individuals reentering society after incarceration.  
+Next Moment (institutional alias *Reentry Companion*) is a digital recovery support system designed for justice-impacted individuals reentering society after incarceration.  
 Its mission is to provide structure, consistency, and emotional regulation through a daily ritual flow accessible on any mobile device — including basic phones.
 
 ### 1.2 Problem Statement
@@ -24,7 +24,7 @@ Justice-impacted individuals with substance use challenges often struggle with a
 Existing recovery apps assume smartphone access, leaving a gap for low-access users who still need daily grounding and positive feedback.
 
 ### 1.3 Solution Overview
-Reentry Buddy bridges that gap through **Tier 1 accessibility** — a low-data SMS and IVR (voice) solution that enables:
+Next Moment bridges that gap through **Tier 1 accessibility** — a low-data SMS and IVR (voice) solution that enables:
 - A short **Daily Ritual Flow (2–5 minutes)** via text or call.  
 - A **Rupture and Repair** process for relapse moments (“SLIP”).  
 - Positive reinforcement that emphasizes progress, not failure.  
@@ -100,7 +100,7 @@ They need simple, supportive routines without judgment or technical friction. PW
 |-----------|----------------|
 | Technical simplicity | PWA accessible via browser (no app store needed), works offline after first load. |
 | User data privacy | No PII; anonymized identifiers only; local-first architecture. |
-| Tone & branding | User-facing: *Reentry Buddy* (friendly), Institutional: *Reentry Companion* (formal). |
+| Tone & branding | User-facing: *Next Moment* (friendly), Institutional: *Reentry Companion* (formal). |
 | Trauma-informed design | Supportive, non-judgmental, plain language, emoji-enhanced clarity. |
 | Engagement model | Encouragement over gamification; visual progress (streaks) without competitive elements. |
 
@@ -124,7 +124,7 @@ They need simple, supportive routines without judgment or technical friction. PW
 - **Acceptance:** Interaction logs to database; streak counter updates; works offline with background sync.
 
 ### 3.2 PWA Installation
-**Story:** As a user, I want to add Reentry Buddy to my home screen so it feels like a regular app.
+**Story:** As a user, I want to add Next Moment to my home screen so it feels like a regular app.
 - **Given:** User visits PWA in browser.
 - **When:** Browser prompts to "Add to Home Screen" or user selects option.
 - **Then:** PWA installs with custom icon, splash screen, and standalone display mode.

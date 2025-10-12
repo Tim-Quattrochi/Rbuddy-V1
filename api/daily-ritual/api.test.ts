@@ -4,6 +4,14 @@ import { setupServer } from 'msw/node';
 import moodHandler from './mood';
 import intentionHandler from './intention';
 import statsHandler from '../user/stats';
+import ConversationEngine from '../../server/services/conversationEngine';
+
+vi.mock('../../server/middleware/auth', () => ({
+  requireAuth: (req: any, _res: any, next: () => void) => {
+    req.userId = req.userId ?? 'user-123';
+    next();
+  },
+}));
 
 // Mock the db module
 vi.mock('../../server/storage', () => {
@@ -25,6 +33,10 @@ vi.mock('../../server/storage', () => {
   return { db };
 });
 
+const moodSpy = vi.spyOn(ConversationEngine.prototype, 'handlePwaMoodSelection');
+const intentionSpy = vi.spyOn(ConversationEngine.prototype, 'handlePwaIntention');
+const journalSpy = vi.spyOn(ConversationEngine.prototype, 'handlePwaJournalEntry');
+
 const server = setupServer();
 
 // Helper to create a mock request
@@ -43,7 +55,10 @@ const createMockReq = (method: string, body: any = {}, query: any = {}) => {
 const createMockRes = () => {
     const res: any = {};
     res.status = vi.fn().mockReturnValue(res);
-    res.json = vi.fn().mockReturnValue(res);
+  res.json = vi.fn().mockImplementation(() => {
+    res.end();
+    return res;
+  });
     res.setHeader = vi.fn().mockReturnValue(res);
     res.end = vi.fn().mockReturnValue(res);
     return res;
@@ -81,6 +96,13 @@ async function runMiddlewares(middlewares: any, req: any, res: any) {
 describe('API Endpoints', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    moodSpy.mockReset();
+    intentionSpy.mockReset();
+    journalSpy.mockReset();
+
+    moodSpy.mockResolvedValue({ sessionId: 'session-123', affirmation: 'Stay present and kind to yourself.' });
+    intentionSpy.mockResolvedValue();
+    journalSpy.mockResolvedValue();
   });
 
   describe('POST /api/daily-ritual/mood', () => {
@@ -117,6 +139,30 @@ describe('API Endpoints', () => {
 
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({ success: true, type: 'journal_entry' });
+    });
+
+    it('should return 404 when session is missing for intention submissions', async () => {
+      intentionSpy.mockRejectedValueOnce(new Error('Session not found'));
+
+      const req = createMockReq('POST', { sessionId: 'missing-session', intentionText: 'Intentional reflection' });
+      const res = createMockRes();
+
+      await runMiddlewares(intentionHandler, req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Session not found' });
+    });
+
+    it('should return 404 when session is missing for journal submissions', async () => {
+      journalSpy.mockRejectedValueOnce(new Error('Session not found'));
+
+      const req = createMockReq('POST', { sessionId: 'missing-session', intentionText: 'Journal reflection', type: 'journal_entry' });
+      const res = createMockRes();
+
+      await runMiddlewares(intentionHandler, req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Session not found' });
     });
   });
 

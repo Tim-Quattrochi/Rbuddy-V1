@@ -1,4 +1,4 @@
-# Reentry Buddy Corrective & Enhancement Architecture
+# Next Moment Corrective & Enhancement Architecture
 
 ### **Change Log**
 

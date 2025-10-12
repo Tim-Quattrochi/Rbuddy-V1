@@ -1,4 +1,4 @@
-# Reentry Buddy Brownfield Enhancement PRD
+# Next Moment Brownfield Enhancement PRD
 
 ### **Change Log**
 
@@ -14,7 +14,7 @@
 ### **Existing Project Overview**
 
 * **Analysis Source**: IDE-based analysis of the provided `flattened-codebase.xml`.
-* **Current Project State**: "Reentry Buddy" is a wellness-focused Progressive Web App (PWA) for recovery support. Its core features include daily check-ins, goal tracking, and emotional support. The current tech stack is a monorepo with a React 18 + TypeScript frontend, an Express.js backend, and a PostgreSQL database using Drizzle ORM. The last major update completed critical fixes for Story 12, making the PWA's daily ritual flow functional with JWT authentication and offline background sync.
+* **Current Project State**: "Next Moment" is a wellness-focused Progressive Web App (PWA) for recovery support. Its core features include daily check-ins, goal tracking, and emotional support. The current tech stack is a monorepo with a React 18 + TypeScript frontend, an Express.js backend, and a PostgreSQL database using Drizzle ORM. The last major update completed critical fixes for Story 12, making the PWA's daily ritual flow functional with JWT authentication and offline background sync.
 
 ### **Available Documentation Analysis**
 

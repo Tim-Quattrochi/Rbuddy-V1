@@ -25,7 +25,7 @@ describe('LoginPage', () => {
         </BrowserRouter>
       );
 
-      expect(screen.getByText('Welcome to Reentry Buddy')).toBeInTheDocument();
+      expect(screen.getByText('Welcome to Next Moment')).toBeInTheDocument();
       expect(screen.getByText('Sign in to continue your recovery journey')).toBeInTheDocument();
     });
 
@@ -49,7 +49,7 @@ describe('LoginPage', () => {
       );
 
       // Header should contain the logo/brand
-      expect(screen.getByText('Reentry Buddy')).toBeInTheDocument();
+      expect(screen.getByText('Next Moment')).toBeInTheDocument();
       
       // Footer should be present
       expect(screen.getByTestId('text-footer')).toBeInTheDocument();
@@ -189,7 +189,7 @@ describe('LoginPage', () => {
       );
 
       // CardTitle renders as H3 by default in shadcn/ui
-      const heading = screen.getByText('Welcome to Reentry Buddy');
+      const heading = screen.getByText('Welcome to Next Moment');
       // Just ensure it exists and has proper role
       expect(heading).toBeInTheDocument();
     });

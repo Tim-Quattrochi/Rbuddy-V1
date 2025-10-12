@@ -293,20 +293,29 @@ describe('Daily Ritual Integration Tests', () => {
   });
 
   describe('Error Handling', () => {
-    it('should handle invalid sessionId for intention submission', async () => {
+    it('should surface error for invalid sessionId during intention submission', async () => {
       const fakeSessionId = 'non-existent-session-id';
       const intentionText = 'This should not be saved';
-      
-      // This should not throw, but should log error and return gracefully
-      await expect(
-        engine.handlePwaIntention(fakeSessionId, intentionText)
-      ).resolves.not.toThrow();
-      
-      // Verify no intention was logged for fake session
+
+      await expect(engine.handlePwaIntention(fakeSessionId, intentionText)).rejects.toThrow('Session not found');
+
       const fakeSessionInteractions = await db.select()
         .from(interactions)
         .where(eq(interactions.sessionId, fakeSessionId));
-      
+
+      expect(fakeSessionInteractions.length).toBe(0);
+    });
+
+    it('should surface error for invalid sessionId during journal submission', async () => {
+      const fakeSessionId = 'non-existent-session-id';
+      const journalText = 'This journal should not persist';
+
+      await expect(engine.handlePwaJournalEntry(fakeSessionId, journalText)).rejects.toThrow('Session not found');
+
+      const fakeSessionInteractions = await db.select()
+        .from(interactions)
+        .where(eq(interactions.sessionId, fakeSessionId));
+
       expect(fakeSessionInteractions.length).toBe(0);
     });
 

@@ -46,7 +46,7 @@ They need simple, supportive routines without judgment or technical friction.
 |-----------|----------------|
 | Technical simplicity | Operates on basic SMS and IVR (no app needed). |
 | User data privacy | No PII; anonymized identifiers only. |
-| Tone & branding | User-facing: *Reentry Buddy* (friendly), Institutional: *Reentry Companion* (formal). |
+| Tone & branding | User-facing: *Next Moment* (friendly), Institutional: *Reentry Companion* (formal). |
 | Trauma-informed design | Supportive, non-judgmental, plain language. |
 | Engagement model | Encouragement over gamification. |
 
