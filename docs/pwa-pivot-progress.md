@@ -160,8 +160,8 @@
 ### Story 12: Daily Ritual Flow UI Components - NEXT
 
 - [ ] React Components
-  - [ ] `DailyRitual.tsx` (main flow orchestrator)
-  - [ ] `MoodSelector.tsx` (4 emoji buttons)
+  - [ x] `DailyRitual.tsx` (main flow orchestrator)
+  - [x ] `MoodSelector.tsx` (4 emoji buttons)
   - [ ] `AffirmationCard.tsx` (animated display)
   - [ ] `IntentionInput.tsx` (text input)
   - [ ] `RepairFlow.tsx` (slip recovery)
@@ -169,9 +169,8 @@
   - [ ] `Settings.tsx` (notification preferences)
 
 - [ ] Authentication UI
-  - [ ] `Login.tsx` (phone verification)
-  - [ ] Phone input with country code
-  - [ ] Verification code entry
+  - [ x] `Login.tsx` 
+  - [x] `Google Login button`
 
 ---
 
