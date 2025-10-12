@@ -28,3 +28,4 @@ web-bundles/
 .env*.local
 .vercel
 .mcp.json
+firebase-debug.log
