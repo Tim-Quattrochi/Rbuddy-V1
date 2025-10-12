@@ -15,7 +15,7 @@ export default function Hero() {
             Build daily structure and accountability through check-ins, goal setting, and journaling. 
             Take control of your recovery journey, one day at a time.
           </p>
-          <Link to="/check-in" data-testid="link-get-started">
+          <Link to="/login" data-testid="link-get-started">
             <Button size="lg" className="text-lg px-8 py-6">
               Get Started
             </Button>
