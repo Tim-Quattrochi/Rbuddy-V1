@@ -3,9 +3,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { Request, Response, NextFunction, RequestHandler } from 'express';
-import { requireAuth, AuthenticatedRequest } from '../../server/middleware/auth';
+import { requireAuth, AuthenticatedRequest } from '../_lib/middleware/auth';
 import { createVercelHandler } from '../_lib/vercel-handler';
-import { storage, db } from '../../server/storage';
+import { storage, db } from '../_lib/storage';
 import { sessions } from '../../shared/schema';
 import { and, eq, gte, desc, or, isNotNull } from 'drizzle-orm';
 

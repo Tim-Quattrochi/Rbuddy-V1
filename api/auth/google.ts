@@ -5,7 +5,7 @@ dotenv.config();
 import { Request, Response } from 'express';
 import passport from 'passport';
 import { Strategy as GoogleStrategy, Profile, VerifyCallback } from 'passport-google-oauth20';
-import { storage } from '../../server/storage';
+import { storage } from '../_lib/storage';
 import { createVercelHandler } from "../_lib/vercel-handler";
 
 // Configure Passport inline for serverless (avoids module resolution issues)

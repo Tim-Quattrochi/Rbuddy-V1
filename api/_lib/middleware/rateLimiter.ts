@@ -1,0 +1,78 @@
+/**
+ * Rate Limiting Middleware for Chat API
+ * 
+ * Prevents abuse and controls OpenAI API costs by limiting:
+ * - 20 messages per hour per user
+ * - 100 requests per hour per IP (fallback)
+ */
+
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
+import type { Request } from 'express';
+
+// Rate limiter for chat send endpoint
+// 20 messages per hour per user to control OpenAI costs
+export const chatSendLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 20,
+  message: {
+    error: 'Too many messages sent. Please try again later.',
+    retryAfter: '1 hour'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  // Use userId if available, otherwise fall back to default IP handling
+  keyGenerator: (req: Request) => {
+    const userId = (req as any).userId;
+    if (userId) {
+      return `user:${userId}`;
+    }
+  const forwardedFor = req.headers["x-forwarded-for"];
+  const fallbackIp = req.socket?.remoteAddress;
+  const rawIp = req.ip || forwardedFor || fallbackIp || "127.0.0.1";
+  const ip = Array.isArray(rawIp) ? rawIp[0] : rawIp;
+  return `ip:${ipKeyGenerator(ip)}`;
+  },
+  // Skip rate limiting if API key is missing (will fail at service level)
+  skip: (req) => {
+    // Determine provider from request or environment
+    const provider = (req.body && req.body.provider) ||
+                     (req.query && req.query.provider) ||
+                     process.env.AI_PROVIDER;
+    switch (provider) {
+      case 'openai':
+        return !process.env.OPENAI_API_KEY;
+      case 'gemini':
+        return !process.env.GEMINI_API_KEY;
+      case 'mistral':
+        return !process.env.MISTRAL_API_KEY;
+      case 'perplexity':
+        return !process.env.PERPLEXITY_API_KEY;
+      default:
+        // If provider is unknown, do not skip rate limiting
+        return false;
+    }
+  }
+});
+
+// Rate limiter for history and clear endpoints
+// More lenient: 100 requests per hour
+export const chatGeneralLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 100,
+  message: {
+    error: 'Too many requests. Please try again later.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req: Request) => {
+    const userId = (req as any).userId;
+    if (userId) {
+      return `user:${userId}`;
+    }
+    const forwardedFor = req.headers["x-forwarded-for"];
+    const fallbackIp = req.socket?.remoteAddress;
+    const rawIp = req.ip || forwardedFor || fallbackIp || "127.0.0.1";
+    const ip = Array.isArray(rawIp) ? rawIp[0] : rawIp;
+    return `ip:${ipKeyGenerator(ip)}`;
+  }
+});

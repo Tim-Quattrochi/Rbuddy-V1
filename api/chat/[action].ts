@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
-import { requireAuth, AuthenticatedRequest } from "../../server/middleware/auth";
-import { chatSendLimiter, chatGeneralLimiter } from "../../server/middleware/rateLimiter";
-import AIChatService from "../../server/services/aiChatService";
+import { requireAuth, AuthenticatedRequest } from "../_lib/middleware/auth";
+import { chatSendLimiter, chatGeneralLimiter } from "../_lib/middleware/rateLimiter";
+import AIChatService from "../_lib/services/aiChatService";
 import { createVercelHandler } from "../_lib/vercel-handler";
 
 const MESSAGE_MAX_LENGTH = 1000;

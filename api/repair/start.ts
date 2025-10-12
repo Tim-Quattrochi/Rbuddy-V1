@@ -3,8 +3,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { Response } from 'express';
-import ConversationEngine from '../../server/services/conversationEngine';
-import { requireAuth, AuthenticatedRequest } from '../../server/middleware/auth';
+import ConversationEngine from '../_lib/services/conversationEngine';
+import { requireAuth, AuthenticatedRequest } from '../_lib/middleware/auth';
 import { createVercelHandler } from '../_lib/vercel-handler';
 
 const engine = new ConversationEngine();

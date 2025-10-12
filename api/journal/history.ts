@@ -1,8 +1,8 @@
 import type { Response } from "express";
 import { and, desc, eq } from "drizzle-orm";
-import type { AuthenticatedRequest } from "../../server/middleware/auth";
-import { requireAuth } from "../../server/middleware/auth";
-import { db } from "../../server/storage";
+import type { AuthenticatedRequest } from "../_lib/middleware/auth";
+import { requireAuth } from "../_lib/middleware/auth";
+import { db } from "../_lib/storage";
 import { interactions } from "../../shared/schema";
 import { createVercelHandler } from "../_lib/vercel-handler";
 

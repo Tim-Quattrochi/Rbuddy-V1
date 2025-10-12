@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { requireAuth, AuthenticatedRequest } from '../../server/middleware/auth';
+import { requireAuth, AuthenticatedRequest } from '../_lib/middleware/auth';
 import { createVercelHandler } from '../_lib/vercel-handler';
 import dotenv from 'dotenv';
 
