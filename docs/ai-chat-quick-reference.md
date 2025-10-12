@@ -74,16 +74,44 @@ private createSystemPrompt(context: ChatContext): string {
 ```
 
 ### Changing AI Model Settings
-Edit `server/services/aiChatService.ts` in the `sendMessage` method:
+You can change the AI model using environment variables:
 
-```typescript
-const completion = await this.openai.chat.completions.create({
-  model: 'gpt-3.5-turbo', // or 'gpt-4' for better responses
-  messages,
-  temperature: 0.7, // 0-1, higher = more creative
-  max_tokens: 150, // Max response length
-});
+**OpenAI:**
+```bash
+AI_PROVIDER=openai
+OPENAI_MODEL=gpt-4  # or gpt-3.5-turbo, gpt-4-turbo
 ```
+
+**Gemini:**
+```bash
+AI_PROVIDER=gemini
+GEMINI_MODEL=gemini-pro  # or gemini-pro-vision
+```
+
+**Anthropic:**
+```bash
+AI_PROVIDER=anthropic
+ANTHROPIC_MODEL=claude-3-opus-20240229  # or claude-3-sonnet, claude-3-haiku
+```
+
+### Switching AI Providers
+To switch between providers, update your `.env` file:
+
+```bash
+# Use OpenAI (default)
+AI_PROVIDER=openai
+OPENAI_API_KEY=sk-...
+
+# Or use Gemini
+AI_PROVIDER=gemini
+GEMINI_API_KEY=...
+
+# Or use Anthropic (requires @anthropic-ai/sdk)
+AI_PROVIDER=anthropic
+ANTHROPIC_API_KEY=...
+```
+
+The service will automatically use the configured provider without code changes.
 
 ### Styling the Chat Component
 The chat uses Tailwind CSS classes. Edit `client/src/components/chat/FloatingChat.tsx`:
@@ -147,7 +175,20 @@ vi.mock('../../server/services/aiChatService', () => ({
 
 **Development:**
 ```bash
+# OpenAI
+AI_PROVIDER=openai
 OPENAI_API_KEY=sk-test-key-for-development
+OPENAI_MODEL=gpt-3.5-turbo
+
+# Gemini
+AI_PROVIDER=gemini
+GEMINI_API_KEY=your-gemini-key
+GEMINI_MODEL=gemini-pro
+
+# Anthropic
+AI_PROVIDER=anthropic
+ANTHROPIC_API_KEY=your-anthropic-key
+ANTHROPIC_MODEL=claude-3-sonnet-20240229
 ```
 
 **Production:**
@@ -183,7 +224,16 @@ npm test -- api/chat/send.test.ts
 ### Common Issues
 
 #### "OpenAI API key not configured"
-✅ **Fix:** Set `OPENAI_API_KEY` in `.env` file
+✅ **Fix:** Set `OPENAI_API_KEY` in `.env` file when using OpenAI provider
+
+#### "Gemini API key not configured"
+✅ **Fix:** Set `GEMINI_API_KEY` in `.env` file and `AI_PROVIDER=gemini`
+
+#### "Anthropic API key not configured"
+✅ **Fix:** Set `ANTHROPIC_API_KEY` in `.env` file, `AI_PROVIDER=anthropic`, and install `@anthropic-ai/sdk`
+
+#### "Unsupported AI provider"
+✅ **Fix:** Set `AI_PROVIDER` to one of: `openai`, `gemini`, or `anthropic`
 
 #### "Unauthorized" when calling API
 ✅ **Fix:** Ensure user is authenticated and JWT token is valid

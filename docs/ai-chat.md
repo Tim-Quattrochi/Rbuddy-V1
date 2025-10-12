@@ -1,7 +1,7 @@
 # AI Chat Feature Documentation
 
 ## Overview
-The AI Chat feature provides an intelligent, context-aware companion for authenticated users. Powered by OpenAI's GPT-3.5-turbo, the chat bot understands user context including recent mood, intentions, and streak progress.
+The AI Chat feature provides an intelligent, context-aware companion for authenticated users. The chat supports multiple AI providers including OpenAI (GPT-3.5/GPT-4), Google Gemini, and Anthropic Claude. The chatbot understands user context including recent mood, intentions, and streak progress.
 
 ## Features
 - 💬 **Floating Chat UI**: Mobile-responsive chat widget that appears on authenticated pages
@@ -9,14 +9,50 @@ The AI Chat feature provides an intelligent, context-aware companion for authent
 - 📝 **Persistent History**: Chat messages are stored in the database
 - 🔒 **Secure**: Only authenticated users can access the chat
 - 📱 **Mobile Responsive**: Works seamlessly on all screen sizes
+- 🔄 **Multi-Provider Support**: Works with OpenAI, Google Gemini, and Anthropic Claude
 
 ## Setup
 
 ### Environment Variables
-Add your OpenAI API key to your `.env` file:
+
+#### Choose Your AI Provider
+Set the `AI_PROVIDER` environment variable to select your preferred AI provider:
+
+```bash
+AI_PROVIDER=openai  # Options: openai, gemini, anthropic (default: openai)
+```
+
+#### OpenAI Configuration
+If using OpenAI (default):
 
 ```bash
 OPENAI_API_KEY=sk-...your-key-here...
+OPENAI_MODEL=gpt-3.5-turbo  # Optional: gpt-3.5-turbo, gpt-4, gpt-4-turbo, etc.
+```
+
+#### Google Gemini Configuration
+If using Google Gemini:
+
+```bash
+AI_PROVIDER=gemini
+GEMINI_API_KEY=...your-gemini-api-key...
+GEMINI_MODEL=gemini-pro  # Optional: gemini-pro, gemini-pro-vision, etc.
+```
+
+Get your Gemini API key at: https://makersuite.google.com/app/apikey
+
+#### Anthropic Claude Configuration
+If using Anthropic Claude:
+
+```bash
+AI_PROVIDER=anthropic
+ANTHROPIC_API_KEY=...your-anthropic-api-key...
+ANTHROPIC_MODEL=claude-3-sonnet-20240229  # Optional: claude-3-opus, claude-3-sonnet, claude-3-haiku
+```
+
+**Note:** Anthropic support requires installing the `@anthropic-ai/sdk` package:
+```bash
+npm install @anthropic-ai/sdk
 ```
 
 ### Database Schema

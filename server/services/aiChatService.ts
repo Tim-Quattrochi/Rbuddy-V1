@@ -1,14 +1,17 @@
 /**
- * AI Chat Service - Powered by OpenAI
+ * AI Chat Service - Multi-provider support (OpenAI, Gemini, and more)
  * 
  * Provides context-aware chat for authenticated users
  * Uses user's mood, intentions, and session history for personalized responses
  */
 
 import OpenAI from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { db } from '../storage.js';
 import * as schema from '../../shared/schema.js';
 import { eq, desc } from 'drizzle-orm';
+
+type AIProvider = 'openai' | 'gemini' | 'anthropic';
 
 interface ChatContext {
   userId: string;
@@ -23,18 +26,52 @@ interface ChatMessage {
 }
 
 export default class AIChatService {
-  private openai: OpenAI;
+  private provider: AIProvider;
+  private openai?: OpenAI;
+  private gemini?: GoogleGenerativeAI;
   private dbClient: typeof db;
 
   constructor(dbClient: typeof db = db) {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      console.error('[AIChatService] OPENAI_API_KEY not set');
-      throw new Error('OpenAI API key not configured');
-    }
-    
-    this.openai = new OpenAI({ apiKey });
     this.dbClient = dbClient;
+    
+    // Determine which provider to use based on environment variables
+    const provider = (process.env.AI_PROVIDER || 'openai').toLowerCase() as AIProvider;
+    this.provider = provider;
+
+    switch (provider) {
+      case 'openai':
+        const openaiKey = process.env.OPENAI_API_KEY;
+        if (!openaiKey) {
+          console.error('[AIChatService] OPENAI_API_KEY not set');
+          throw new Error('OpenAI API key not configured');
+        }
+        this.openai = new OpenAI({ apiKey: openaiKey });
+        console.log('[AIChatService] Using OpenAI provider');
+        break;
+
+      case 'gemini':
+        const geminiKey = process.env.GEMINI_API_KEY;
+        if (!geminiKey) {
+          console.error('[AIChatService] GEMINI_API_KEY not set');
+          throw new Error('Gemini API key not configured');
+        }
+        this.gemini = new GoogleGenerativeAI(geminiKey);
+        console.log('[AIChatService] Using Gemini provider');
+        break;
+
+      case 'anthropic':
+        const anthropicKey = process.env.ANTHROPIC_API_KEY;
+        if (!anthropicKey) {
+          console.error('[AIChatService] ANTHROPIC_API_KEY not set');
+          throw new Error('Anthropic API key not configured. Note: Direct Anthropic support requires additional SDK installation.');
+        }
+        console.log('[AIChatService] Using Anthropic provider (requires @anthropic-ai/sdk)');
+        // Note: Anthropic support can be added by installing @anthropic-ai/sdk
+        throw new Error('Anthropic provider not yet implemented. Install @anthropic-ai/sdk to add support.');
+
+      default:
+        throw new Error(`Unsupported AI provider: ${provider}. Supported providers: openai, gemini, anthropic`);
+    }
   }
 
   /**
@@ -134,32 +171,19 @@ Keep responses concise (2-3 sentences usually) and conversational.`;
         metadata: { context },
       });
 
-      // Prepare messages for OpenAI
-      const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
-        {
-          role: 'system',
-          content: this.createSystemPrompt(context),
-        },
-        ...history.map(msg => ({
-          role: msg.role,
-          content: msg.content,
-        } as OpenAI.Chat.ChatCompletionMessageParam)),
-        {
-          role: 'user',
-          content: message,
-        },
-      ];
-
-      // Get AI response
-      const completion = await this.openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
-        messages,
-        temperature: 0.7,
-        max_tokens: 150,
-      });
-
-      const aiResponse = completion.choices[0]?.message?.content || 
-        "I'm here to listen. How are you feeling?";
+      // Get AI response based on provider
+      let aiResponse: string;
+      
+      switch (this.provider) {
+        case 'openai':
+          aiResponse = await this.getOpenAIResponse(context, history, message);
+          break;
+        case 'gemini':
+          aiResponse = await this.getGeminiResponse(context, history, message);
+          break;
+        default:
+          throw new Error(`Provider ${this.provider} not implemented`);
+      }
 
       // Save AI response
       await this.dbClient.insert(schema.chatMessages).values({
@@ -173,6 +197,85 @@ Keep responses concise (2-3 sentences usually) and conversational.`;
       console.error('[AIChatService] Error sending message:', error);
       throw new Error('Failed to send message. Please try again.');
     }
+  }
+
+  /**
+   * Get response from OpenAI
+   */
+  private async getOpenAIResponse(
+    context: ChatContext,
+    history: ChatMessage[],
+    message: string
+  ): Promise<string> {
+    if (!this.openai) {
+      throw new Error('OpenAI client not initialized');
+    }
+
+    const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+      {
+        role: 'system',
+        content: this.createSystemPrompt(context),
+      },
+      ...history.map(msg => ({
+        role: msg.role,
+        content: msg.content,
+      } as OpenAI.Chat.ChatCompletionMessageParam)),
+      {
+        role: 'user',
+        content: message,
+      },
+    ];
+
+    const completion = await this.openai.chat.completions.create({
+      model: process.env.OPENAI_MODEL || 'gpt-3.5-turbo',
+      messages,
+      temperature: 0.7,
+      max_tokens: 150,
+    });
+
+    return completion.choices[0]?.message?.content || 
+      "I'm here to listen. How are you feeling?";
+  }
+
+  /**
+   * Get response from Gemini
+   */
+  private async getGeminiResponse(
+    context: ChatContext,
+    history: ChatMessage[],
+    message: string
+  ): Promise<string> {
+    if (!this.gemini) {
+      throw new Error('Gemini client not initialized');
+    }
+
+    const model = this.gemini.getGenerativeModel({ 
+      model: process.env.GEMINI_MODEL || 'gemini-pro'
+    });
+
+    // Prepare chat history for Gemini
+    const chatHistory = history.map(msg => ({
+      role: msg.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: msg.content }],
+    }));
+
+    // Start chat with history
+    const chat = model.startChat({
+      history: chatHistory,
+      generationConfig: {
+        maxOutputTokens: 150,
+        temperature: 0.7,
+      },
+    });
+
+    // Add system prompt as first message context
+    const systemPrompt = this.createSystemPrompt(context);
+    const fullMessage = `[System Context: ${systemPrompt}]\n\nUser: ${message}`;
+
+    const result = await chat.sendMessage(fullMessage);
+    const response = await result.response;
+    
+    return response.text() || "I'm here to listen. How are you feeling?";
   }
 
   /**
