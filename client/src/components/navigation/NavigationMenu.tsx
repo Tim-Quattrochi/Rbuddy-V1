@@ -9,7 +9,14 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Menu, Home, Heart, Settings, LogOut } from "lucide-react";
+import {
+  Menu,
+  Home,
+  Heart,
+  Settings,
+  LogOut,
+  BookOpenText,
+} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 interface NavigationMenuProps {
@@ -18,11 +25,8 @@ interface NavigationMenuProps {
 
 export function NavigationMenu({ onOpenRepair }: NavigationMenuProps) {
   const [open, setOpen] = useState(false);
-  const { user, logout, isLoggingOut, isAuthenticated} = useAuth();
+  const { user, logout, isLoggingOut, isAuthenticated } = useAuth();
   const location = useLocation();
-
-
-
 
   const handleNavigate = () => {
     setOpen(false);
@@ -36,7 +40,7 @@ export function NavigationMenu({ onOpenRepair }: NavigationMenuProps) {
   const handleLogout = async () => {
     // The navigation and state clearing is handled by the useAuth hook's mutation.
     setOpen(false);
-    logout(); 
+    logout();
   };
 
   return (
@@ -55,18 +59,20 @@ export function NavigationMenu({ onOpenRepair }: NavigationMenuProps) {
       <SheetContent side="left" className="w-72">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
-                <img
-            src="/nm-logo.png"
-            decoding="async"
-            width={210}
-            height={29}
-    
-            alt="Next Moment Logo"
-            className="h-12 w-20 object-contain"
-          />
+            <img
+              src="/nm-logo.png"
+              decoding="async"
+              width={210}
+              height={29}
+              alt="Next Moment Logo"
+              className="h-12 w-20 object-contain"
+            />
           </SheetTitle>
           {user && (
-            <p className="text-sm text-muted-foreground text-left" data-testid="nav-user-email">
+            <p
+              className="text-sm text-muted-foreground text-left"
+              data-testid="nav-user-email"
+            >
               {user.email}
             </p>
           )}
@@ -97,6 +103,22 @@ export function NavigationMenu({ onOpenRepair }: NavigationMenuProps) {
             <Heart className="h-5 w-5" />
             <span>Need Support</span>
           </button>
+
+          <Separator className="my-4" />
+
+          <Link
+            to="/journal"
+            onClick={handleNavigate}
+            data-testid="nav-journal"
+            className={`flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent ${
+              location.pathname === "/journal"
+                ? "bg-accent text-accent-foreground"
+                : ""
+            }`}
+          >
+            <BookOpenText className="h-5 w-5" />
+            <span>Journal</span>
+          </Link>
 
           <Separator className="my-4" />
 
