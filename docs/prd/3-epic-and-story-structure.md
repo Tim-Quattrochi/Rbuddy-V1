@@ -17,3 +17,4 @@
 
 ## **Epic 5: Implement Journaling Feature**
 * **Story 5.1**: Implement Journaling Feature.
+* **Story 5.2**: View Journal History.

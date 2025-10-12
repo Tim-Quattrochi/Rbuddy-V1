@@ -5,6 +5,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import Landing from "@/pages/Landing";
 import CheckIn from "@/pages/CheckIn";
 import DailyRitual from "@/pages/DailyRitual";
+import Journal from "@/pages/Journal";
 import LoginPage from "@/pages/Login";
 import NotFound from "@/pages/not-found";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
@@ -25,6 +26,16 @@ function App() {
               }
             >
               <Route index element={<DailyRitual />} />
+            </Route>
+            <Route 
+              path="/journal" 
+              element={
+                <ProtectedRoute>
+                  <AppLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<Journal />} />
             </Route>
             <Route path="/login" element={<LoginPage />} />
             <Route path="*" element={<NotFound />} />

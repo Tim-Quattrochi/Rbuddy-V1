@@ -41,6 +41,13 @@ export default function Header({ onOpenRepair }: HeaderProps) {
               >
                 Daily Ritual
               </Link>
+              <Link
+                to="/journal"
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                data-testid="nav-link-journal"
+              >
+                Journal
+              </Link>
             </nav>
           )}
         </div>
