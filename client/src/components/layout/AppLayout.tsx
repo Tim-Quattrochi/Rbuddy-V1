@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import Header from "@/components/Header";
 import { RepairFlow } from "@/components/repair/RepairFlow";
 import { FloatingChat } from "@/components/chat/FloatingChat";
+import { ChatErrorBoundary } from "@/components/chat/ChatErrorBoundary";
 
 export function AppLayout() {
   const [showRepairFlow, setShowRepairFlow] = useState(false);
@@ -16,7 +17,9 @@ export function AppLayout() {
       {showRepairFlow && (
         <RepairFlow onClose={() => setShowRepairFlow(false)} />
       )}
-      <FloatingChat />
+      <ChatErrorBoundary>
+        <FloatingChat />
+      </ChatErrorBoundary>
     </div>
   );
 }

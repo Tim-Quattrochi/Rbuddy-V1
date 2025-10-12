@@ -1,56 +1,56 @@
-import { useState, useEffect, useRef } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { MessageCircle, X, Send, Trash2, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { cn } from '@/lib/utils';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect, useRef } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { MessageCircle, X, Send, Trash2, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface ChatMessage {
   id: string;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   createdAt: Date | null;
 }
 
 async function fetchChatHistory() {
-  const res = await fetch('/api/chat/history', {
-    credentials: 'include',
+  const res = await fetch("/api/chat/history", {
+    credentials: "include",
   });
-  if (!res.ok) throw new Error('Failed to fetch chat history');
+  if (!res.ok) throw new Error("Failed to fetch chat history");
   return res.json();
 }
 
 async function sendChatMessage(message: string) {
-  const res = await fetch('/api/chat/send', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
+  const res = await fetch("/api/chat/send", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({ message }),
   });
-  if (!res.ok) throw new Error('Failed to send message');
+  if (!res.ok) throw new Error("Failed to send message");
   return res.json();
 }
 
 async function clearChatHistory() {
-  const res = await fetch('/api/chat/clear', {
-    method: 'DELETE',
-    credentials: 'include',
+  const res = await fetch("/api/chat/clear", {
+    method: "DELETE",
+    credentials: "include",
   });
-  if (!res.ok) throw new Error('Failed to clear history');
+  if (!res.ok) throw new Error("Failed to clear history");
   return res.json();
 }
 
 export function FloatingChat() {
   const [isOpen, setIsOpen] = useState(false);
-  const [inputMessage, setInputMessage] = useState('');
+  const [inputMessage, setInputMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   // Fetch chat history
   const { data: historyData, isLoading } = useQuery({
-    queryKey: ['chatHistory'],
+    queryKey: ["chatHistory"],
     queryFn: fetchChatHistory,
     enabled: isOpen,
   });
@@ -61,14 +61,15 @@ export function FloatingChat() {
   const sendMutation = useMutation({
     mutationFn: sendChatMessage,
     onSuccess: () => {
-      setInputMessage('');
-      queryClient.invalidateQueries({ queryKey: ['chatHistory'] });
+      setInputMessage("");
+      queryClient.invalidateQueries({ queryKey: ["chatHistory"] });
     },
     onError: (error) => {
       toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to send message',
+        variant: "destructive",
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "Failed to send message",
       });
     },
   });
@@ -77,17 +78,17 @@ export function FloatingChat() {
   const clearMutation = useMutation({
     mutationFn: clearChatHistory,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['chatHistory'] });
+      queryClient.invalidateQueries({ queryKey: ["chatHistory"] });
       toast({
-        title: 'Chat cleared',
-        description: 'Your chat history has been deleted.',
+        title: "Chat cleared",
+        description: "Your chat history has been deleted.",
       });
     },
     onError: () => {
       toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Failed to clear chat history',
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to clear chat history",
       });
     },
   });
@@ -95,19 +96,19 @@ export function FloatingChat() {
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
   const handleSend = () => {
     const trimmed = inputMessage.trim();
     if (!trimmed || sendMutation.isPending) return;
-    
+
     sendMutation.mutate(trimmed);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
@@ -120,10 +121,10 @@ export function FloatingChat() {
         <Button
           onClick={() => setIsOpen(true)}
           className={cn(
-            'fixed bottom-4 right-4 z-50',
-            'h-14 w-14 rounded-full shadow-lg',
-            'md:bottom-6 md:right-6',
-            'hover:scale-110 transition-transform'
+            "fixed bottom-4 right-4 z-50",
+            "h-14 w-14 rounded-full shadow-lg",
+            "md:bottom-6 md:right-6",
+            "hover:scale-110 transition-transform"
           )}
           aria-label="Open chat"
         >
@@ -135,19 +136,19 @@ export function FloatingChat() {
       {isOpen && (
         <div
           className={cn(
-            'fixed bottom-4 right-4 z-50',
-            'w-[calc(100vw-2rem)] sm:w-96',
-            'h-[500px] max-h-[calc(100vh-2rem)]',
-            'bg-background border rounded-lg shadow-xl',
-            'flex flex-col',
-            'md:bottom-6 md:right-6'
+            "fixed bottom-4 right-4 z-50",
+            "w-[calc(100vw-2rem)] sm:w-96",
+            "h-[500px] max-h-[calc(100vh-2rem)]",
+            "bg-background border rounded-lg shadow-xl",
+            "flex flex-col",
+            "md:bottom-6 md:right-6"
           )}
         >
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b">
             <div className="flex items-center gap-2">
               <MessageCircle className="h-5 w-5" />
-              <h3 className="font-semibold">AI Companion</h3>
+              <h3 className="font-semibold">Moment AI</h3>
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -186,16 +187,16 @@ export function FloatingChat() {
                 <div
                   key={msg.id}
                   className={cn(
-                    'flex',
-                    msg.role === 'user' ? 'justify-end' : 'justify-start'
+                    "flex",
+                    msg.role === "user" ? "justify-end" : "justify-start"
                   )}
                 >
                   <div
                     className={cn(
-                      'max-w-[80%] rounded-lg px-4 py-2',
-                      msg.role === 'user'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted'
+                      "max-w-[80%] rounded-lg px-4 py-2",
+                      msg.role === "user"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted"
                     )}
                   >
                     <p className="text-sm whitespace-pre-wrap break-words">

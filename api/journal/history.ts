@@ -83,7 +83,7 @@ export async function handler(req: AuthenticatedRequest, res: Response) {
     const entries = rows.slice(0, limit).map<JournalEntryResponse>((entry) => ({
       id: entry.id,
       body: entry.body,
-      createdAt: entry.createdAt.toISOString(),
+      createdAt: (entry.createdAt ?? new Date(0)).toISOString(),
     }));
 
     const payload: JournalHistoryResponse = {
