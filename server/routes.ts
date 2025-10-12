@@ -7,6 +7,7 @@ import moodHandler from "../api/daily-ritual/mood";
 import intentionHandler from "../api/daily-ritual/intention";
 import statsHandler from "../api/user/stats";
 import meHandler from "../api/user/me";
+import journalHistoryHandler from "../api/journal/history";
 
 // Import Auth route handlers
 import googleAuthHandler from "../api/auth/google/index";
@@ -24,6 +25,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // User Routes
   app.get("/api/users/me", ...meHandler);
+  app.get("/api/journal/history", ...journalHistoryHandler);
   
   // Daily Ritual Routes
   app.post("/api/daily-ritual/mood", ...moodHandler);
