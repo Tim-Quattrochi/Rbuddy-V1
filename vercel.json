@@ -7,7 +7,7 @@
       "use": "@vercel/static-build",
       "config": { "distDir": "dist/public" }
     },
-    { "src": "api/**/*.js", "use": "@vercel/node" }
+    { "src": "api/**/*.ts", "use": "@vercel/node" }
   ],
   "framework": "vite",
   "rewrites": [

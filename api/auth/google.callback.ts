@@ -48,11 +48,8 @@ passport.use(
           const username = `${baseUsername}_${googleId.slice(-6)}`;
 
           user = await storage.createUser({
-            googleId,
             email,
             username,
-            avatarUrl,
-            password: null,
           });
         }
 

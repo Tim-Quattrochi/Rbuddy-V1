@@ -47,11 +47,8 @@ passport.use(
           const username = `${baseUsername}_${googleId.slice(-6)}`;
 
           user = await storage.createUser({
-            googleId,
             email,
             username,
-            avatarUrl,
-            password: null,
           });
         }
 
@@ -69,6 +66,12 @@ passport.use(
  * GET /api/auth/google
  */
 async function handler(req: Request, res: Response) {
+  console.log('[Google OAuth] Initiating OAuth flow for request:', {
+    url: req.url,
+    method: req.method,
+    timestamp: new Date().toISOString()
+  });
+
   passport.authenticate('google', {
     scope: ['profile', 'email'],
     session: false,
