@@ -26,7 +26,7 @@ function daysBetween(date1: Date, date2: Date): number {
 async function calculateStreak(userId: string): Promise<number> {
   // Get all daily-ritual sessions, ordered by most recent first
   const userSessions = await db
-    .select()
+    .select({ createdAt: sessions.createdAt })
     .from(sessions)
     .where(
       and(
