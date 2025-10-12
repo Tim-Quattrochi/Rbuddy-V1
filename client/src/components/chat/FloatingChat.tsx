@@ -225,6 +225,7 @@ export function FloatingChat() {
                 placeholder="Type a message..."
                 className="min-h-[60px] max-h-[120px] resize-none"
                 disabled={sendMutation.isPending}
+                aria-label="Chat message input"
               />
               <Button
                 onClick={handleSend}
