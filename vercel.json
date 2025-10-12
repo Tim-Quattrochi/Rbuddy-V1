@@ -4,8 +4,20 @@
   "framework": "vite",
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
+      "source": "/api/users/me",
+      "destination": "/api/user/me"
+    },
+    {
+      "source": "/api/user/:action",
+      "destination": "/api/user/[action]"
+    },
+    {
+      "source": "/api/daily-ritual/:action",
+      "destination": "/api/daily-ritual/[action]"
+    },
+    {
+      "source": "/api/chat/:action",
+      "destination": "/api/chat/[action]"
     }
   ],
   "functions": {
