@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
 // Fix: Use default import for pg module (ESM compatibility in Vercel)
 import pg from 'pg';
