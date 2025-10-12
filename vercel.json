@@ -10,7 +10,8 @@
   ],
   "functions": {
     "api/**/*.ts": {
-      "includeFiles": "{server/**,shared/**}"
+      "includeFiles": "{server/**,shared/**}",
+      "excludeFiles": ["**/*.test.ts", "**/__tests__/**"]
     }
   }
 }
