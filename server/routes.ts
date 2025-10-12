@@ -3,18 +3,18 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 
 // Import API route handlers
-import moodHandler from "../api/daily-ritual/mood";
-import intentionHandler from "../api/daily-ritual/intention";
-import statsHandler from "../api/user/stats";
-import meHandler from "../api/user/me";
+import { middlewares as moodHandler } from "../api/daily-ritual/mood";
+import { middlewares as intentionHandler } from "../api/daily-ritual/intention";
+import { middlewares as statsHandler } from "../api/user/stats";
+import { middlewares as meHandler } from "../api/user/me";
 
 // Import Auth route handlers
 import googleAuthHandler from "../api/auth/google/index";
 import googleCallbackHandler from "../api/auth/google.callback";
-import logoutHandler from "../api/auth/logout";
+import { middlewares as logoutHandler } from "../api/auth/logout";
 
 // Import Repair route handlers
-import repairStartHandler from "../api/repair/start";
+import { middlewares as repairStartHandler } from "../api/repair/start";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth Routes
