@@ -1,6 +1,14 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist/public",
+  "builds": [
+    {
+      "src": "client/package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "dist/public" }
+    },
+    { "src": "api/**/*.js", "use": "@vercel/node" }
+  ],
   "framework": "vite",
   "rewrites": [
     {
@@ -20,6 +28,7 @@
       "destination": "/api/chat/[action]"
     }
   ],
+  "routes": [{ "src": "/api/(.*)", "dest": "/api/$1" }],
   "functions": {
     "api/**/*.ts": {
       "runtime": "@vercel/node@4.0.0",
