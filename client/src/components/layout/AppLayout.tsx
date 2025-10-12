@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Header from "@/components/Header";
 import { RepairFlow } from "@/components/repair/RepairFlow";
+import { FloatingChat } from "@/components/chat/FloatingChat";
 
 export function AppLayout() {
   const [showRepairFlow, setShowRepairFlow] = useState(false);
@@ -15,6 +16,7 @@ export function AppLayout() {
       {showRepairFlow && (
         <RepairFlow onClose={() => setShowRepairFlow(false)} />
       )}
+      <FloatingChat />
     </div>
   );
 }

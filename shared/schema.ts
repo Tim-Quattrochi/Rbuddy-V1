@@ -92,3 +92,14 @@ export const followUps = pgTable("follow_ups", {
   pushPayload: jsonb("push_payload"), // Notification title, body, icon, badge, etc.
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+export const chatRoleEnum = pgEnum("chat_role", ["user", "assistant", "system"]);
+
+export const chatMessages = pgTable("chat_messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  role: chatRoleEnum("role").notNull(),
+  content: text("content").notNull(),
+  metadata: jsonb("metadata"), // Store context like mood, session info, etc.
+  createdAt: timestamp("created_at").defaultNow(),
+});
