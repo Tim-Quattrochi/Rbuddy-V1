@@ -7,7 +7,15 @@ import moodHandler from "../api/daily-ritual/mood";
 import intentionHandler from "../api/daily-ritual/intention";
 import statsHandler from "../api/user/stats";
 
+// Import Auth route handlers
+import googleAuthHandler from "../api/auth/google/index";
+import googleCallbackHandler from "../api/auth/google.callback";
+
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Auth Routes
+  app.get("/api/auth/google", googleAuthHandler);
+  app.get("/api/auth/google/callback", googleCallbackHandler);
+  
   // Daily Ritual Routes
   app.post("/api/daily-ritual/mood", ...moodHandler);
   app.post("/api/daily-ritual/intention", ...intentionHandler);

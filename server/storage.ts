@@ -23,6 +23,7 @@ export type InsertUser = typeof schema.users.$inferInsert;
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByGoogleId(googleId: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
 }
 
@@ -34,6 +35,11 @@ export class DrizzleStorage implements IStorage {
 
   async getUserByUsername(username: string): Promise<User | undefined> {
     const users = await db.select().from(schema.users).where(eq(schema.users.username, username));
+    return users[0];
+  }
+
+  async getUserByGoogleId(googleId: string): Promise<User | undefined> {
+    const users = await db.select().from(schema.users).where(eq(schema.users.googleId, googleId));
     return users[0];
   }
 

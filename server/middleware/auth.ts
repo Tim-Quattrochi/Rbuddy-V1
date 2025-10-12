@@ -7,6 +7,9 @@ if (!JWT_SECRET) {
   if (process.env.NODE_ENV === 'production') process.exit(1);
 }
 
+// Ensure JWT_SECRET is defined for TypeScript
+const jwtSecret: string = JWT_SECRET || 'fallback-for-dev-only';
+
 
 export interface AuthenticatedRequest extends Request {
   userId?: string;
@@ -18,20 +21,28 @@ export function requireAuth(
   next: NextFunction
 ) {
   try {
-    // Get token from Authorization header
+    let token: string | undefined;
+
+    // Try to get token from Authorization header first
     const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
     
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // If no Authorization header, try to get token from cookie
+    if (!token && req.cookies && req.cookies.auth_token) {
+      token = req.cookies.auth_token;
+    }
+    
+    if (!token) {
       return res.status(401).json({
         error: 'Unauthorized',
         message: 'No authentication token provided'
       });
     }
 
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
-
     // Verify JWT token
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
+    const decoded = jwt.verify(token, jwtSecret) as { userId: string };
     
     if (!decoded.userId) {
       return res.status(401).json({
@@ -66,5 +77,5 @@ export function requireAuth(
  * This would typically be called after successful login
  */
 export function generateToken(userId: string): string {
-  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '7d' });
+  return jwt.sign({ userId }, jwtSecret, { expiresIn: '7d' });
 }
