@@ -112,7 +112,8 @@ export default function DailyRitualPage() {
         description: "Your daily intention has been recorded.",
       });
     },
-    onError: () => {
+    onError: (e) => {
+      console.log(e)
       toast({
         variant: "destructive",
         title: "Error saving intention",
@@ -139,7 +140,7 @@ export default function DailyRitualPage() {
     queryClient.invalidateQueries({ queryKey: ['userStats'] });
     moodMutation.reset();
   };
-
+console.log(moodMutation)
   return (
     <div className="container mx-auto p-4 max-w-md">
       <header className="text-center mb-8">
