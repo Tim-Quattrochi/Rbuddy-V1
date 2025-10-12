@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 
 // Use cookie-based authentication (auth_token cookie set by OAuth)
 // No need for Authorization header - cookies are sent automatically with credentials: 'include'
@@ -59,12 +60,14 @@ async function postIntention(variables: { sessionId: string; intentionText: stri
 
 export default function DailyRitualPage() {
   const queryClient = useQueryClient();
+  const { user, isAuthenticated, isLoading: isLoadingAuth } = useAuth();
   const [selectedMood, setSelectedMood] = useState<MoodOption | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
 
-  const { data: statsData, isLoading: isLoadingStats } = useQuery({
+  const { data: statsData, isLoading: isLoadingStats, error: statsError } = useQuery({
     queryKey: ["userStats"],
     queryFn: fetchUserStats,
+    enabled: isAuthenticated, // Only fetch stats when authenticated
   });
 
   const { toast } = useToast();
@@ -90,13 +93,19 @@ export default function DailyRitualPage() {
         }));
         return { previousStats };
       },
-      onError: (err, newMood, context) => {
+      onError: (err: Error, newMood, context) => {
         // Revert optimistic update on error
         queryClient.setQueryData(['userStats'], context?.previousStats);
+
+        // Check if it's an authentication error
+        const isAuthError = err.message.includes('401') || err.message.includes('Unauthorized');
+
         toast({
           variant: "destructive",
-          title: "Error recording mood",
-          description: "Unable to save your check-in. Please try again.",
+          title: isAuthError ? "Session expired" : "Error recording mood",
+          description: isAuthError
+            ? "Your session has expired. Please log in again."
+            : "Unable to save your check-in. Please try again.",
         });
       },
       onSettled: () => {
@@ -112,12 +121,16 @@ export default function DailyRitualPage() {
         description: "Your daily intention has been recorded.",
       });
     },
-    onError: (e) => {
-      console.log(e)
+    onError: (err: Error) => {
+      // Check if it's an authentication error
+      const isAuthError = err.message.includes('401') || err.message.includes('Unauthorized');
+
       toast({
         variant: "destructive",
-        title: "Error saving intention",
-        description: "Unable to save your intention. Please try again.",
+        title: isAuthError ? "Session expired" : "Error saving intention",
+        description: isAuthError
+          ? "Your session has expired. Please log in again."
+          : "Unable to save your intention. Please try again.",
       });
     },
   });
@@ -140,28 +153,61 @@ export default function DailyRitualPage() {
     queryClient.invalidateQueries({ queryKey: ['userStats'] });
     moodMutation.reset();
   };
-console.log(moodMutation)
+
+  // Show loading state while checking authentication
+  if (isLoadingAuth) {
+    return (
+      <div className="container mx-auto p-4 max-w-md">
+        <div className="text-center py-12">
+          <p className="text-lg">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show fallback if not authenticated (belt-and-suspenders - ProtectedRoute should handle this)
+  if (!isAuthenticated) {
+    return (
+      <div className="container mx-auto p-4 max-w-md">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Authentication Required</AlertTitle>
+          <AlertDescription>
+            Please log in to access your Daily Ritual.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto p-4 max-w-md">
       <header className="text-center mb-8">
         <h1 className="text-3xl font-bold">Daily Ritual</h1>
         <p className="text-muted-foreground">Your space for daily reflection.</p>
+        {user && (
+          <p className="text-sm text-muted-foreground mt-2">
+            Welcome back, {user.username || user.email}
+          </p>
+        )}
       </header>
 
       <div className="space-y-8">
         {isLoadingStats ? (
           <div className="text-center py-4">Loading your stats...</div>
-        ) : statsData ? (
-          <StreakCounter streak={statsData.streakCount ?? 0} />
-        ) : (
+        ) : statsError ? (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Unable to load stats</AlertTitle>
             <AlertDescription>
-              We couldn't load your streak data. You can still complete your check-in.
+              {statsError.message.includes('401') || statsError.message.includes('Unauthorized')
+                ? "Your session has expired. Please refresh the page or log in again."
+                : "We couldn't load your streak data. You can still complete your check-in."}
             </AlertDescription>
           </Alert>
-        )}
+        ) : statsData ? (
+          <StreakCounter streak={statsData.streakCount ?? 0} />
+        ) : null}
 
         {moodMutation.isError && (
           <Alert variant="destructive">
