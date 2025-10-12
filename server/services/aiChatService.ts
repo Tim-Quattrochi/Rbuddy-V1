@@ -1,5 +1,5 @@
 /**
- * AI Chat Service - Multi-provider support (OpenAI, Gemini, and more)
+ * AI Chat Service - Multi-provider support (OpenAI, Gemini, Mistral, Perplexity, and more)
  * 
  * Provides context-aware chat for authenticated users
  * Uses user's mood, intentions, and session history for personalized responses
@@ -7,11 +7,13 @@
 
 import OpenAI from 'openai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { Mistral } from '@mistralai/mistralai';
+import Perplexity from '@perplexity-ai/perplexity_ai';
 import { db } from '../storage.js';
 import * as schema from '../../shared/schema.js';
 import { eq, desc } from 'drizzle-orm';
 
-type AIProvider = 'openai' | 'gemini' | 'anthropic';
+type AIProvider = 'openai' | 'gemini' | 'anthropic' | 'mistral' | 'perplexity';
 
 interface ChatContext {
   userId: string;
@@ -29,6 +31,8 @@ export default class AIChatService {
   private provider: AIProvider;
   private openai?: OpenAI;
   private gemini?: GoogleGenerativeAI;
+  private mistral?: Mistral;
+  private perplexity?: Perplexity;
   private dbClient: typeof db;
 
   constructor(dbClient: typeof db = db) {
@@ -59,6 +63,26 @@ export default class AIChatService {
         console.log('[AIChatService] Using Gemini provider');
         break;
 
+      case 'mistral':
+        const mistralKey = process.env.MISTRAL_API_KEY;
+        if (!mistralKey) {
+          console.error('[AIChatService] MISTRAL_API_KEY not set');
+          throw new Error('Mistral API key not configured');
+        }
+        this.mistral = new Mistral({ apiKey: mistralKey });
+        console.log('[AIChatService] Using Mistral provider');
+        break;
+
+      case 'perplexity':
+        const perplexityKey = process.env.PERPLEXITY_API_KEY;
+        if (!perplexityKey) {
+          console.error('[AIChatService] PERPLEXITY_API_KEY not set');
+          throw new Error('Perplexity API key not configured');
+        }
+        this.perplexity = new Perplexity({ apiKey: perplexityKey });
+        console.log('[AIChatService] Using Perplexity provider');
+        break;
+
       case 'anthropic':
         const anthropicKey = process.env.ANTHROPIC_API_KEY;
         if (!anthropicKey) {
@@ -70,7 +94,7 @@ export default class AIChatService {
         throw new Error('Anthropic provider not yet implemented. Install @anthropic-ai/sdk to add support.');
 
       default:
-        throw new Error(`Unsupported AI provider: ${provider}. Supported providers: openai, gemini, anthropic`);
+        throw new Error(`Unsupported AI provider: ${provider}. Supported providers: openai, gemini, mistral, perplexity, anthropic`);
     }
   }
 
@@ -181,6 +205,12 @@ Keep responses concise (2-3 sentences usually) and conversational.`;
         case 'gemini':
           aiResponse = await this.getGeminiResponse(context, history, message);
           break;
+        case 'mistral':
+          aiResponse = await this.getMistralResponse(context, history, message);
+          break;
+        case 'perplexity':
+          aiResponse = await this.getPerplexityResponse(context, history, message);
+          break;
         default:
           throw new Error(`Provider ${this.provider} not implemented`);
       }
@@ -276,6 +306,90 @@ Keep responses concise (2-3 sentences usually) and conversational.`;
     const response = await result.response;
     
     return response.text() || "I'm here to listen. How are you feeling?";
+  }
+
+  /**
+   * Get response from Mistral AI
+   */
+  private async getMistralResponse(
+    context: ChatContext,
+    history: ChatMessage[],
+    message: string
+  ): Promise<string> {
+    if (!this.mistral) {
+      throw new Error('Mistral client not initialized');
+    }
+
+    // Prepare messages for Mistral
+    const messages = [
+      {
+        role: 'system' as const,
+        content: this.createSystemPrompt(context),
+      },
+      ...history.map(msg => ({
+        role: msg.role === 'assistant' ? ('assistant' as const) : ('user' as const),
+        content: msg.content,
+      })),
+      {
+        role: 'user' as const,
+        content: message,
+      },
+    ];
+
+    const chatResponse = await this.mistral.chat.complete({
+      model: process.env.MISTRAL_MODEL || 'mistral-small-latest',
+      messages,
+      temperature: 0.7,
+      maxTokens: 150,
+    });
+
+    const content = chatResponse.choices?.[0]?.message?.content;
+    if (typeof content === 'string') {
+      return content;
+    }
+    return "I'm here to listen. How are you feeling?";
+  }
+
+  /**
+   * Get response from Perplexity
+   */
+  private async getPerplexityResponse(
+    context: ChatContext,
+    history: ChatMessage[],
+    message: string
+  ): Promise<string> {
+    if (!this.perplexity) {
+      throw new Error('Perplexity client not initialized');
+    }
+
+    // Prepare messages for Perplexity
+    const messages = [
+      {
+        role: 'system' as const,
+        content: this.createSystemPrompt(context),
+      },
+      ...history.map(msg => ({
+        role: msg.role === 'assistant' ? ('assistant' as const) : ('user' as const),
+        content: msg.content,
+      })),
+      {
+        role: 'user' as const,
+        content: message,
+      },
+    ];
+
+    const chatResponse = await this.perplexity.chat.completions.create({
+      model: process.env.PERPLEXITY_MODEL || 'llama-3.1-sonar-small-128k-chat',
+      messages,
+      temperature: 0.7,
+      max_tokens: 150,
+    });
+
+    const content = chatResponse.choices?.[0]?.message?.content;
+    if (typeof content === 'string') {
+      return content;
+    }
+    return "I'm here to listen. How are you feeling?";
   }
 
   /**

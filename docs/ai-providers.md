@@ -6,15 +6,15 @@ The AI Chat feature supports multiple AI providers, allowing you to choose based
 
 ## Quick Comparison
 
-| Feature | OpenAI (GPT) | Google Gemini | Anthropic Claude |
-|---------|-------------|---------------|------------------|
-| **Default Model** | gpt-3.5-turbo | gemini-pro | claude-3-sonnet |
-| **Cost (per 1M tokens)** | $0.50-$1.50 | $0.00-$0.13 | $3.00-$15.00 |
-| **Response Speed** | Fast | Very Fast | Medium |
-| **Context Window** | 4K-128K | 32K-1M | 200K |
-| **Setup Difficulty** | Easy | Easy | Medium |
-| **Free Tier** | $18 credit | Yes (limited) | No |
-| **Best For** | General use | Budget-conscious | Long context |
+| Feature | OpenAI (GPT) | Google Gemini | Mistral AI | Perplexity | Anthropic Claude |
+|---------|-------------|---------------|------------|------------|------------------|
+| **Default Model** | gpt-3.5-turbo | gemini-pro | mistral-small | llama-3.1-sonar | claude-3-sonnet |
+| **Cost (per 1M tokens)** | $0.50-$1.50 | $0.00-$0.13 | $0.20-$2.00 | $0.20-$5.00 | $3.00-$15.00 |
+| **Response Speed** | Fast | Very Fast | Fast | Very Fast | Medium |
+| **Context Window** | 4K-128K | 32K-1M | 32K | 128K | 200K |
+| **Setup Difficulty** | Easy | Easy | Easy | Easy | Medium |
+| **Free Tier** | $18 credit | Yes (limited) | Free trial | $5 credit | No |
+| **Best For** | General use | Budget | European servers | Real-time info | Long context |
 
 ## Provider Details
 
@@ -84,6 +84,76 @@ GEMINI_MODEL=gemini-pro  # or gemini-pro-vision
 
 ---
 
+### Mistral AI
+
+**Pros:**
+- European AI provider with strong privacy focus
+- Cost-effective pricing
+- Good performance for most tasks
+- Multiple model sizes available
+- Fast response times
+
+**Cons:**
+- Less well-known than OpenAI/Google
+- Smaller model selection
+- European data centers (may have higher latency for non-EU users)
+
+**Setup:**
+```bash
+AI_PROVIDER=mistral
+MISTRAL_API_KEY=your-mistral-key
+MISTRAL_MODEL=mistral-small-latest  # or mistral-medium, mistral-large
+```
+
+**Get API Key:** https://console.mistral.ai/
+
+**Pricing:**
+- Mistral Small: $0.20/$0.60 per 1M tokens (input/output)
+- Mistral Medium: $2.70/$8.10 per 1M tokens
+- Mistral Large: $2.00/$6.00 per 1M tokens
+
+**Recommended Models:**
+- `mistral-small-latest` - Best value, good for most tasks
+- `mistral-medium-latest` - Balanced performance
+- `mistral-large-latest` - Highest quality
+
+---
+
+### Perplexity AI
+
+**Pros:**
+- Real-time web search capabilities
+- Very fast response times
+- Good for current information
+- Competitive pricing
+- Multiple Llama models available
+
+**Cons:**
+- Newer provider, less established
+- May include web citations in responses
+- Smaller context window than some competitors
+
+**Setup:**
+```bash
+AI_PROVIDER=perplexity
+PERPLEXITY_API_KEY=your-perplexity-key
+PERPLEXITY_MODEL=llama-3.1-sonar-small-128k-chat
+```
+
+**Get API Key:** https://www.perplexity.ai/settings/api
+
+**Pricing:**
+- Sonar Small (8B): $0.20/$0.20 per 1M tokens
+- Sonar Large (70B): $1.00/$1.00 per 1M tokens
+- Llama 3.1 models: $0.20-$5.00 per 1M tokens
+
+**Recommended Models:**
+- `llama-3.1-sonar-small-128k-chat` - Fast and economical
+- `llama-3.1-sonar-large-128k-chat` - Better quality
+- `llama-3.1-sonar-huge-128k-online` - Best with real-time search
+
+---
+
 ### Anthropic Claude
 
 **Pros:**
@@ -136,6 +206,10 @@ Based on 10,000 chat messages with ~150 tokens each:
 | OpenAI | gpt-4-turbo | $45.00 |
 | Google | gemini-pro | $0.00 (free tier) |
 | Google | gemini-pro (paid) | $5.63 |
+| Mistral | mistral-small | $12.00 |
+| Mistral | mistral-large | $30.00 |
+| Perplexity | sonar-small | $3.00 |
+| Perplexity | sonar-large | $15.00 |
 | Anthropic | claude-3-haiku | $18.75 |
 | Anthropic | claude-3-sonnet | $45.00 |
 
@@ -148,12 +222,17 @@ Based on 10,000 chat messages with ~150 tokens each:
 - Easy to set up
 
 ### For Production (Budget)
-**Use Gemini Pro (Paid)**
-- Very low cost
-- Good performance
-- Reliable for production
+**Use Perplexity Sonar Small or Mistral Small**
+- Very low cost ($3-$12 per 10K messages)
+- Good performance for most use cases
+- Fast response times
+- Easy to set up
 
-### For Production (Quality)
+### For Production (Balanced)
+**Use OpenAI GPT-3.5-turbo or Gemini Pro (Paid)**
+- Best balance of cost and quality
+- Industry-proven reliability
+- Wide adoption and good support
 **Use OpenAI GPT-3.5-turbo**
 - Best balance of cost and quality
 - Industry-proven reliability
@@ -193,6 +272,16 @@ Restart your server, and the new provider will be used automatically. No code ch
 - Take advantage of large context window
 - Monitor rate limits on free tier
 
+### Mistral
+- Use smaller models for faster responses
+- Enable caching for repeated queries
+- Good for European users (lower latency)
+
+### Perplexity
+- Leverage real-time web search for current information
+- Use sonar models for general chat
+- Monitor API usage to stay within limits
+
 ### Anthropic
 - Leverage the 200K context window for complex conversations
 - Use Haiku for speed, Sonnet for balance, Opus for quality
@@ -211,6 +300,19 @@ Restart your server, and the new provider will be used automatically. No code ch
 1. Go to https://makersuite.google.com/app/apikey
 2. Sign in with Google account
 3. Click "Create API Key"
+4. Add to `.env` file
+
+### Mistral AI
+1. Go to https://console.mistral.ai/
+2. Create an account
+3. Navigate to API Keys
+4. Generate new key
+5. Add to `.env` file
+
+### Perplexity AI
+1. Go to https://www.perplexity.ai/settings/api
+2. Sign up for an account
+3. Generate API key
 4. Add to `.env` file
 
 ### Anthropic
@@ -237,9 +339,10 @@ Restart your server, and the new provider will be used automatically. No code ch
 ## Future Providers
 
 We plan to add support for:
-- **Azure OpenAI** - Enterprise-grade OpenAI models
-- **Cohere** - Specialized in RAG and search
-- **Mistral AI** - Open-source alternative
+- **Azure OpenAI** - Enterprise-grade OpenAI models with enhanced security
+- **Cohere** - Specialized in RAG and search capabilities
+- **Together AI** - Access to multiple open-source models
 - **Local Models** - Run models on your own infrastructure (Ollama, LM Studio)
+- **Hugging Face** - Access to thousands of open-source models
 
 To request a provider, open an issue on GitHub!
