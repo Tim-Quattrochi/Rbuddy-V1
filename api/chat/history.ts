@@ -2,9 +2,13 @@
 
 import { Response } from 'express';
 import { requireAuth, AuthenticatedRequest } from '../../server/middleware/auth';
+import { chatGeneralLimiter } from '../../server/middleware/rateLimiter';
 import AIChatService from '../../server/services/aiChatService';
 
-const chatService = new AIChatService();
+// Constants for validation
+const CHAT_HISTORY_LIMIT_MIN = 1;
+const CHAT_HISTORY_LIMIT_MAX = 100;
+const CHAT_HISTORY_LIMIT_DEFAULT = 20;
 
 export async function handler(req: AuthenticatedRequest, res: Response) {
   try {
@@ -13,8 +17,15 @@ export async function handler(req: AuthenticatedRequest, res: Response) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const limit = parseInt(req.query.limit as string) || 20;
+    // Validate and clamp limit parameter to prevent abuse
+    const requestedLimit = parseInt(req.query.limit as string) || CHAT_HISTORY_LIMIT_DEFAULT;
+    const limit = Math.min(
+      Math.max(requestedLimit, CHAT_HISTORY_LIMIT_MIN),
+      CHAT_HISTORY_LIMIT_MAX
+    );
 
+    // Lazy initialization: instantiate service within handler
+    const chatService = new AIChatService();
     const messages = await chatService.getMessages(userId, limit);
 
     return res.json({ messages });
@@ -26,4 +37,5 @@ export async function handler(req: AuthenticatedRequest, res: Response) {
   }
 }
 
-export default [requireAuth, handler];
+// Apply rate limiting and authentication middleware
+export default [requireAuth, chatGeneralLimiter, handler];

@@ -2,9 +2,11 @@
 
 import { Response } from 'express';
 import { requireAuth, AuthenticatedRequest } from '../../server/middleware/auth';
+import { chatSendLimiter } from '../../server/middleware/rateLimiter';
 import AIChatService from '../../server/services/aiChatService';
 
-const chatService = new AIChatService();
+// Constants for validation
+const MESSAGE_MAX_LENGTH = 1000;
 
 export async function handler(req: AuthenticatedRequest, res: Response) {
   try {
@@ -19,10 +21,15 @@ export async function handler(req: AuthenticatedRequest, res: Response) {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    if (message.length > 1000) {
-      return res.status(400).json({ error: 'Message too long (max 1000 characters)' });
+    if (message.length > MESSAGE_MAX_LENGTH) {
+      return res.status(400).json({ 
+        error: `Message too long (max ${MESSAGE_MAX_LENGTH} characters)` 
+      });
     }
 
+    // Lazy initialization: instantiate service within handler to avoid
+    // module-level crashes if API keys are missing
+    const chatService = new AIChatService();
     const response = await chatService.sendMessage(userId, message.trim());
 
     return res.json({ response });
@@ -37,4 +44,5 @@ export async function handler(req: AuthenticatedRequest, res: Response) {
   }
 }
 
-export default [requireAuth, handler];
+// Apply rate limiting and authentication middleware
+export default [requireAuth, chatSendLimiter, handler];
