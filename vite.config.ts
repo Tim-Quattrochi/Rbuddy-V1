@@ -87,18 +87,14 @@ export default defineConfig({
             },
           },
           {
-            // Network-first strategy for API calls with offline fallback
             urlPattern: /^https?:\/\/.*\/api\/.*/i,
-            handler: "NetworkFirst",
+            handler: "NetworkOnly",
             options: {
-              cacheName: "api-cache",
-              networkTimeoutSeconds: 5,
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 5, // 5 minutes
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
+              backgroundSync: {
+                name: "daily-ritual-queue",
+                options: {
+                  maxRetentionTime: 24 * 60, // 24 hours
+                },
               },
             },
           },

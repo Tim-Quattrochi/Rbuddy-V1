@@ -548,6 +548,8 @@ describe('ConversationEngine - Story 5 (Database Logging)', () => {
         '+15555551234',
         '+15555556789',
         'Hello',
+        'sms',
+        '+15555551234',
         'SM123456'
       );
 
@@ -558,6 +560,8 @@ describe('ConversationEngine - Story 5 (Database Logging)', () => {
         fromNumber: '+15555551234',
         toNumber: '+15555556789',
         body: 'Hello',
+        channel: 'sms',
+        userId: '+15555551234',
         twilioSid: 'SM123456'
       });
     });
@@ -568,6 +572,8 @@ describe('ConversationEngine - Story 5 (Database Logging)', () => {
         '+15555556789',
         '+15555551234',
         'Your check-in is complete. Thank you.',
+        'sms',
+        '+15555551234',
         undefined
       );
 
@@ -578,6 +584,8 @@ describe('ConversationEngine - Story 5 (Database Logging)', () => {
         fromNumber: '+15555556789',
         toNumber: '+15555551234',
         body: 'Your check-in is complete. Thank you.',
+        channel: 'sms',
+        userId: '+15555551234',
         twilioSid: null
       });
     });
@@ -588,6 +596,8 @@ describe('ConversationEngine - Story 5 (Database Logging)', () => {
         '+15555551234',
         '+15555556789',
         '',
+        'sms',
+        '+15555551234',
         'SM123456'
       );
 
@@ -616,8 +626,8 @@ describe('ConversationEngine - Story 5 (Database Logging)', () => {
 
     it('should link both inbound and outbound messages (bidirectional)', async () => {
       // Log both inbound and outbound messages
-      await engine.logMessage('inbound', testUserId, '+15555556789', 'Hello', 'SM123');
-      await engine.logMessage('outbound', '+15555556789', testUserId, 'Hi back', undefined);
+      await engine.logMessage('inbound', testUserId, '+15555556789', 'Hello', 'sms', testUserId, 'SM123');
+      await engine.logMessage('outbound', '+15555556789', testUserId, 'Hi back', 'sms', testUserId, undefined);
 
       // Complete conversation to trigger session creation and linking
       await engine.processInput(testUserId, 'start', 'sms');
@@ -673,7 +683,7 @@ describe('ConversationEngine - Story 5 (Database Logging)', () => {
 
       // Should not throw
       await expect(
-        failingEngine.logMessage('inbound', '+1234', '+5678', 'test', 'SM123')
+        failingEngine.logMessage('inbound', '+1234', '+5678', 'test', 'sms', '+1234', 'SM123')
       ).resolves.toBeUndefined();
     });
 
