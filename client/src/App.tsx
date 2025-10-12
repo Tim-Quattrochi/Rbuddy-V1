@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AppLayout } from "@/components/layout/AppLayout";
 import Landing from "@/pages/Landing";
 import CheckIn from "@/pages/CheckIn";
 import DailyRitual from "@/pages/DailyRitual";
@@ -19,10 +20,12 @@ function App() {
               path="/daily-ritual" 
               element={
                 <ProtectedRoute>
-                  <DailyRitual />
+                  <AppLayout />
                 </ProtectedRoute>
-              } 
-            />
+              }
+            >
+              <Route index element={<DailyRitual />} />
+            </Route>
             <Route path="/login" element={<LoginPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

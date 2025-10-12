@@ -7,21 +7,89 @@ import * as useAuthModule from '@/hooks/useAuth';
 // Mock the useAuth hook
 vi.mock('@/hooks/useAuth');
 
+// Mock navigation components
+vi.mock('@/components/navigation/NavigationMenu', () => ({
+  NavigationMenu: ({ onOpenRepair }: { onOpenRepair: () => void }) => (
+    <button data-testid="mock-navigation-menu" onClick={onOpenRepair}>
+      Nav Menu
+    </button>
+  ),
+}));
+
+vi.mock('@/components/navigation/UserMenu', () => ({
+  UserMenu: ({ onOpenRepair }: { onOpenRepair: () => void }) => (
+    <button data-testid="mock-user-menu" onClick={onOpenRepair}>
+      User Menu
+    </button>
+  ),
+}));
+
 describe('Header component', () => {
+  const mockOnOpenRepair = vi.fn();
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  const renderHeader = () => {
+  const renderHeader = (props = {}) => {
     return render(
       <BrowserRouter>
-        <Header />
+        <Header {...props} />
       </BrowserRouter>
     );
   };
 
-  describe('AC#5: Header displays user email and Logout button', () => {
-    it('should display user email when authenticated', () => {
+  describe('Navigation rendering for authenticated users', () => {
+    it('should render NavigationMenu when authenticated and onOpenRepair provided', () => {
+      vi.spyOn(useAuthModule, 'useAuth').mockReturnValue({
+        user: { id: '1', email: 'john@example.com', username: 'john' },
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+        logout: vi.fn(),
+        isLoggingOut: false,
+        refetch: vi.fn(),
+      });
+
+      renderHeader({ onOpenRepair: mockOnOpenRepair });
+
+      expect(screen.getByTestId('mock-navigation-menu')).toBeInTheDocument();
+    });
+
+    it('should render UserMenu when authenticated and onOpenRepair provided', () => {
+      vi.spyOn(useAuthModule, 'useAuth').mockReturnValue({
+        user: { id: '1', email: 'john@example.com', username: 'john' },
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+        logout: vi.fn(),
+        isLoggingOut: false,
+        refetch: vi.fn(),
+      });
+
+      renderHeader({ onOpenRepair: mockOnOpenRepair });
+
+      expect(screen.getByTestId('mock-user-menu')).toBeInTheDocument();
+    });
+
+    it('should NOT render navigation menus when not authenticated', () => {
+      vi.spyOn(useAuthModule, 'useAuth').mockReturnValue({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: null,
+        logout: vi.fn(),
+        isLoggingOut: false,
+        refetch: vi.fn(),
+      });
+
+      renderHeader({ onOpenRepair: mockOnOpenRepair });
+
+      expect(screen.queryByTestId('mock-navigation-menu')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('mock-user-menu')).not.toBeInTheDocument();
+    });
+
+    it('should NOT render navigation menus when onOpenRepair not provided', () => {
       vi.spyOn(useAuthModule, 'useAuth').mockReturnValue({
         user: { id: '1', email: 'john@example.com', username: 'john' },
         isAuthenticated: true,
@@ -34,12 +102,13 @@ describe('Header component', () => {
 
       renderHeader();
 
-      expect(screen.getByTestId('user-email')).toHaveTextContent('john@example.com');
+      expect(screen.queryByTestId('mock-navigation-menu')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('mock-user-menu')).not.toBeInTheDocument();
     });
 
-    it('should display Logout button when authenticated', () => {
+    it('should render Daily Ritual navigation link on desktop when authenticated', () => {
       vi.spyOn(useAuthModule, 'useAuth').mockReturnValue({
-        user: { id: '1', email: 'test@test.com', username: 'test' },
+        user: { id: '1', email: 'john@example.com', username: 'john' },
         isAuthenticated: true,
         isLoading: false,
         error: null,
@@ -48,84 +117,48 @@ describe('Header component', () => {
         refetch: vi.fn(),
       });
 
-      renderHeader();
+      renderHeader({ onOpenRepair: mockOnOpenRepair });
 
-      expect(screen.getByTestId('logout-button')).toBeInTheDocument();
-      expect(screen.getByTestId('logout-button')).toHaveTextContent('Logout');
-    });
-
-    it('should NOT display user email when not authenticated', () => {
-      vi.spyOn(useAuthModule, 'useAuth').mockReturnValue({
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-        error: null,
-        logout: vi.fn(),
-        isLoggingOut: false,
-        refetch: vi.fn(),
-      });
-
-      renderHeader();
-
-      expect(screen.queryByTestId('user-email')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('logout-button')).not.toBeInTheDocument();
+      const dailyRitualLink = screen.getByTestId('nav-link-daily-ritual');
+      expect(dailyRitualLink).toBeInTheDocument();
+      expect(dailyRitualLink).toHaveTextContent('Daily Ritual');
+      expect(dailyRitualLink).toHaveAttribute('href', '/daily-ritual');
     });
   });
 
-  describe('AC#6: Logout functionality in Header', () => {
-    it('should call logout function when Logout button is clicked', () => {
-      const mockLogout = vi.fn();
-      
+  describe('AC#5 & AC#6: Original logout functionality (deprecated - now in navigation menus)', () => {
+    it('should NOT display standalone user email anymore (moved to navigation menus)', () => {
       vi.spyOn(useAuthModule, 'useAuth').mockReturnValue({
-        user: { id: '1', email: 'test@test.com', username: 'test' },
+        user: { id: '1', email: 'john@example.com', username: 'john' },
         isAuthenticated: true,
         isLoading: false,
         error: null,
-        logout: mockLogout,
+        logout: vi.fn(),
         isLoggingOut: false,
         refetch: vi.fn(),
       });
 
-      renderHeader();
+      renderHeader({ onOpenRepair: mockOnOpenRepair });
 
-      const logoutButton = screen.getByTestId('logout-button');
-      fireEvent.click(logoutButton);
-
-      expect(mockLogout).toHaveBeenCalledTimes(1);
+      // The old user-email testid no longer exists in Header
+      expect(screen.queryByTestId('user-email')).not.toBeInTheDocument();
     });
 
-    it('should disable Logout button while logging out', () => {
+    it('should NOT display standalone Logout button anymore (moved to navigation menus)', () => {
       vi.spyOn(useAuthModule, 'useAuth').mockReturnValue({
         user: { id: '1', email: 'test@test.com', username: 'test' },
         isAuthenticated: true,
         isLoading: false,
         error: null,
         logout: vi.fn(),
-        isLoggingOut: true,
+        isLoggingOut: false,
         refetch: vi.fn(),
       });
 
-      renderHeader();
+      renderHeader({ onOpenRepair: mockOnOpenRepair });
 
-      const logoutButton = screen.getByTestId('logout-button');
-      expect(logoutButton).toBeDisabled();
-      expect(logoutButton).toHaveTextContent('Logging out...');
-    });
-
-    it('should show "Logging out..." text during logout', () => {
-      vi.spyOn(useAuthModule, 'useAuth').mockReturnValue({
-        user: { id: '1', email: 'test@test.com', username: 'test' },
-        isAuthenticated: true,
-        isLoading: false,
-        error: null,
-        logout: vi.fn(),
-        isLoggingOut: true,
-        refetch: vi.fn(),
-      });
-
-      renderHeader();
-
-      expect(screen.getByTestId('logout-button')).toHaveTextContent('Logging out...');
+      // The old logout-button testid no longer exists in Header
+      expect(screen.queryByTestId('logout-button')).not.toBeInTheDocument();
     });
   });
 
@@ -163,23 +196,6 @@ describe('Header component', () => {
       const heartIcon = container.querySelector('.lucide-heart');
       expect(heartIcon).toBeInTheDocument();
     });
-
-    it('should render LogOut icon in button when authenticated', () => {
-      vi.spyOn(useAuthModule, 'useAuth').mockReturnValue({
-        user: { id: '1', email: 'test@test.com', username: 'test' },
-        isAuthenticated: true,
-        isLoading: false,
-        error: null,
-        logout: vi.fn(),
-        isLoggingOut: false,
-        refetch: vi.fn(),
-      });
-
-      const { container } = renderHeader();
-
-      const logoutIcon = container.querySelector('.lucide-log-out');
-      expect(logoutIcon).toBeInTheDocument();
-    });
   });
 
   describe('Loading state', () => {
@@ -198,22 +214,22 @@ describe('Header component', () => {
 
       // Should still render header, just without user info
       expect(screen.getByText('Reentry Buddy')).toBeInTheDocument();
-      expect(screen.queryByTestId('user-email')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('mock-navigation-menu')).not.toBeInTheDocument();
     });
   });
 
-  describe('Different user data', () => {
-    it('should display different email addresses correctly', () => {
-      const emails = [
-        'alice@example.com',
-        'bob@test.org',
-        'charlie.brown@company.co.uk',
+  describe('Different user scenarios', () => {
+    it('should work with different authentication states', () => {
+      const states = [
+        { isAuthenticated: false, user: null },
+        { isAuthenticated: true, user: { id: '1', email: 'alice@example.com', username: 'alice' } },
+        { isAuthenticated: true, user: { id: '2', email: 'bob@test.org', username: 'bob' } },
       ];
 
-      emails.forEach((email) => {
+      states.forEach(({ isAuthenticated, user }) => {
         vi.spyOn(useAuthModule, 'useAuth').mockReturnValue({
-          user: { id: '1', email, username: 'user' },
-          isAuthenticated: true,
+          user,
+          isAuthenticated,
           isLoading: false,
           error: null,
           logout: vi.fn(),
@@ -221,8 +237,15 @@ describe('Header component', () => {
           refetch: vi.fn(),
         });
 
-        const { unmount } = renderHeader();
-        expect(screen.getByTestId('user-email')).toHaveTextContent(email);
+        const { unmount } = renderHeader({ onOpenRepair: mockOnOpenRepair });
+        expect(screen.getByText('Reentry Buddy')).toBeInTheDocument();
+        
+        if (isAuthenticated) {
+          expect(screen.getByTestId('mock-navigation-menu')).toBeInTheDocument();
+        } else {
+          expect(screen.queryByTestId('mock-navigation-menu')).not.toBeInTheDocument();
+        }
+        
         unmount();
       });
     });

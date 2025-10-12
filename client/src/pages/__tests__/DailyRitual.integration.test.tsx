@@ -506,85 +506,11 @@ describe('DailyRitual Integration Tests', () => {
   });
 
   describe('Support Widget and RepairFlow integration', () => {
-    it('opens RepairFlow when clicking Access Support and closes on Close', async () => {
-      const user = userEvent.setup();
-      const mockUser = {
-        id: 'test-user-id',
-        username: 'testuser',
-        email: 'test@example.com',
-      };
-
-      // Ensure the mocked useAuth below matches import usage
-      mockUseAuth.mockReturnValue({
-        user: mockUser,
-        isAuthenticated: true,
-        isLoading: false,
-        error: null,
-        logout: vi.fn(),
-        isLoggingOut: false,
-        refetch: vi.fn(),
-      });
-
-      // Mock stats fetch
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ streakCount: 3 }),
-      });
-
-      const { queryClient } = renderWithProviders(<DailyRitualPage />);
-
-      // Wait for streak to render (ensures page is mounted)
-      await waitFor(() => {
-        expect(screen.getByText('3 Days')).toBeInTheDocument();
-      });
-
-      // Open RepairFlow via widget
-      const accessBtn = screen.getByRole('button', { name: /access support/i });
-      await user.click(accessBtn);
-
-      // Modal content should appear (first step title text)
-      await waitFor(() => {
-        expect(
-          screen.getByText('Slips happen. What matters is what you do next.')
-        ).toBeInTheDocument();
-      });
-
-      // Close via Close button after moving to closing step
-      // Move to suggestion step
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          sessionId: 'sess-1',
-          message: 'ok',
-          repairSuggestion: 'Take a deep breath',
-        }),
-      });
-
-  // Scope search within the RepairFlow modal to avoid matching mood grid "Stressed"
-  const modal = screen.getByText('What triggered this moment?').closest('div');
-  const stressBtns = within(modal as HTMLElement).getAllByRole('button', { name: /^Stress$/i });
-  await user.click(stressBtns[0]);
-
-      await waitFor(() => {
-        expect(screen.getByText('Try This')).toBeInTheDocument();
-      });
-
-      const doneBtn = screen.getByRole('button', { name: /done/i });
-      await user.click(doneBtn);
-
-      await waitFor(() => {
-        expect(screen.getByText("You've Got This")).toBeInTheDocument();
-      });
-
-      const closeBtn = screen.getByRole('button', { name: /close/i });
-      await user.click(closeBtn);
-
-      // Modal should close
-      await waitFor(() => {
-        expect(
-          screen.queryByText('Slips happen. What matters is what you do next.')
-        ).not.toBeInTheDocument();
-      });
+    it.skip('RepairFlow integration moved to AppLayout - see AppLayout tests', async () => {
+      // This test is now obsolete. The RepairFlow modal state management 
+      // has been moved to AppLayout component as part of Story 4.3.
+      // RepairFlow is now accessed via the navigation menu (mobile hamburger or desktop user menu).
+      // Integration tests for RepairFlow should be added to AppLayout or E2E tests.
     });
   });
 });

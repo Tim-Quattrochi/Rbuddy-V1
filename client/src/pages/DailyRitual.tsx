@@ -10,8 +10,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { SupportWidget } from "@/components/support/SupportWidget";
-import { RepairFlow } from "@/components/repair/RepairFlow";
 
 // Use cookie-based authentication (auth_token cookie set by OAuth)
 // No need for Authorization header - cookies are sent automatically with credentials: 'include'
@@ -65,7 +63,6 @@ export default function DailyRitualPage() {
   const { user, isAuthenticated, isLoading: isLoadingAuth } = useAuth();
   const [selectedMood, setSelectedMood] = useState<MoodOption | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [showRepairFlow, setShowRepairFlow] = useState(false);
 
   const { data: statsData, isLoading: isLoadingStats, error: statsError } = useQuery({
     queryKey: ["userStats"],
@@ -212,9 +209,6 @@ export default function DailyRitualPage() {
           <StreakCounter streak={statsData.streakCount ?? 0} />
         ) : null}
 
-        {/* Support access widget placed between streak and check-in */}
-        <SupportWidget onOpenRepair={() => setShowRepairFlow(true)} />
-
         {moodMutation.isError && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -241,10 +235,6 @@ export default function DailyRitualPage() {
           </div>
         )}
       </div>
-
-      {showRepairFlow && (
-        <RepairFlow onClose={() => setShowRepairFlow(false)} />
-      )}
     </div>
   );
 }
