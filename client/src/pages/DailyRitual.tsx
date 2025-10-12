@@ -10,19 +10,18 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// TODO: Replace with actual auth token from authentication context
-const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ1c2VyLTEyMyIsImlhdCI6MTYwOTQ1OTIwMCwiZXhwIjoxNjEwMDY0MDAwfQ.placeholder";
+// Use cookie-based authentication (auth_token cookie set by OAuth)
+// No need for Authorization header - cookies are sent automatically with credentials: 'include'
 
 function getAuthHeaders(): HeadersInit {
   return {
     "Content-Type": "application/json",
-    "Authorization": `Bearer ${AUTH_TOKEN}`,
   };
 }
 
 async function fetchUserStats() {
   const res = await fetch("/api/user/stats", {
-    headers: getAuthHeaders(),
+    credentials: "include", // Send cookies with request
   });
   if (!res.ok) {
     throw new Error("Network response was not ok");
@@ -34,6 +33,7 @@ async function postMood(variables: { mood: MoodOption }) {
   const { mood } = variables;
   const res = await fetch("/api/daily-ritual/mood", {
     method: "POST",
+    credentials: "include", // Send cookies with request
     headers: getAuthHeaders(),
     body: JSON.stringify({ mood }),
   });
@@ -47,6 +47,7 @@ async function postIntention(variables: { sessionId: string; intentionText: stri
   const { sessionId, intentionText } = variables;
   const res = await fetch("/api/daily-ritual/intention", {
     method: "POST",
+    credentials: "include", // Send cookies with request
     headers: getAuthHeaders(),
     body: JSON.stringify({ sessionId, intentionText }),
   });

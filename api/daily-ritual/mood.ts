@@ -1,4 +1,8 @@
 
+// Load environment variables FIRST
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { Response } from 'express';
 import ConversationEngine from '../../server/services/conversationEngine';
 import { moodEnum, type MoodOption } from '../../shared/schema';

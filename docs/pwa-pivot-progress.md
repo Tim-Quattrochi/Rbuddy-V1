@@ -1,4 +1,6 @@
-# PWA Pivot - Implementation Progress
+
+# DO NOT USE - DEPRECATED!
+## PWA Pivot - Implementation Progress
 
 **Date Started:** October 11, 2025
 **Decision:** Pivot from Twilio SMS/IVR to Progressive Web App (PWA)

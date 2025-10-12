@@ -1,3 +1,7 @@
+// Load environment variables FIRST
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { Request, Response, NextFunction } from 'express';
 import passport from '../../server/services/AuthService';
 import { generateToken } from '../../server/middleware/auth';

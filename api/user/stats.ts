@@ -1,3 +1,6 @@
+// Load environment variables FIRST
+import dotenv from 'dotenv';
+dotenv.config();
 
 import { Response } from 'express';
 import { db } from '../../server/storage';

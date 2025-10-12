@@ -1,10 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+// Ensure dotenv is loaded before reading environment variables
+dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
   console.error('FATAL ERROR: JWT_SECRET environment variable is not set.');
   if (process.env.NODE_ENV === 'production') process.exit(1);
+} else {
+  console.log('[Auth Middleware] JWT_SECRET loaded, length:', JWT_SECRET.length, 'first 10 chars:', JWT_SECRET.substring(0, 10));
 }
 
 // Ensure JWT_SECRET is defined for TypeScript
@@ -50,14 +56,19 @@ export function requireAuth(
     if (!token) {
       if (req.cookies && req.cookies.auth_token) {
         token = req.cookies.auth_token;
+        console.log('[Auth] Token from req.cookies');
       } else {
         // Manually parse cookies for Vercel serverless functions
         const cookies = parseCookies(req.headers.cookie);
         token = cookies.auth_token;
+        if (token) {
+          console.log('[Auth] Token from manual cookie parsing');
+        }
       }
     }
     
     if (!token) {
+      console.log('[Auth] No token found. Cookie header:', req.headers.cookie);
       return res.status(401).json({
         error: 'Unauthorized',
         message: 'No authentication token provided'
@@ -66,6 +77,7 @@ export function requireAuth(
 
     // Verify JWT token
     const decoded = jwt.verify(token, jwtSecret) as { userId: string };
+    console.log('[Auth] Token verified successfully for user:', decoded.userId);
     
     if (!decoded.userId) {
       return res.status(401).json({
@@ -80,6 +92,7 @@ export function requireAuth(
     // Call next middleware
     next();
   } catch (error) {
+    console.error('[Auth] Token verification failed:', error instanceof jwt.JsonWebTokenError ? error.message : error);
     if (error instanceof jwt.JsonWebTokenError) {
       return res.status(401).json({
         error: 'Unauthorized',
