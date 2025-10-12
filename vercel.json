@@ -1,36 +1,11 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist/public",
-  "builds": [
-    {
-      "src": "client/package.json",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "dist/public" }
-    },
-    { "src": "api/**/*.ts", "use": "@vercel/node" }
-  ],
   "framework": "vite",
-  "rewrites": [
-    {
-      "source": "/api/users/me",
-      "destination": "/api/user/me"
-    },
-    {
-      "source": "/api/user/:action",
-      "destination": "/api/user/[action]"
-    },
-    {
-      "source": "/api/daily-ritual/:action",
-      "destination": "/api/daily-ritual/[action]"
-    },
-    {
-      "source": "/api/chat/:action",
-      "destination": "/api/chat/[action]"
-    }
-  ],
+  
   "routes": [{ "src": "/api/(.*)", "dest": "/api/$1" }],
   "functions": {
-    "api/**/*.ts": {
+    "api/**/*.js": {
       "runtime": "@vercel/node@4.0.0",
       "excludeFiles": "**/*.test.ts,**/__tests__/**"
     }
