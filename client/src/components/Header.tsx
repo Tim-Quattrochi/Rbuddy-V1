@@ -1,10 +1,13 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Heart, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { RepairFlow } from "@/components/repair/RepairFlow";
 
 export default function Header() {
   const { user, isAuthenticated, logout, isLoggingOut } = useAuth();
+  const [showRepairFlow, setShowRepairFlow] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -20,6 +23,14 @@ export default function Header() {
               {user.email}
             </span>
             <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowRepairFlow(true)}
+              data-testid="i-slipped-button"
+            >
+              I slipped
+            </Button>
+            <Button
               variant="outline"
               size="sm"
               onClick={logout}
@@ -33,6 +44,10 @@ export default function Header() {
           </div>
         )}
       </div>
+
+      {showRepairFlow && (
+        <RepairFlow onClose={() => setShowRepairFlow(false)} />
+      )}
     </header>
   );
 }
