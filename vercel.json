@@ -10,9 +10,9 @@
   ],
   "functions": {
     "api/**/*.ts": {
-      "includeFiles": "{server/**,shared/**}",
-      "excludeFiles": "{**/*.test.ts,**/__tests__/**,**/_lib/**}"
+      "runtime": "@vercel/node@3",
+      "includeFiles": "server/**,shared/**,db/**,api/_lib/**",
+      "excludeFiles": "**/*.test.ts,**/__tests__/**"
     }
-  },
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./api"
+  }
 }
