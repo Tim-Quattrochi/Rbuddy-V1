@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { requireAuth, AuthenticatedRequest } from '../../server/middleware/auth';
 import { storage } from '../../server/storage';
+import { createVercelHandler } from '../_lib/vercel-handler';
 import dotenv from 'dotenv';
 
 // Ensure environment variables are loaded
@@ -35,4 +36,8 @@ async function handler(req: AuthenticatedRequest, res: Response) {
   }
 }
 
-export default [requireAuth, handler];
+// Export for Express server (middleware array)
+export const middlewares = [requireAuth, handler];
+
+// Export for Vercel serverless (wrapped function)
+export default createVercelHandler(middlewares);
