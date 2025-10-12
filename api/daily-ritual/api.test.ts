@@ -49,6 +49,35 @@ const createMockRes = () => {
     return res;
 };
 
+async function runMiddlewares(middlewares: any, req: any, res: any) {
+  for (const middleware of middlewares) {
+    let resolveNext: (value?: unknown) => void;
+    const nextPromise = new Promise(resolve => {
+      resolveNext = resolve;
+    });
+
+    let headersSent = false;
+    const originalEnd = res.end;
+    res.end = function(...args: any[]) {
+      headersSent = true;
+      return originalEnd.apply(this, args);
+    };
+
+    await middleware(req, res, (err: any) => {
+      if (err) {
+        throw err;
+      }
+      resolveNext();
+    });
+
+    if (headersSent) {
+      break;
+    }
+
+    await nextPromise;
+  }
+}
+
 describe('API Endpoints', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -59,7 +88,7 @@ describe('API Endpoints', () => {
       const req = createMockReq('POST', { userId: 'user-123', mood: 'calm' });
       const res = createMockRes();
 
-      await moodHandler(req, res);
+      await runMiddlewares(moodHandler, req, res);
 
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
@@ -74,7 +103,7 @@ describe('API Endpoints', () => {
       const req = createMockReq('POST', { sessionId: 'session-123', intentionText: 'My intention' });
       const res = createMockRes();
 
-      await intentionHandler(req, res);
+      await runMiddlewares(intentionHandler, req, res);
 
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({ success: true });
@@ -86,7 +115,7 @@ describe('API Endpoints', () => {
       const req = createMockReq('GET', {}, { userId: 'user-123' });
       const res = createMockRes();
 
-      await statsHandler(req, res);
+      await runMiddlewares(statsHandler, req, res);
 
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({

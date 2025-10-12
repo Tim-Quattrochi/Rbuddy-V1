@@ -69,6 +69,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       From,
       To,
       Body ?? '',
+      'sms',
+      From,
       MessageSid
     );
     console.log('[SMS Webhook] Inbound message logged');
@@ -85,6 +87,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       To, // System phone number (from)
       From, // User phone number (to)
       responseMessage,
+      'sms',
+      From,
       undefined // Twilio generates SID after send
     );
     console.log('[SMS Webhook] Outbound message logged');
