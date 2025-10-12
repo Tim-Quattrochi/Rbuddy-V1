@@ -82,7 +82,7 @@ async function calculateStreak(userId: string): Promise<number> {
   return streak;
 }
 
-async function getMoodTrends(userId: string): Promise<any> {
+async function getMoodTrends(userId: string): Promise<Record<string, number>> {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
