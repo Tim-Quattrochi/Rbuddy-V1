@@ -1,5 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config();
 
 import type { Response } from "express";
 import { and, desc, eq } from "drizzle-orm";
