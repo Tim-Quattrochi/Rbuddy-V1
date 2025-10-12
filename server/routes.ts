@@ -20,6 +20,11 @@ import { middlewares as logoutHandler } from "../api/auth/logout";
 // Import Repair route handlers
 import { middlewares as repairStartHandler } from "../api/repair/start";
 
+// Import Chat route handlers
+import chatSendHandler from "../api/chat/send";
+import chatHistoryHandler from "../api/chat/history";
+import chatClearHandler from "../api/chat/clear";
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth Routes
   app.get("/api/auth/google", googleAuthHandler);
@@ -39,6 +44,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // User Stats Routes
   app.get("/api/user/stats", ...statsHandler);
+  
+  // Chat Routes
+  app.post("/api/chat/send", ...chatSendHandler);
+  app.get("/api/chat/history", ...chatHistoryHandler);
+  app.delete("/api/chat/clear", ...chatClearHandler);
 
   const httpServer = createServer(app);
 
