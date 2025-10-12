@@ -6,15 +6,21 @@ import { storage } from "./storage";
 import moodHandler from "../api/daily-ritual/mood";
 import intentionHandler from "../api/daily-ritual/intention";
 import statsHandler from "../api/user/stats";
+import meHandler from "../api/user/me";
 
 // Import Auth route handlers
 import googleAuthHandler from "../api/auth/google/index";
 import googleCallbackHandler from "../api/auth/google.callback";
+import logoutHandler from "../api/auth/logout";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth Routes
   app.get("/api/auth/google", googleAuthHandler);
   app.get("/api/auth/google/callback", googleCallbackHandler);
+  app.post("/api/auth/logout", ...logoutHandler);
+  
+  // User Routes
+  app.get("/api/users/me", ...meHandler);
   
   // Daily Ritual Routes
   app.post("/api/daily-ritual/mood", ...moodHandler);

@@ -6,6 +6,7 @@ import CheckIn from "@/pages/CheckIn";
 import DailyRitual from "@/pages/DailyRitual";
 import LoginPage from "@/pages/Login";
 import NotFound from "@/pages/not-found";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 function App() {
   return (
@@ -14,7 +15,14 @@ function App() {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/check-in" element={<CheckIn />} />
-            <Route path="/daily-ritual" element={<DailyRitual />} />
+            <Route 
+              path="/daily-ritual" 
+              element={
+                <ProtectedRoute>
+                  <DailyRitual />
+                </ProtectedRoute>
+              } 
+            />
             <Route path="/login" element={<LoginPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
