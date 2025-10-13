@@ -6,7 +6,10 @@
     }
   },
   "rewrites": [
+    { "source": "/api/users/me", "destination": "/api/users/me" },
     { "source": "/api/users/(.*)", "destination": "/api/users/$1" },
+    { "source": "/api/daily-ritual/mood", "destination": "/api/daily-ritual/mood" },
+    { "source": "/api/daily-ritual/intention", "destination": "/api/daily-ritual/intention" },
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
