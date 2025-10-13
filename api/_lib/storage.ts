@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
-// Fix: Use named import for pg module (ESM compatibility in Vercel)
-import { Pool } from 'pg';
+// Use default import for CJS interop with 'pg' in ESM environments
+import pg from 'pg';
 
 import * as schema from '../../shared/schema.js';
 import { eq } from 'drizzle-orm';
@@ -10,7 +10,7 @@ if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL, ensure the database is provisioned");
 }
 
-const pool = new Pool({
+const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
