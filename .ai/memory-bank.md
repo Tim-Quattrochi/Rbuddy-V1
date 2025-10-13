@@ -1,6 +1,6 @@
 # Next Moment - Project Memory Bank
-**Last Updated**: 2025-10-11
-**Project Status**: Story 12 Critical Fixes Complete - Ready for QA Re-Review
+**Last Updated**: 2025-10-13
+**Project Status**: Backend Decoupled - OAuth Flow Fixed
 
 ---
 
@@ -64,19 +64,29 @@ client/src/
 ```
 server/
 ├── middleware/
-│   └── auth.ts - JWT authentication (NEW)
+│   └── auth.ts - JWT authentication
 ├── services/
-│   └── conversationEngine.ts - FSM logic for SMS and PWA
+│   ├── conversationEngine.ts - FSM logic for SMS and PWA
+│   └── AuthService.ts - Passport OAuth configuration
 ├── routes.ts - Express route registration
 └── storage.ts - Database connection
 
 api/
+├── auth/
+│   ├── google.ts - Google OAuth initiation
+│   ├── google.callback.ts - OAuth callback handler
+│   └── logout.ts - Logout endpoint
 ├── daily-ritual/
 │   ├── mood.ts - POST endpoint for mood selection
 │   └── intention.ts - POST endpoint for intention saving
 └── user/
     └── stats.ts - GET endpoint for streak and trends
 ```
+
+**Architecture Note**: Backend decoupled (2025-10-13)
+- Backend: Express on port 5001
+- Frontend: Vite on port 5173
+- Proxy: Vite proxies `/api` to backend (see `vite.config.ts`)
 
 ### Database Schema
 ```
@@ -366,6 +376,7 @@ refactor: Move types to shared schema
 2. Background sync not configured (offline requirement)
 3. Streak calculation had multiple logic errors
 4. Interaction logging incomplete (audit trail gap)
+5. **OAuth flow breaking after backend decoupling** (2025-10-13)
 
 ### Best Practices Established
 1. Always use JWT authentication for API endpoints
@@ -373,6 +384,9 @@ refactor: Move types to shared schema
 3. Implement comprehensive error handling with user feedback
 4. Use shared types for client/server type safety
 5. Normalize dates to midnight for day-based calculations
+6. **OAuth flows require full browser redirects (`window.location.href`), never React Router navigation**
+7. **Backend redirects in decoupled apps must use full frontend URLs, not relative paths**
+8. **Always implement environment-aware URL handling for dev vs production**
 
 ---
 
@@ -429,6 +443,11 @@ refactor: Move types to shared schema
 - Check JWT token is present in Authorization header
 - Verify token hasn't expired (7-day expiration)
 - Check JWT_SECRET environment variable matches
+
+#### Google OAuth 404 errors
+- **Frontend 404 on `/api/auth/google`**: Using `navigate()` instead of `window.location.href`
+- **Backend redirect 404**: Backend redirecting to relative path instead of full frontend URL
+- **Solution**: See `.ai/debug-log.md` entry from 2025-10-13
 
 #### Streak count is incorrect
 - Verify sessions have correct `flowType` ('daily-ritual' or 'daily')
