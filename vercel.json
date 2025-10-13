@@ -11,13 +11,8 @@
       "config": { "distDir": "dist" }
     }
   ],
-  "rewrites": [
-    { "source": "/api/:path*", "destination": "/server/index.ts" },
-    { "source": "/(.*)", "destination": "client/index.html" }
-  ]
-}{
-  "version": 2,
-  "builds": [
+
+  "routes": [
     {
       "src": "server/api/:path*",
       "use": "@vercel/node"
