@@ -6,6 +6,7 @@
     }
   },
   "rewrites": [
+    { "source": "/api/users/(.*)", "destination": "/api/user/$1" },
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
