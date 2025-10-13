@@ -58,8 +58,8 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,
-        // Do NOT serve index.html for /api/* navigations (let serverless endpoints handle them)
-        navigateFallbackDenylist: [/^\/api\//],
+        // Do NOT serve index.html for API or auth navigations (let serverless endpoints handle them)
+        navigateFallbackDenylist: [/^\/api\//, /^\/api\/auth\//, /^\/auth\//],
         runtimeCaching: [
           {
             // Cache-first strategy for static assets
