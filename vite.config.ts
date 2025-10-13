@@ -89,41 +89,9 @@ export default defineConfig({
               },
             },
           },
-          {
-            // Only cache non-critical API requests for background sync
-            // IMPORTANT: Exclude Vercel serverless functions that need real-time responses
-            urlPattern: ({url}) => {
-              // List of critical endpoints that should NEVER be cached or intercepted
-              const excludedPaths = [
-                '/api/auth/',           // Authentication endpoints
-                '/api/chat/',           // Real-time chat messages
-                '/api/user/',           // User data and stats
-                '/api/repair/',         // Repair flow (critical UX)
-                '/api/daily-ritual/',   // Daily ritual submissions
-                '/api/journal/history', // Journal history (needs fresh data)
-              ];
-
-              // Only intercept same-origin, non-critical API requests
-              const isSameOrigin = url.origin === self.location.origin;
-              const isApiRequest = url.pathname.startsWith('/api/');
-              const isCriticalEndpoint = excludedPaths.some(path =>
-                url.pathname.startsWith(path)
-              );
-
-              // Return true only for non-critical API requests
-              // In practice, this means we're NOT caching any API requests right now
-              return isSameOrigin && isApiRequest && !isCriticalEndpoint;
-            },
-            handler: "NetworkOnly",
-            options: {
-              backgroundSync: {
-                name: "daily-ritual-queue",
-                options: {
-                  maxRetentionTime: 24 * 60, // 24 hours
-                },
-              },
-            },
-          },
+          // API routes are NOT handled by service worker at all
+          // This ensures all /api/* requests bypass the service worker completely
+          // and reach Vercel serverless functions directly
         ],
       },
       devOptions: {
