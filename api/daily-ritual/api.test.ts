@@ -3,7 +3,7 @@ import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { middlewares as moodHandler } from './[action].ts';
 import { middlewares as intentionHandler } from '../daily-ritual/[action].ts';
-import { middlewares as statsHandler } from '../user/[action]';
+import { middlewares as statsHandler } from '../users/[action]';
 import ConversationEngine from 'server/services/conversationEngine';
 
 vi.mock('../../server/middleware/auth', () => ({

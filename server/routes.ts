@@ -6,7 +6,7 @@ import { storage } from "./storage";
 
 import { middlewares as journalHistoryHandler } from "../api/journal/history.js";
 import { middlewares as dailyRitualHandler } from "../api/daily-ritual/[action].js";
-import { middlewares as userHandler } from "../api/user/[action].js";
+import { middlewares as userHandler } from "../api/users/[action].js";
 
 
 
