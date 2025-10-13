@@ -3,7 +3,8 @@
   "outputDirectory": "dist/public",
   "functions": {
     "api/**/*.ts": {
-      "runtime": "@vercel/node@22.x"
+      "runtime": "@vercel/node-22.x-edge",
+      "includeFiles": "{server/**,shared/**}"
     }
   },
   "rewrites": [
