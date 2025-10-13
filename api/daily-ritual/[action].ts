@@ -85,7 +85,7 @@ function resolveAction(req: Request): DailyRitualAction | null {
     return fromParams as DailyRitualAction;
   }
 
-  const queryValue = req.query?.action;
+  const queryValue = (req as any).query?.action;
   if (typeof queryValue === 'string' && queryValue) {
     return queryValue as DailyRitualAction;
   }
@@ -93,7 +93,7 @@ function resolveAction(req: Request): DailyRitualAction | null {
     return queryValue[0] as DailyRitualAction;
   }
 
-  const path = (req as any).path || req.url || '';
+  const path = (req as any).path || (req as any).url || '';
   const segments = path.split('?')[0]?.split('/').filter(Boolean) ?? [];
   const lastSegment = segments[segments.length - 1];
   if (lastSegment === 'mood' || lastSegment === 'intention') {
@@ -108,13 +108,23 @@ const dispatchHandler: RequestHandler = async (
   next: NextFunction
 ) => {
   try {
+    const method = (req.method || '').toUpperCase();
+    const url = (req as any).path || (req as any).url;
     const action = resolveAction(req as Request);
+
+    console.log('[daily-ritual] method=%s url=%s action=%s', method, url, action);
+
     if (!action) {
       return res.status(404).json({ error: 'Not Found' });
     }
 
     const config = actionConfig[action];
-    if (!config || req.method.toUpperCase() !== config.method) {
+    if (!config) {
+      return res.status(404).json({ error: 'Not Found' });
+    }
+
+    if (method !== config.method) {
+      console.warn('[daily-ritual] 405 for method=%s expected=%s url=%s action=%s', method, config.method, url, action);
       return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
