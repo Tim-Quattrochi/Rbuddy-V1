@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import googleAuthHandler from './google';
-import googleCallbackHandler from './google.callback';
+import googleCallbackHandler from './google/callback';
 
 // Mock passport
 vi.mock('../../server/services/AuthService', () => {

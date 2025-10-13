@@ -12,7 +12,7 @@ import { middlewares as userHandler } from "../api/user/[action].js";
 
 // Import Auth route handlers
 import { middlewares as googleAuthHandler } from "../api/auth/google.js";
-import { middlewares as googleCallbackHandler } from "../api/auth/google.callback.js";
+import { middlewares as googleCallbackHandler } from "../api/auth/google/callback.js";
 import { middlewares as logoutHandler } from "../api/auth/logout.js";
 
 // Import Repair route handlers
