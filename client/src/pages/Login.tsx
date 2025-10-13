@@ -21,7 +21,8 @@ const LoginPage = () => {
   const handleGoogleLogin = () => {
     setIsLoading(true);
     // Full page redirect to backend OAuth endpoint
-    window.location.href = "/api/auth/google";
+    const base = import.meta.env.PROD ? window.location.origin : '';
+    window.location.href = `${base}/api/auth/google`;
   };
 
   // Get user-friendly error message

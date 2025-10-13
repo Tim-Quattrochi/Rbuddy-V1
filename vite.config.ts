@@ -58,10 +58,12 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,
+        // Do NOT serve index.html for /api/* navigations (let serverless endpoints handle them)
+        navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [
           {
             // Cache-first strategy for static assets
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*$/i,
             handler: "CacheFirst",
             options: {
               cacheName: "google-fonts-cache",
@@ -76,7 +78,7 @@ export default defineConfig({
           },
           {
             // Cache-first for font files
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*$/i,
             handler: "CacheFirst",
             options: {
               cacheName: "gstatic-fonts-cache",
@@ -90,8 +92,6 @@ export default defineConfig({
             },
           },
           // API routes are NOT handled by service worker at all
-          // This ensures all /api/* requests bypass the service worker completely
-          // and reach Vercel serverless functions directly
         ],
       },
       devOptions: {
