@@ -9,6 +9,8 @@
 # Development files
 .env.local
 .env.development
+server/
+api/index.ts
 
 # Documentation
 docs/

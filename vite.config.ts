@@ -112,6 +112,8 @@ export default defineConfig({
   resolve: {
     alias: {
       // since root is client, @ points to client/src
+      '@api': path.resolve(__dirname,  'api'),
+      '@components': path.resolve(__dirname, 'client', 'src', 'components'),
       '@': path.resolve(__dirname, 'client', 'src'),
       '@shared': path.resolve(__dirname, 'shared'),
       '@assets': path.resolve(__dirname, 'attached_assets')

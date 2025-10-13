@@ -7,6 +7,7 @@ import { registerRoutes } from 'server/routes';
 
 import { setupVite, serveStatic, log} from 'server/vite';
 import passport from 'passport';
+
 import { configurePassport } from 'server/services/AuthService';
 import cookieParser from 'cookie-parser';
 
