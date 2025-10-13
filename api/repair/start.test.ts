@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { db } from '../../server/storage';
+import { db } from 'server/storage';
 import { users, sessions, interactions } from '../../shared/schema';
+
 import { eq, and } from 'drizzle-orm';
-import ConversationEngine from '../../server/services/conversationEngine';
+import ConversationEngine from 'server/services/conversationEngine';
 
 /**
  * Integration Test Suite for Repair Flow (Rupture & Repair)

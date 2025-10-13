@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { db } from '../../server/storage';
+import { db } from 'server/storage';
 import { users, sessions, interactions } from '../../shared/schema';
 import { eq, desc } from 'drizzle-orm';
-import ConversationEngine from '../../server/services/conversationEngine';
+import ConversationEngine from 'server/services/conversationEngine';
 
 /**
  * Integration Test Suite for Daily Ritual Flow
@@ -166,7 +166,9 @@ describe('Daily Ritual Integration Tests', () => {
       expect(allSessions.length).toBeGreaterThanOrEqual(moods.length);
       
       // Verify each mood was recorded
-      const recordedMoods = allSessions.map(s => s.mood);
+      const recordedMoods = allSessions
+        .map(s => s.mood)
+        .filter((mood): mood is "calm" | "stressed" | "tempted" | "hopeful" => mood !== null);
       for (const mood of moods) {
         expect(recordedMoods).toContain(mood);
       }
@@ -190,7 +192,22 @@ describe('Daily Ritual Integration Tests', () => {
       }
       
       // Verify content types
-      const contentTypes = sessionInteractions.map(i => i.contentType);
+      interface SessionInteraction {
+        id: string;
+        userId: string;
+        sessionId: string | null;
+        direction: 'inbound' | 'outbound';
+        channel: string;
+        contentType: string | null;
+        body: string;
+        status: string | null;
+        createdAt: Date | null;
+      }
+
+      const sessionInteractionsTyped: SessionInteraction[] = sessionInteractions;
+      const contentTypes: string[] = sessionInteractionsTyped
+        .map((i: SessionInteraction) => i.contentType ?? '')
+        .filter((ct): ct is string => ct !== '');
       expect(contentTypes).toContain('mood_selection');
       expect(contentTypes).toContain('affirmation_view');
     });

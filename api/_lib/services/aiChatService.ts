@@ -194,12 +194,12 @@ Keep responses concise (2-3 sentences usually) and conversational.`;
         userId,
         role: 'user',
         content: message,
-        metadata: { context },
+        metadata: JSON.stringify({ context }) as any,
       });
 
       // Get AI response based on provider
       let aiResponse: string;
-      
+
       switch (this.provider) {
         case 'openai':
           aiResponse = await this.getOpenAIResponse(context, history, message);
@@ -222,6 +222,7 @@ Keep responses concise (2-3 sentences usually) and conversational.`;
         userId,
         role: 'assistant',
         content: aiResponse,
+        metadata: null as any,
       });
 
       return aiResponse;

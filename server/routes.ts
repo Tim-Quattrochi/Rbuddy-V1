@@ -4,16 +4,16 @@ import { storage } from "./storage";
 
 // Import API route handlers
 
-import { middlewares as journalHistoryHandler } from "../api/journal/history";
+import { middlewares as journalHistoryHandler } from "../api/journal/history.js";
 import { middlewares as dailyRitualHandler } from "../api/daily-ritual/[action].js";
-import { middlewares as userHandler } from "../api/user/[action]";
+import { middlewares as userHandler } from "../api/user/[action].js";
 
 
 
 // Import Auth route handlers
-import { middlewares as googleAuthHandler } from "../api/auth/google";
-import { middlewares as googleCallbackHandler } from "../api/auth/google.callback";
-import { middlewares as logoutHandler } from "../api/auth/logout";
+import { middlewares as googleAuthHandler } from "../api/auth/google.js";
+import { middlewares as googleCallbackHandler } from "../api/auth/google.callback.js";
+import { middlewares as logoutHandler } from "../api/auth/logout.js";
 
 // Import Repair route handlers
 import { middlewares as repairStartHandler } from "../api/repair/start";
