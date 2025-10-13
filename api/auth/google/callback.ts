@@ -9,6 +9,53 @@ import { storage } from '../../_lib/storage.js';
 import { generateToken } from '../../_lib/middleware/auth.js';
 import type { User } from '../../_lib/storage.js';
 
+// Minimal cookie serializer for serverless environments
+function serializeCookie(name: string, value: string, options: {
+  httpOnly?: boolean;
+  secure?: boolean;
+  sameSite?: 'lax' | 'strict' | 'none' | undefined;
+  maxAge?: number; // milliseconds
+  path?: string;
+  domain?: string;
+  expires?: Date;
+} = {}) {
+  const segments: string[] = [];
+  segments.push(`${name}=${encodeURIComponent(value)}`);
+
+  if (options.maxAge !== undefined) {
+    const seconds = Math.floor(options.maxAge / 1000);
+    segments.push(`Max-Age=${seconds}`);
+  }
+  if (options.domain) segments.push(`Domain=${options.domain}`);
+  if (options.path) segments.push(`Path=${options.path}`);
+  if (options.expires) segments.push(`Expires=${options.expires.toUTCString()}`);
+  if (options.httpOnly) segments.push('HttpOnly');
+  if (options.secure) segments.push('Secure');
+  if (options.sameSite) {
+    const v = options.sameSite.charAt(0).toUpperCase() + options.sameSite.slice(1);
+    segments.push(`SameSite=${v}`);
+  }
+
+  return segments.join('; ');
+}
+
+function setCookie(res: any, name: string, value: string, options: Parameters<typeof serializeCookie>[2]) {
+  if (typeof res.cookie === 'function') {
+    // Express response
+    return res.cookie(name, value, options);
+  }
+  // Vercel or Node response without res.cookie
+  const cookie = serializeCookie(name, value, options);
+  const prev = res.getHeader ? res.getHeader('Set-Cookie') : undefined;
+  if (!prev) {
+    res.setHeader('Set-Cookie', cookie);
+  } else if (Array.isArray(prev)) {
+    res.setHeader('Set-Cookie', [...prev, cookie]);
+  } else {
+    res.setHeader('Set-Cookie', [prev as string, cookie]);
+  }
+}
+
 // Configure Passport inline for serverless (avoids module resolution issues)
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
@@ -77,20 +124,20 @@ async function handler(req: Request, res: Response, next: NextFunction) {
     (err: Error | null, user: User | false, _info: any) => {
       if (err) {
         console.error('Google OAuth error:', err);
-        return res.redirect(`${frontendUrl}/login?error=auth_failed`);
+        return (res as any).redirect?.(`${frontendUrl}/login?error=auth_failed`) ?? (res as any).status(302).setHeader('Location', `${frontendUrl}/login?error=auth_failed`).end();
       }
 
       if (!user) {
         console.error('No user returned from Google OAuth');
-        return res.redirect(`${frontendUrl}/login?error=no_user`);
+        return (res as any).redirect?.(`${frontendUrl}/login?error=no_user`) ?? (res as any).status(302).setHeader('Location', `${frontendUrl}/login?error=no_user`).end();
       }
 
       try {
         // Generate JWT token for the authenticated user
         const token = generateToken(user.id);
 
-        // Set token as HttpOnly cookie
-        res.cookie('auth_token', token, {
+        // Set token as HttpOnly cookie (works for Express and Vercel)
+        setCookie(res as any, 'auth_token', token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
           sameSite: 'lax',
@@ -99,13 +146,13 @@ async function handler(req: Request, res: Response, next: NextFunction) {
         });
 
         // Redirect to daily ritual page on frontend
-        return res.redirect(`${frontendUrl}/daily-ritual`);
+        return (res as any).redirect?.(`${frontendUrl}/daily-ritual`) ?? (res as any).status(302).setHeader('Location', `${frontendUrl}/daily-ritual`).end();
       } catch (error) {
         console.error('Error generating token or setting cookie:', error);
-        return res.redirect(`${frontendUrl}/login?error=token_generation_failed`);
+        return (res as any).redirect?.(`${frontendUrl}/login?error=token_generation_failed`) ?? (res as any).status(302).setHeader('Location', `${frontendUrl}/login?error=token_generation_failed`).end();
       }
     }
-  )(req, res, next);
+  )(req as any, res as any, next as any);
 }
 
 // Export for Express server (middleware array)
