@@ -3,10 +3,10 @@ dotenv.config();
 
 
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
-import passport from './services/AuthService';
-import { configurePassport } from './services/AuthService';
+import { registerRoutes } from "../routes";
+import { setupVite, serveStatic, log } from "../vite";
+import passport from '../services/AuthService';
+import { configurePassport } from '../services/AuthService';
 import cookieParser from 'cookie-parser';
 
 // Initialize Passport
