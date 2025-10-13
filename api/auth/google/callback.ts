@@ -5,9 +5,9 @@ dotenv.config();
 import { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import { Strategy as GoogleStrategy, Profile, VerifyCallback } from 'passport-google-oauth20';
-import { storage } from '../_lib/storage.js';
-import { generateToken } from '../_lib/middleware/auth.js';
-import type { User } from '../_lib/storage.js';
+import { storage } from '../../_lib/storage';
+import { generateToken } from '../../_lib/middleware/auth';
+import type { User } from '../../_lib/storage';
 
 // Configure Passport inline for serverless (avoids module resolution issues)
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
