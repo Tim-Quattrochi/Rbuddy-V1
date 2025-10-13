@@ -67,18 +67,22 @@ passport.use(
  * GET /api/auth/google/callback
  */
 async function handler(req: Request, res: Response, next: NextFunction) {
+  const frontendUrl = process.env.NODE_ENV === 'production'
+    ? process.env.FRONTEND_URL || 'https://rbuddy-v1.vercel.app'
+    : 'http://localhost:5173';
+
   passport.authenticate(
     'google',
     { session: false },
-    (err: Error | null, user: User | false, info: any) => {
+    (err: Error | null, user: User | false, _info: any) => {
       if (err) {
         console.error('Google OAuth error:', err);
-        return res.redirect('/login?error=auth_failed');
+        return res.redirect(`${frontendUrl}/login?error=auth_failed`);
       }
 
       if (!user) {
         console.error('No user returned from Google OAuth');
-        return res.redirect('/login?error=no_user');
+        return res.redirect(`${frontendUrl}/login?error=no_user`);
       }
 
       try {
@@ -94,11 +98,11 @@ async function handler(req: Request, res: Response, next: NextFunction) {
           path: '/',
         });
 
-        // Redirect to daily ritual page
-        return res.redirect('/daily-ritual');
+        // Redirect to daily ritual page on frontend
+        return res.redirect(`${frontendUrl}/daily-ritual`);
       } catch (error) {
         console.error('Error generating token or setting cookie:', error);
-        return res.redirect('/login?error=token_generation_failed');
+        return res.redirect(`${frontendUrl}/login?error=token_generation_failed`);
       }
     }
   )(req, res, next);
