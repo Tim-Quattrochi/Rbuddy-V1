@@ -7,12 +7,12 @@
   },
   "rewrites": [
     { "source": "/api/users/me", "destination": "/api/users/me" },
-    { "source": "/api/users/(.*)", "destination": "/api/users/$1" },
+    { "source": "/api/users/(.*)", "destination": "/api/users/[action]" },
     { "source": "/api/daily-ritual/mood", "destination": "/api/daily-ritual/mood" },
     { "source": "/api/daily-ritual/intention", "destination": "/api/daily-ritual/intention" },
-    { "source": "/api/chat/send", "destination": "/api/chat/[action]" },
-    { "source": "/api/chat/history", "destination": "/api/chat/[action]" },
-    { "source": "/api/chat/clear", "destination": "/api/chat/[action]" },
+    { "source": "/api/chat/send", "destination": "/api/chat/send" },
+    { "source": "/api/chat/history", "destination": "/api/chat/history" },
+    { "source": "/api/chat/clear", "destination": "/api/chat/clear" },
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
