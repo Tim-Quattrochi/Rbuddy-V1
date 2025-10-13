@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "../components/ui/button";
-import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -12,18 +11,17 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { Chrome, AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2, Mail } from "lucide-react";
 
 const LoginPage = () => {
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const error = searchParams.get("error");
-  const navigate = useNavigate();
 
   const handleGoogleLogin = () => {
     setIsLoading(true);
     // Full page redirect to backend OAuth endpoint
-    navigate("/api/auth/google", { replace: true });
+    window.location.href = "/api/auth/google";
   };
 
   // Get user-friendly error message
@@ -87,7 +85,7 @@ const LoginPage = () => {
                 </>
               ) : (
                 <>
-                  <Chrome className="mr-2 h-5 w-5" />
+                  <Mail className="mr-2 h-5 w-5" />
                   Sign in with Google
                 </>
               )}
