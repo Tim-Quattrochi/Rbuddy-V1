@@ -1,9 +1,8 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist/public",
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
     "api/**/*.ts": {
-      "runtime": "@vercel/node-22.x-edge",
+      "runtime": "@vercel/node",
       "includeFiles": "{server/**,shared/**}"
     }
   },
