@@ -128,7 +128,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: process.env.NODE_ENV === "production" ? "https://rbuddy-v1.vercel.app" : "http://localhost:3000",
+        target: process.env.NODE_ENV === "production" ? "https://rbuddy-v1.vercel.app" : "http://localhost:5001",
         changeOrigin: true,
         secure: false
       },

@@ -7,6 +7,7 @@ import { registerRoutes } from 'server/routes';
 
 import { setupVite, serveStatic, log} from 'server/vite';
 import passport from 'passport';
+import cors from 'cors';
 
 import { configurePassport } from 'server/services/AuthService';
 import cookieParser from 'cookie-parser';
@@ -15,6 +16,10 @@ import cookieParser from 'cookie-parser';
 configurePassport();
 
 const app = express();
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' ? process.env.FRONTEND_URL || 'https://your-frontend-domain.com' : 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -66,9 +71,10 @@ app.use((req, res, next) => {
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
+  const DECOUPLED_MODE = process.env.DECOUPLED === 'true';
+  if (app.get("env") === "development" && !DECOUPLED_MODE) {
     await setupVite(app, server);
-  } else {
+  } else if (app.get("env") === "production") {
     serveStatic(app);
   }
 
