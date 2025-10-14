@@ -6,13 +6,65 @@ import dotenv from 'dotenv';
 // Ensure environment variables are loaded
 dotenv.config();
 
+// Cookie serializer for clearing cookies in serverless environments
+function serializeCookie(name: string, value: string, options: {
+  httpOnly?: boolean;
+  secure?: boolean;
+  sameSite?: 'lax' | 'strict' | 'none' | undefined;
+  maxAge?: number;
+  path?: string;
+  domain?: string;
+  expires?: Date;
+} = {}) {
+  const segments: string[] = [];
+  segments.push(`${name}=${encodeURIComponent(value)}`);
+
+  if (options.maxAge !== undefined) {
+    const seconds = Math.floor(options.maxAge / 1000);
+    segments.push(`Max-Age=${seconds}`);
+  }
+  if (options.domain) segments.push(`Domain=${options.domain}`);
+  if (options.path) segments.push(`Path=${options.path}`);
+  if (options.expires) segments.push(`Expires=${options.expires.toUTCString()}`);
+  if (options.httpOnly) segments.push('HttpOnly');
+  if (options.secure) segments.push('Secure');
+  if (options.sameSite) {
+    const v = options.sameSite.charAt(0).toUpperCase() + options.sameSite.slice(1);
+    segments.push(`SameSite=${v}`);
+  }
+
+  return segments.join('; ');
+}
+
+function clearCookie(res: any, name: string, options: Parameters<typeof serializeCookie>[2]) {
+  if (typeof res.clearCookie === 'function') {
+    // Express response
+    return res.clearCookie(name, options);
+  }
+  // Vercel or Node response without res.clearCookie
+  // Set cookie with empty value and expired date
+  const cookie = serializeCookie(name, '', {
+    ...options,
+    expires: new Date(0), // Expire immediately
+    maxAge: 0
+  });
+  const prev = res.getHeader ? res.getHeader('Set-Cookie') : undefined;
+  if (!prev) {
+    res.setHeader('Set-Cookie', cookie);
+  } else if (Array.isArray(prev)) {
+    res.setHeader('Set-Cookie', [...prev, cookie]);
+  } else {
+    res.setHeader('Set-Cookie', [prev as string, cookie]);
+  }
+}
+
 async function handler(req: AuthenticatedRequest, res: Response) {
   try {
     // Clear the auth_token cookie
-    res.clearCookie('auth_token', {
+    clearCookie(res as any, 'auth_token', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       path: '/'
     });
     
