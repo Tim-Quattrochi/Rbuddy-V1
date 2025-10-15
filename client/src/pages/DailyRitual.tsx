@@ -93,6 +93,7 @@ export default function DailyRitualPage() {
     queryKey: ["userStats"],
     queryFn: fetchUserStats,
     enabled: isAuthenticated, // Only fetch stats when authenticated
+    retry: 1
   });
 
   const { toast } = useToast();
