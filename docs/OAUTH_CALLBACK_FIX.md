@@ -1,8 +1,9 @@
 # OAuth Callback Vercel Regression Fix
 
 **Date**: October 15, 2025  
-**Issue**: Google OAuth callback failing in Vercel production with `TypeError: next is not a function`  
-**Status**: ✅ FIXED
+**Issue 1**: Google OAuth callback failing in Vercel production with `TypeError: next is not a function`  
+**Issue 2**: After fixing Issue 1, new error: `Error: Unknown authentication strategy "google"`  
+**Status**: ✅ FIXED (requires 2-part fix)
 
 ## Problem Summary
 
@@ -71,6 +72,46 @@ async function handler(req: Request, res: Response, next: NextFunction) {
 export const middlewares = [handler];
 export default createVercelHandler(middlewares); // ✅ Wrapped properly
 ```
+
+#### 1. Updated `api/auth/google/callback.ts` (Part 2 - Add Strategy Configuration)
+
+Added inline Passport strategy configuration so the callback function has access to the Google OAuth strategy in Vercel's isolated serverless environment:
+
+**Changes**:
+```typescript
+// NEW IMPORTS
+import { Strategy as GoogleStrategy, Profile, VerifyCallback } from 'passport-google-oauth20';
+import { storage } from '../../_lib/storage.js';
+
+// NEW: Configure Passport inline for serverless (each Vercel function is isolated)
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const CALLBACK_URL = process.env.CALLBACK_URL || 'https://rbuddy-v1.vercel.app/api/auth/google/callback';
+
+if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+  console.error('FATAL: Missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET');
+}
+
+// NEW: Configure Google OAuth strategy for this serverless function
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: GOOGLE_CLIENT_ID!,
+      clientSecret: GOOGLE_CLIENT_SECRET!,
+      callbackURL: CALLBACK_URL,
+      scope: ['profile', 'email'],
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      // ... strategy implementation (same as google.ts)
+    }
+  )
+);
+```
+
+**Why This Is Needed**:
+- In Vercel, `api/auth/google/callback.ts` is a separate Lambda function
+- It has NO access to the Passport configuration in `api/auth/google.ts`
+- Must configure the strategy inline within the same file
 
 #### 2. Updated `api/auth/auth.test.ts`
 - Fixed test imports to use named `middlewares` export
@@ -207,3 +248,66 @@ If issues arise:
 **Fixed By**: James (Dev Agent)  
 **Tested**: Local ✅ | Build ✅ | Tests ✅  
 **Ready for Deployment**: YES ✅
+
+## ⚠️ CRITICAL: Second Regression Discovered
+
+**Date**: October 15, 2025 (same day, a few hours after initial fix)
+
+**Problem**: The initial fix (wrapping with `createVercelHandler`) resolved the `next is not a function` error but **introduced a NEW regression**:
+
+```
+Middleware error: Error: Unknown authentication strategy "google"
+    at passport/lib/middleware/authenticate.js:193:39
+```
+
+**Root Cause**: Each Vercel serverless function runs in **complete isolation**. The Passport Google strategy configured in `api/auth/google.ts` is **NOT available** to `api/auth/google/callback.ts` in production.
+
+### Why It Worked Locally But Not in Vercel
+
+**Local Development (Express)**:
+- Single Node.js process
+- `api/auth/google.ts` configures strategy once
+- `api/auth/google/callback.ts` can access that strategy
+- ✅ Works fine
+
+**Vercel Production (Serverless)**:
+- Each API file is a separate Lambda function
+- `api/auth/google.ts` runs in Function A
+- `api/auth/google/callback.ts` runs in Function B (isolated)
+- ❌ Function B has NO access to Function A's Passport configuration
+- Result: "Unknown authentication strategy 'google'"
+
+### The Complete Fix
+
+**Part 1** (commit `2aefb02`): Wrap with `createVercelHandler` to provide `next` function
+**Part 2** (this commit): Add inline Passport strategy configuration to callback handler
+
+Both parts are **required** for the callback to work in Vercel.
+
+---
+
+### Why This Wasn't Obvious
+
+**Documentation Said**: "Passport must be configured in each serverless function" (`docs/vercel-deployment.md` line 355-357)
+
+**But**: The OAuth callback endpoint often configures passport inline (see `api/auth/google.callback.ts`)
+
+**Reality**: This note was ALREADY pointing to the solution, but it wasn't clear that:
+1. The callback handler ALSO needs inline configuration (not just the initiator)
+2. Both functions are isolated and can't share Passport state
+
+### Timeline of Events
+
+1. **Original State** (working): Callback had NO `createVercelHandler`, NO inline Passport config
+   - Somehow worked (possibly older Vercel behavior or different routing)
+  
+2. **Commit `2aefb02`** (Oct 15, 2025 00:13): Added `createVercelHandler` wrapper
+   - Fixed: `next is not a function`
+   - Broke: Strategy now properly isolated, causing "Unknown strategy" error
+   - This is when the regression appeared
+
+3. **This Fix** (Oct 15, 2025 05:00): Added inline Passport strategy configuration
+   - Fixed: "Unknown authentication strategy 'google'"
+   - Result: OAuth callback now works in both Express and Vercel
+
+---

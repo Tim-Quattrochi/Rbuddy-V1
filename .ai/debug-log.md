@@ -4,59 +4,71 @@ This file tracks bugs, issues, and their resolutions for the rBuddy-v1 project.
 
 ---
 
-## 2025-10-15: Google OAuth Callback Failing in Vercel Production
+## 2025-10-15: Google OAuth Callback Failing in Vercel Production (2-Part Fix)
 
-**Status**: ✅ RESOLVED
+**Status**: ✅ RESOLVED (Required 2 fixes)
 
-### Issue Description
-Google OAuth sign-in worked locally but failed in Vercel production deployment with serverless function crash:
+### Issue 1: `TypeError: next is not a function`
+
+**Description**: Google OAuth sign-in worked locally but failed in Vercel production deployment with serverless function crash:
 ```
 TypeError: next is not a function
     at attempt (/var/task/node_modules/passport/lib/middleware/authenticate.js:193:34)
 ```
 
-### Root Cause Analysis
+**Root Cause**: OAuth callback handler wasn't using `createVercelHandler` wrapper. Vercel provides `(req, res)` but passport needs `(req, res, next)`.
 
-**Location**: `api/auth/google/callback.ts`
+**Fix 1** (Commit `2aefb02`): Wrapped default export with `createVercelHandler(middlewares)`
 
-**Problem**: The OAuth callback handler was NOT using the `createVercelHandler` wrapper. Instead, it directly exported the handler function:
-```typescript
-export default handler; // ❌ Not wrapped for Vercel
+---
+
+### Issue 2: `Error: Unknown authentication strategy "google"` (REGRESSION from Fix 1)
+
+**Description**: After applying Fix 1, new error appeared in Vercel production:
+```
+Middleware error: Error: Unknown authentication strategy "google"
+    at passport/lib/middleware/authenticate.js:193:39
 ```
 
-**Why it Failed**:
-1. In Vercel, serverless functions receive only `(req, res)` parameters - no `next` function
-2. The handler internally calls `passport.authenticate()` which expects Express middleware signature `(req, res, next)`
-3. Passport tried to call `next()` → `TypeError: next is not a function`
+**Root Cause**: Each Vercel serverless function is **completely isolated**. The Passport Google strategy configured in `api/auth/google.ts` is NOT available to `api/auth/google/callback.ts`.
 
-**Why Local Dev Worked**: 
-- Express server in local dev provides the `next` function
-- Problem only surfaced in Vercel's serverless environment
+**Why It Worked Before**: Unknown - possibly older Vercel behavior or different routing mechanism that somehow shared state.
 
-### Solution Implemented
+**Why It Broke After Fix 1**: When we wrapped the handler with `createVercelHandler`, the proper function isolation kicked in, exposing the missing strategy configuration.
 
-**Fix 1: Wrap Default Export**
+**Fix 2** (This commit): Added inline Passport strategy configuration to the callback handler:
 ```typescript
-import { createVercelHandler } from '../../_lib/vercel-handler.js';
+// api/auth/google/callback.ts
+import { Strategy as GoogleStrategy, Profile, VerifyCallback } from 'passport-google-oauth20';
+import { storage } from '../../_lib/storage.js';
 
-// Export for Vercel serverless (wrap to provide proper next function)
-export default createVercelHandler(middlewares);
+// Configure Passport inline for serverless (each Vercel function is isolated)
+passport.use(new GoogleStrategy({
+  clientID: GOOGLE_CLIENT_ID!,
+  clientSecret: GOOGLE_CLIENT_SECRET!,
+  callbackURL: CALLBACK_URL,
+  scope: ['profile', 'email'],
+}, async (accessToken, refreshToken, profile, done) => {
+  // ... strategy implementation
+}));
 ```
 
-**Fix 2: Add Safety Fallback**
-Added defensive `next` fallback in handler:
-```typescript
-const safeNext = next || (() => {});
-passport.authenticate(...)(req, res, safeNext);
-```
+### Complete Solution
 
-**Fix 3: Update Tests**
-- Changed test imports from default export to named `middlewares` export
-- Fixed passport mock to mock `'passport'` module directly (not `AuthService`)
-- Updated redirect URL expectations to include full frontend URL
+**Both fixes are required**:
+
+1. **Fix 1**: Wrap handler with `createVercelHandler` (provides `next` function)
+   ```typescript
+   export default createVercelHandler(middlewares);
+   ```
+
+2. **Fix 2**: Add inline Passport strategy configuration (provides strategy in isolated function)
+   ```typescript
+   passport.use(new GoogleStrategy({ ... }));
+   ```
 
 ### Files Modified
-- `api/auth/google/callback.ts` - Added `createVercelHandler` wrapper and safety fallback
+- `api/auth/google/callback.ts` - Added `createVercelHandler` wrapper (Fix 1) + inline Passport strategy (Fix 2)
 - `api/auth/auth.test.ts` - Fixed imports and passport mocks
 
 ### Verification
@@ -64,20 +76,14 @@ passport.authenticate(...)(req, res, safeNext);
 - ✅ OAuth tests passing: `npm test -- api/auth/auth.test.ts` (4/4 passed)
 - ✅ Build succeeded: `npm run build`
 
-### Technical Notes
+### Key Lesson
 
-**Dual-Export Pattern Compliance**:
-This fix brings the OAuth callback into compliance with the project's dual-export serverless pattern:
-- ✅ Named export (`middlewares`) for Express server
-- ✅ Default export wrapped with `createVercelHandler()` for Vercel
-- ✅ Works in both local dev and production
-
-**Why `createVercelHandler` Works for Passport**:
-The wrapper creates a proper Express-style `next` function that passport's `authenticate()` middleware expects, even in serverless environments where `next` isn't provided by the platform.
+**Vercel Serverless Isolation**: Each API endpoint is a completely isolated Lambda function with NO shared state. Any configuration (Passport strategies, middleware setup, etc.) must be done within the same file that uses it.
 
 ### References
 - Full fix documentation: `docs/OAUTH_CALLBACK_FIX.md`
 - Dual-export pattern: `docs/vercel-deployment.md`
+- Passport isolation note: `docs/vercel-deployment.md` (line 355-357)
 
 ---
 
