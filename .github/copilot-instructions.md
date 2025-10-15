@@ -1,50 +1,113 @@
 <!-- Copilot instructions for AI coding agents working on Rbuddy-V1 -->
 # Quick guide for AI coding agents
 
-This repository is a full-stack TypeScript app (Vite + React client, Express server, Drizzle ORM). Use this file to get up to speed quickly and to make precise edits.
+This repository is a full-stack TypeScript app (Vite + React client, Express/Vercel serverless backend, Drizzle ORM). Use this file to get up to speed quickly and to make precise edits.
+
+## Critical Architecture Note (Updated Oct 2025)
+
+⚠️ **DUAL-EXPORT SERVERLESS PATTERN**: This project uses a decoupled architecture:
+- **Local dev**: Express server on port 5001 (`api/index.ts`)
+- **Production**: Vercel serverless functions (each file in `api/` directory)
+- **Pattern**: Each API endpoint exports BOTH `middlewares` (for Express) AND `default` (for Vercel)
+- **DO NOT** treat `api/` files as duplicates - they ARE the source of truth for API endpoints
+- **See**: `docs/vercel-deployment.md` for complete dual-export pattern documentation
+
+## Project Structure
 
 - Project roots and entry points:
-  - Server: `server/index.ts` (registers routes, sets up Vite in development, serves static in production)
-  - Routes bootstrap: `server/routes.ts` (returns HTTP server and is where API routes are mounted)
-  - Storage: `server/storage.ts` (in-memory `MemStorage` implementing `IStorage` — replace with DB-backed implementation)
-  - Client: `client/src/main.tsx` and `client/src/App.tsx` (React entry and routing); useful utilities: `client/src/lib/queryClient.ts`
+  - **API Endpoints**: `api/` directory (dual-export pattern for Express + Vercel)
+  - Server (local dev only): `api/index.ts` (Express server for local development)
+  - Routes bootstrap: `server/routes.ts` (imports `middlewares` from `api/` files)
+  - Storage: Database-backed via Drizzle ORM (PostgreSQL/Neon)
+  - Client: `client/src/main.tsx` and `client/src/App.tsx` (React entry and routing)
   - Shared types/schema: `shared/schema.ts` (Drizzle table definitions and Zod types)
 
 - Build / dev commands (from `package.json`):
-  - dev: `npm run dev` — runs `tsx server/index.ts` (server + Vite in dev mode)
-  - build: `npm run build` — builds client with Vite then bundles server with esbuild
+  - dev: `npm run dev` — runs `tsx api/index.ts` (Express server + Vite in dev mode)
+  - build: `npm run build` — builds client, API, and server for Vercel deployment
   - start: `npm run start` — runs production build from `dist`
   - db:push: `npm run db:push` — runs `drizzle-kit push` to sync DB schema
   - check: `npm run check` — TypeScript typecheck (`tsc`)
+  - test: `npm run test` — runs Vitest test suite
 
 - Environment notes:
-  - `.env.example` exists as a template. The server uses `PORT` (defaults to 5000) and `DATABASE_URL` for Drizzle.
-  - Dev server uses `app.get('env') === 'development'` to decide to run Vite middleware; ensure NODE_ENV is set to `development` when running `dev` locally if replicating behavior.
+  - `.env.example` exists as a template
+  - Required vars: `DATABASE_URL`, `JWT_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
+  - Vercel production vars configured in Vercel Dashboard
+  - Dev server uses `NODE_ENV=development` to enable Vite middleware
 
-- Coding conventions and patterns to follow (observable in repo):
-  - TypeScript-first: prefer typed interfaces for props and return values (see `client/components/*` and `shared/schema.ts`).
-  - React: function components + hooks, use React Router for pages (`client/src/pages`).
-  - Server routes should be prefixed with `/api` and use `express.json()`/`urlencoded()` middleware; logging middleware in `server/index.ts` captures `/api` responses.
-  - Server-side storage is abstracted via `IStorage` in `server/storage.ts` — implement new storage classes rather than changing call sites.
-  - Client API calls use fetch with credentials and the `getQueryFn` wrapper in `client/src/lib/queryClient.ts` (handles 401 behavior and default query options). Reuse `apiRequest` for mutations.
+## Coding Conventions
 
-- What to change and where (examples):
-  - Add a new API route: update `server/routes.ts` to mount a router (e.g., `app.use('/api/check-ins', checkInRouter)`), then add handlers in `server/api/check-ins.ts` (create new file).
-  - Replace `MemStorage` with Drizzle-backed storage: implement `IStorage` in `server/storage.pg.ts` and swap exported `storage` to new implementation (preserve same method names: `getUser`, `getUserByUsername`, `createUser`).
-  - Update client queries to use an absolute `import.meta.env.VITE_API_URL` only when running client separately; default behavior expects server and client served from same origin.
+- TypeScript-first: prefer typed interfaces for props and return values (see `client/components/*` and `shared/schema.ts`).
+- React: function components + hooks, use React Router for pages (`client/src/pages`).
+- API endpoints: MUST use dual-export pattern (see `docs/vercel-deployment.md`):
+  ```typescript
+  export const middlewares = [requireAuth, handler];
+  export default createVercelHandler(middlewares);
+  ```
+- Server routes in `server/routes.ts` import the **named** `middlewares` export
+- Client API calls use fetch with credentials and the `getQueryFn` wrapper in `client/src/lib/queryClient.ts`
 
-- Testing and checks:
-  - Unit tests use Vitest/React Testing Library patterns (see examples in `AGENTS.md`), but there are no test files in the repo root — add tests under `client/src` or a `tests/` folder and wire `vitest` if needed.
-  - Always run `npm run check` after changes to ensure TypeScript types remain clean.
+## How to Add New Features
 
-- Safety and security:
-  - Do not commit secrets. The repo includes an env template; expect secrets to be provided via environment variables.
-  - The server uses `express-session`/`passport` in dependencies — if adding authentication, prefer `connect-pg-simple` with a secure session store in production.
+- Add a new API endpoint:
+  1. Create file in `api/` directory (e.g., `api/my-feature/endpoint.ts`)
+  2. Follow dual-export pattern (see `docs/vercel-deployment.md`)
+  3. Import in `server/routes.ts` using named `middlewares` export
+  4. Example: `import { middlewares as myHandler } from '../api/my-feature/endpoint'`
 
-- Quick examples (search for these files when making related edits):
-  - Query defaults and API helpers: `client/src/lib/queryClient.ts`
-  - Server logging / middleware: `server/index.ts`
-  - Storage interface: `server/storage.ts`
-  - Shared schemas/types: `shared/schema.ts`
+- Add database table:
+  1. Define in `shared/schema.ts` using Drizzle schema
+  2. Run `npm run db:push` to sync schema
+  3. Create migration file if needed in `migrations/`
 
-If anything here is unclear or you need more examples (e.g., preferred folder for API handlers, test runner config), tell me which area you want expanded and I'll update this file.
+- Add React component:
+  1. Create in `client/src/components/` or feature-specific folder
+  2. Use shadcn/ui components from `client/src/components/ui/`
+  3. Follow existing patterns (see `client/src/pages/DailyRitual.tsx`)
+
+## Testing
+
+- Unit tests use Vitest + React Testing Library
+- API tests use Vitest with supertest
+- Run tests: `npm run test`
+- Test files: `*.test.tsx` or `*.test.ts` co-located with source
+- Always run `npm run check` after changes to ensure TypeScript types remain clean
+
+## Security & Best Practices
+
+- Authentication uses JWT tokens in `httpOnly` cookies
+- All protected endpoints use `requireAuth` middleware
+- Rate limiting implemented on chat endpoints (see `docs/CRITICAL_FIXES.md`)
+- Input validation using Zod schemas
+- Do not commit secrets - use environment variables
+
+## Quick Reference
+
+- Query defaults and API helpers: `client/src/lib/queryClient.ts`
+- Auth middleware: `server/middleware/auth.ts`
+- Rate limiting: `server/middleware/rateLimiter.ts`
+- Storage interface: `server/storage.ts`
+- Shared schemas/types: `shared/schema.ts`
+- Vercel handler wrapper: `api/_lib/vercel-handler.ts`
+
+## Important Documentation
+
+- **Must read**: `docs/vercel-deployment.md` - Dual-export pattern for Vercel serverless
+- API reference: `docs/architecture/6-api-design-and-integration.md`
+- Project index: `docs/INDEX.md`
+- Recent security fixes: `docs/CRITICAL_FIXES.md`
+- AI Chat widget: `docs/ai-chat.md` (ad-hoc feature, not part of sprint stories)
+
+## Ad-Hoc Features
+
+**AI Chat Widget** - Implemented outside the formal story process:
+- Floating chat widget available on authenticated pages
+- Multi-provider support (OpenAI, Anthropic, Google Gemini)
+- Context-aware with user mood, intentions, and streak data
+- Rate-limited endpoints (20 messages/hour per user)
+- Files: `api/chat/[action].ts`, `client/src/components/chat/FloatingChat.tsx`
+- Docs: `docs/ai-chat.md`, `docs/ai-chat-architecture.md`
+- Security fixes: `docs/CRITICAL_FIXES.md`
+
+If anything here is unclear or you need more examples, refer to the docs above or ask for clarification.

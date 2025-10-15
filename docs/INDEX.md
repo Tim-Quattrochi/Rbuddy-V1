@@ -1,6 +1,6 @@
 # Next Moment Documentation Index
 
-**Last Updated:** October 12, 2025  
+**Last Updated:** October 14, 2025  
 **Project:** Next Moment v1 (rBuddy-v1)  
 **Status:** Active Development
 
@@ -86,12 +86,21 @@
 |-------|--------|------|-------------|
 | 4.1 | ✅ Complete | [`4.1.implement-pwa-rupture-and-repair-flow.md`](./stories/4.1.implement-pwa-rupture-and-repair-flow.md) | Implement repair flow |
 | 4.2 | ✅ Complete | [`4.2.improve-repair-flow-accessibility.md`](./stories/4.2.improve-repair-flow-accessibility.md) | Improve repair accessibility |
-| 4.3 | 🚧 Ready | [`4.3.implement-app-navigation.md`](./stories/4.3.implement-app-navigation.md) | **[CURRENT]** App navigation & hamburger menu |
+| 4.3 | ✅ Complete | [`4.3.implement-app-navigation.md`](./stories/4.3.implement-app-navigation.md) | App navigation & hamburger menu |
 
 ### Epic 5: Journaling Feature
 | Story | Status | File | Description |
 |-------|--------|------|-------------|
-| 5.1 | 📋 Planned | [`5.1.implement-journaling-feature.md`](./stories/5.1.implement-journaling-feature.md) | Implement journaling |
+| 5.1 | ✅ Complete | [`5.1.implement-journaling-feature.md`](./stories/5.1.implement-journaling-feature.md) | Implement journaling |
+| 5.2 | ✅ Complete | [`5.2.view-journal-history.md`](./stories/5.2.view-journal-history.md) | View journal history |
+| 5.3 | 📋 Planned | [`5.3.search-and-filter-journal.md`](./stories/5.3.search-and-filter-journal.md) | Search and filter journal entries |
+
+### Ad-Hoc Features (No Formal Story)
+| Feature | Status | Documentation | Description |
+|---------|--------|---------------|-------------|
+| AI Chat Widget | ✅ Complete | [`ai-chat.md`](./ai-chat.md), [`ai-chat-architecture.md`](./ai-chat-architecture.md) | Floating chat widget with multi-provider AI support (OpenAI, Anthropic) - implemented outside sprint process |
+
+**Note:** AI Chat Widget was added as an ad-hoc feature without going through the formal story process. See `CRITICAL_FIXES.md` for security improvements applied to chat endpoints (rate limiting, validation).
 
 ### Archive
 - [`_archive/`](./stories/_archive/) - Deprecated or superseded stories
@@ -129,6 +138,14 @@
 - [`front-end-spec.md`](./front-end-spec.md) - Frontend specifications
 - [`MIGRATION-GUIDE.md`](./MIGRATION-GUIDE.md) - Migration and upgrade guide
 - [`pwa-pivot-progress.md`](./pwa-pivot-progress.md) - PWA pivot tracking
+- [`vercel-deployment.md`](./vercel-deployment.md) - **[Critical]** Vercel serverless architecture guide
+- [`CRITICAL_FIXES.md`](./CRITICAL_FIXES.md) - Recent critical security fixes for chat API
+
+### Ad-Hoc Feature Documentation
+- [`ai-chat.md`](./ai-chat.md) - AI Chat widget feature overview
+- [`ai-chat-architecture.md`](./ai-chat-architecture.md) - AI Chat technical architecture
+- [`ai-chat-quick-reference.md`](./ai-chat-quick-reference.md) - AI Chat API quick reference
+- [`ai-providers.md`](./ai-providers.md) - Multi-provider AI integration (OpenAI, Anthropic)
 
 ### Archive
 - [`old.prd.md`](./old.prd.md) - Previous PRD version
@@ -149,6 +166,29 @@ These files are automatically loaded by the BMAD system for dev agents:
 
 3. **[`docs/architecture/8-source-tree.md`](./architecture/8-source-tree.md)**  
    Project structure and file organization
+
+### Critical Architecture Notes
+
+⚠️ **IMPORTANT: Vercel Serverless Architecture (Updated Oct 2025)**
+
+This project uses a **decoupled dual-export pattern** for API endpoints:
+
+- **Development**: Express server (`api/index.ts`) handles all routes via `server/routes.ts`
+- **Production**: Each file in `api/` directory becomes an independent Vercel serverless function
+
+**Key Points:**
+- ✅ API endpoints in `api/` directory are NOT duplicates - they ARE the endpoints
+- ✅ `server/routes.ts` imports the `middlewares` export for local dev
+- ✅ Vercel imports the `default` export for serverless deployment
+- ✅ Each endpoint file must have BOTH exports (see `vercel-deployment.md`)
+- ❌ DO NOT create separate Express routes outside of `api/` directory
+- ❌ DO NOT remove `api/` endpoints thinking they're duplicates
+
+**Required Reading:** [`docs/vercel-deployment.md`](./vercel-deployment.md) - Explains dual-export pattern
+
+**Recent Changes:**
+- October 2025: Chat API security fixes (rate limiting, validation) - see `CRITICAL_FIXES.md`
+- October 2025: AI Chat widget added as ad-hoc feature (no formal story) - see `ai-chat.md`
 
 ### Configuration Files
 - **BMAD Core Config:** `.bmad-core/core-config.yaml`
@@ -199,6 +239,7 @@ These files are automatically loaded by the BMAD system for dev agents:
 | Review QA status | [`qa/`](./qa/) |
 | See UX feedback | [`ux-reviews/`](./ux-reviews/) |
 | Understand project structure | [`architecture/8-source-tree.md`](./architecture/8-source-tree.md) |
+| Learn about AI Chat widget | [`ai-chat.md`](./ai-chat.md) |
 
 ---
 
@@ -214,11 +255,16 @@ These files are automatically loaded by the BMAD system for dev agents:
 
 ## 🚀 Current Sprint Focus
 
-**Active Story:** [Story 4.3 - Implement App Navigation & Hamburger Menu](./stories/4.3.implement-app-navigation.md)
+**Next Story:** [Story 5.3 - Search and Filter Journal](./stories/5.3.search-and-filter-journal.md)
 
-**Status:** Ready for Development  
-**Epic:** 4 - PWA Rupture & Repair Support Flow  
-**Goal:** Add persistent navigation to all authenticated pages with mobile hamburger menu and desktop user menu, including "Need Support" menu item
+**Status:** Planned  
+**Epic:** 5 - Journaling Feature  
+**Goal:** Add search and filtering capabilities to journal history for better user experience
+
+**Recently Completed:**
+- ✅ Story 4.3 - App Navigation & Hamburger Menu (October 12, 2025)
+- ✅ Story 5.1 - Implement Journaling Feature (October 12, 2025)
+- ✅ Story 5.2 - View Journal History (October 12, 2025)
 
 ---
 

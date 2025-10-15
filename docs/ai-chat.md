@@ -1,5 +1,9 @@
 # AI Chat Feature Documentation
 
+> **⚠️ Note:** This feature was implemented as an **ad-hoc addition** outside the formal story/sprint process. It does not have an associated user story or epic. This was a rapid prototype that became a permanent feature.
+>
+> **Security Updates:** Critical security fixes (rate limiting, validation) were applied in October 2025. See [`CRITICAL_FIXES.md`](./CRITICAL_FIXES.md) for details.
+
 ## Overview
 The AI Chat feature provides an intelligent, context-aware companion for authenticated users. The chat supports multiple AI providers including OpenAI (GPT-3.5/GPT-4), Google Gemini, and Anthropic Claude. The chatbot understands user context including recent mood, intentions, and streak progress.
 
