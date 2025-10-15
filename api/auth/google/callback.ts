@@ -6,6 +6,7 @@ import { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import { generateToken } from '../../_lib/middleware/auth.js';
 import type { User } from '../../_lib/storage.js';
+import { createVercelHandler } from '../../_lib/vercel-handler.js';
 
 // Minimal cookie serializer for serverless environments
 function serializeCookie(name: string, value: string, options: {
@@ -62,6 +63,9 @@ async function handler(req: Request, res: Response, next: NextFunction) {
   const frontendUrl = process.env.NODE_ENV === 'production'
     ? process.env.FRONTEND_URL || 'https://rbuddy-v1.vercel.app'
     : 'http://localhost:5173';
+
+  // Create a no-op next function for serverless environments where next may be undefined
+  const safeNext = next || (() => {});
 
   passport.authenticate(
     'google',
@@ -126,11 +130,11 @@ async function handler(req: Request, res: Response, next: NextFunction) {
         }
       }
     }
-  )(req as any, res as any, next as any);
+  )(req as any, res as any, safeNext as any);
 }
 
 // Export for Express server (middleware array)
 export const middlewares = [handler];
 
-// Export for Vercel serverless (NOT using createVercelHandler because passport needs special handling)
-export default handler;
+// Export for Vercel serverless (wrap to provide proper next function)
+export default createVercelHandler(middlewares);

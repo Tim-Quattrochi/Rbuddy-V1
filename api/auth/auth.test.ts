@@ -1,9 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import googleAuthHandler from './google';
-import googleCallbackHandler from './google/callback';
+import { middlewares as googleCallbackMiddlewares } from './google/callback';
 
-// Mock passport
-vi.mock('../../server/services/AuthService', () => {
+// Extract the handler function from the middlewares array
+const [googleCallbackHandler] = googleCallbackMiddlewares;
+
+// Mock passport module directly
+vi.mock('passport', () => {
   const mockPassport = {
     authenticate: vi.fn((strategy: string, options: any, callback?: any) => {
       return (req: any, res: any, next: any) => {
@@ -21,15 +24,15 @@ vi.mock('../../server/services/AuthService', () => {
         }
       };
     }),
+    use: vi.fn(), // Mock passport.use() for strategy configuration
   };
   return {
     default: mockPassport,
-    configurePassport: vi.fn(),
   };
 });
 
-// Mock auth middleware
-vi.mock('../../server/middleware/auth', () => ({
+// Mock auth middleware for JWT token generation
+vi.mock('../_lib/middleware/auth', () => ({
   generateToken: vi.fn(() => 'mock-jwt-token-12345'),
 }));
 
@@ -96,13 +99,13 @@ describe('OAuth API Endpoints', () => {
           path: '/',
         })
       );
-      expect(res.redirect).toHaveBeenCalledWith('/daily-ritual');
+      expect(res.redirect).toHaveBeenCalledWith('http://localhost:5173/daily-ritual');
     });
 
     it('should redirect to /login with error if auth fails', async () => {
       // Override mock to simulate failure
-      const { default: passport } = await import('../../server/services/AuthService');
-      vi.mocked(passport.authenticate).mockImplementationOnce((strategy: string, options: any, callback?: any) => {
+      const passport = await import('passport');
+      vi.mocked(passport.default.authenticate).mockImplementationOnce((strategy: string, options: any, callback?: any) => {
         return (req: any, res: any, next: any) => {
           if (callback) {
             callback(new Error('Auth failed'), false);
@@ -116,14 +119,14 @@ describe('OAuth API Endpoints', () => {
 
       await googleCallbackHandler(req, res, next);
 
-      expect(res.redirect).toHaveBeenCalledWith('/login?error=auth_failed');
+      expect(res.redirect).toHaveBeenCalledWith('http://localhost:5173/login?error=auth_failed');
       expect(res.cookie).not.toHaveBeenCalled();
     });
 
     it('should redirect to /login with error if no user returned', async () => {
       // Override mock to simulate no user
-      const { default: passport } = await import('../../server/services/AuthService');
-      vi.mocked(passport.authenticate).mockImplementationOnce((strategy: string, options: any, callback?: any) => {
+      const passport = await import('passport');
+      vi.mocked(passport.default.authenticate).mockImplementationOnce((strategy: string, options: any, callback?: any) => {
         return (req: any, res: any, next: any) => {
           if (callback) {
             callback(null, false);
@@ -137,7 +140,7 @@ describe('OAuth API Endpoints', () => {
 
       await googleCallbackHandler(req, res, next);
 
-      expect(res.redirect).toHaveBeenCalledWith('/login?error=no_user');
+      expect(res.redirect).toHaveBeenCalledWith('http://localhost:5173/login?error=no_user');
       expect(res.cookie).not.toHaveBeenCalled();
     });
   });
