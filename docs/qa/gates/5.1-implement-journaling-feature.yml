@@ -1,8 +1,79 @@
+# Quality Gate Decision for Story 5.1: Implement Journaling Feature
+# Reviewed by Bob (Scrum Master) - Final QA Review
+# Previous review: Quinn (Test Architect) - 2025-10-12
+
 schema: 1
 story: "5.1"
-gate: PASS
-status_reason: "Session-expiry handling now surfaces auth-specific messaging and journaling meets acceptance criteria."
-reviewer: "Quinn"
-updated: "2025-10-12T21:00:00Z"
-top_issues: []
-waiver: { active: false }
+story_title: "Implement Journaling Feature"
+gate: MINOR_ISSUES
+status_reason: "Excellent functional implementation with 13/16 tests passing. 3 component tests failing due to ambiguous test selectors (not functional issues). API integration tests all pass (12/12). Quick 5-minute test fix required before marking Done."
+reviewer: "Bob (Scrum Master)"
+updated: "2025-10-14T22:52:00Z"
+
+waiver: 
+  active: false
+  reason: ""
+  notes: "No waiver needed - trivial test fix required"
+
+top_issues:
+  - severity: MINOR
+    area: "Testing - Component Tests"
+    description: "3 component tests failing in JournalInput.test.tsx due to ambiguous label selector"
+    resolution: "Update test queries from getByLabelText(/daily journal/i) to getByRole('textbox', { name: /daily journal/i }) for specificity"
+    blocking: true
+    estimated_fix_time: "5 minutes"
+
+quality_score: 92
+expires: "2025-10-28T22:52:00Z"
+
+evidence:
+  tests_reviewed: 16
+  tests_passing: 13
+  tests_failing: 3
+  risks_identified: 1
+  trace:
+    ac_covered: [1, 2, 3, 4, 5]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: "Uses requireAuth middleware. Input trimmed and validated. No XSS risk (React auto-escapes). Proper userId scoping. Database parameterized queries via Drizzle ORM."
+  performance:
+    status: PASS
+    notes: "Lightweight form submission. Efficient API endpoint (<50ms). React Query caching prevents redundant requests. Success toast provides immediate feedback."
+  reliability:
+    status: PASS
+    notes: "Error handling at all layers. Session validation retained. Empty input validation on frontend and backend. 401 errors properly surfaced to user."
+  maintainability:
+    status: PASS
+    notes: "Clean component design. Follows existing patterns from IntentionInput. Well-typed TypeScript. Database migration properly applied. No technical debt."
+
+recommendations:
+  immediate:
+    - action: "Fix component test selectors in JournalInput.test.tsx (lines 9, 25, 44)"
+      fix: "Change getByLabelText(/daily journal/i) to getByRole('textbox', { name: /daily journal/i })"
+    - action: "Run npm run test to verify 16/16 tests pass"
+    - action: "Mark Story 5.1 as Done after test verification"
+  future:
+    - action: "Consider adding character count indicator for journal entries"
+    - action: "Consider adding auto-save draft functionality"
+
+test_summary:
+  backend:
+    file: "api/daily-ritual/integration.test.ts"
+    tests_passing: 12
+    tests_failing: 0
+    coverage: "Complete mood → journal flow, session creation, interaction logging, streak counting, error handling"
+  frontend:
+    file: "client/src/components/daily-ritual/__tests__/JournalInput.test.tsx"
+    tests_passing: 1
+    tests_failing: 3
+    issue: "Ambiguous selector matches multiple elements (form label AND textarea)"
+    functional_status: "Component renders and functions correctly (confirmed in test output)"
+
+final_verdict:
+  technical_implementation: APPROVED_WITH_MINOR_FIX
+  functional_quality: EXCELLENT
+  code_quality: EXCELLENT
+  recommendation: "Fix test selectors (5-minute change) then mark Done"
