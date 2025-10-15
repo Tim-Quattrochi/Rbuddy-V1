@@ -46,7 +46,7 @@ async function parseJsonOrThrow(res: Response) {
 }
 
 async function fetchUserStats() {
-  const res = await fetch("/api/user/stats", {
+  const res = await fetch("/api/users/stats", {
     credentials: "include", // Send cookies with request
   });
   return parseJsonOrThrow(res);

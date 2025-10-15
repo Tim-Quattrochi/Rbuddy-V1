@@ -130,7 +130,7 @@ describe('DailyRitual Integration Tests', () => {
       });
 
       expect(fetchMock).toHaveBeenCalledWith(
-        '/api/user/stats',
+        '/api/users/stats',
         expect.objectContaining({ credentials: 'include' })
       );
     });
