@@ -1,8 +1,19 @@
 # Next Moment Documentation Index
 
-**Last Updated:** October 14, 2025  
+**Last Updated:** October 14, 2025 (Sprint Plan Update)  
 **Project:** Next Moment v1 (rBuddy-v1)  
-**Status:** Active Development
+**Status:** Active Developm### Project Briefs
+
+**Location:** `docs/` (root)
+
+- [`project-brief.md`](./project-brief.md) - High-level project overview
+- [`front-end-spec.md`](./front-end-spec.md) - Frontend specifications
+- [`MIGRATION-GUIDE.md`](./MIGRATION-GUIDE.md) - Migration and upgrade guide
+- [`pwa-pivot-progress.md`](./pwa-pivot-progress.md) - PWA pivot tracking
+- [`vercel-deployment.md`](./vercel-deployment.md) - **[Critical]** Vercel serverless architecture guide
+- [`CRITICAL_FIXES.md`](./CRITICAL_FIXES.md) - Recent critical security fixes for chat API
+- **[`SPRINT_PLAN_UPDATE_2025-10-14.md`](./SPRINT_PLAN_UPDATE_2025-10-14.md)** - **NEW: Comprehensive sprint plan with AI stories**
+- **[`REPAIR_FLOW_CONTENT_BLOCKER.md`](./REPAIR_FLOW_CONTENT_BLOCKER.md)** - **NEW: Story 4.1 blocker analysis** 4 Expanded (AI Integration)
 
 ---
 
@@ -74,7 +85,7 @@
 ### Epic 2: Feature Deactivation
 | Story | Status | File | Description |
 |-------|--------|------|-------------|
-| 2.1 | ✅ Complete | [`2.1.deactivate-twilio-functionality.md`](./stories/2.1.deactivate-twilio-functionality.md) | Deactivate Twilio features |
+| 2.1 | 📋 Draft | [`2.1.deactivate-twilio-functionality.md`](./stories/2.1.deactivate-twilio-functionality.md) | Deactivate Twilio features (deferred) |
 
 ### Epic 3: Daily Ritual Core Features
 | Story | Status | File | Description |
@@ -84,16 +95,46 @@
 ### Epic 4: PWA Rupture & Repair Support Flow
 | Story | Status | File | Description |
 |-------|--------|------|-------------|
-| 4.1 | ✅ Complete | [`4.1.implement-pwa-rupture-and-repair-flow.md`](./stories/4.1.implement-pwa-rupture-and-repair-flow.md) | Implement repair flow |
+| 4.1 | ⚠️ BLOCKED | [`4.1.implement-pwa-rupture-and-repair-flow.md`](./stories/4.1.implement-pwa-rupture-and-repair-flow.md) | Implement repair flow (content validation blocker) |
+| **4.1A** | 📋 **Draft** | [`4.1A.ai-powered-repair-suggestions.md`](./stories/4.1A.ai-powered-repair-suggestions.md) | **NEW: AI-powered backend (Google Gemini)** |
+| **4.1B** | 📋 **Draft** | [`4.1B.ai-powered-repair-frontend.md`](./stories/4.1B.ai-powered-repair-frontend.md) | **NEW: AI-powered frontend (enhanced UX)** |
 | 4.2 | ✅ Complete | [`4.2.improve-repair-flow-accessibility.md`](./stories/4.2.improve-repair-flow-accessibility.md) | Improve repair accessibility |
 | 4.3 | ✅ Complete | [`4.3.implement-app-navigation.md`](./stories/4.3.implement-app-navigation.md) | App navigation & hamburger menu |
+
+**Epic 4 Status:** 🔄 **In Progress** (3/5 complete, 1 blocked, 2 new AI stories)
+
+**Critical Path:**
+```
+Story 4.1 (BLOCKED - hardcoded content insufficient)
+    ↓
+Story 4.1A (AI Backend) → 3-4 days
+    ↓
+Story 4.1B (AI Frontend) → 2-3 days
+    ↓
+Story 4.1 (UNBLOCKED → Done)
+```
+
+**Blocker Details:**
+- **Issue:** Hardcoded repair suggestions lack therapeutic depth
+- **Identified:** October 14, 2025 by Product Owner
+- **Solution:** AI-powered contextual responses (Stories 4.1A + 4.1B)
+- **Reference:** [`REPAIR_FLOW_CONTENT_BLOCKER.md`](./REPAIR_FLOW_CONTENT_BLOCKER.md)
+- **AI Provider:** Google Gemini (with evidence-based prompt engineering)
 
 ### Epic 5: Journaling Feature
 | Story | Status | File | Description |
 |-------|--------|------|-------------|
-| 5.1 | ✅ Complete | [`5.1.implement-journaling-feature.md`](./stories/5.1.implement-journaling-feature.md) | Implement journaling |
+| 5.1 | 🔍 Ready for Review | [`5.1.implement-journaling-feature.md`](./stories/5.1.implement-journaling-feature.md) | Implement journaling (needs 5-min test fix) |
 | 5.2 | ✅ Complete | [`5.2.view-journal-history.md`](./stories/5.2.view-journal-history.md) | View journal history |
-| 5.3 | 📋 Planned | [`5.3.search-and-filter-journal.md`](./stories/5.3.search-and-filter-journal.md) | Search and filter journal entries |
+| 5.3 | ✅ Complete | [`5.3.search-and-filter-journal.md`](./stories/5.3.search-and-filter-journal.md) | Search and filter journal entries |
+
+**Epic 5 Status:** 🔄 **Near Complete** (2/3 done, 1 needs quick fix)
+
+**Story 5.1 Quick Fix:**
+- **Issue:** 3 component tests failing (ambiguous selector)
+- **Fix:** Change `getByLabelText` → `getByRole('textbox')` in 3 locations
+- **Time:** 5 minutes
+- **Reference:** [`qa/PENDING_STORIES_REVIEW_SUMMARY.md`](./qa/PENDING_STORIES_REVIEW_SUMMARY.md)
 
 ### Ad-Hoc Features (No Formal Story)
 | Feature | Status | Documentation | Description |
@@ -201,9 +242,11 @@ This project uses a **decoupled dual-export pattern** for API endpoints:
 | Symbol | Status | Description |
 |--------|--------|-------------|
 | ✅ | Complete | Implemented and merged |
-| 🚧 | Ready | Approved and ready for development |
+| � | Ready for Review | Needs QA review or minor fix |
+| ⚠️ | BLOCKED | Cannot proceed due to blocker |
+| �🚧 | Ready | Approved and ready for development |
 | 🔄 | In Progress | Currently being implemented |
-| 📋 | Planned | Defined but not yet started |
+| 📋 | Draft/Planned | Defined but not yet started |
 | ⏸️ | Deferred | On hold pending other work |
 | 🗄️ | Archive | Superseded or deprecated |
 
@@ -231,11 +274,13 @@ This project uses a **decoupled dual-export pattern** for API endpoints:
 |-------------|-----------|
 | Understand project vision and goals | [`prd/1-intro-project-analysis-and-context.md`](./prd/1-intro-project-analysis-and-context.md) |
 | See feature requirements | [`prd/2-requirements.md`](./prd/2-requirements.md) |
+| **See current sprint status** | **[`SPRINT_PLAN_UPDATE_2025-10-14.md`](./SPRINT_PLAN_UPDATE_2025-10-14.md)** ⭐ |
 | Understand tech stack | [`architecture/3-tech-stack.md`](./architecture/3-tech-stack.md) |
 | Find coding standards | [`architecture/10-coding-standards-testing-and-security.md`](./architecture/10-coding-standards-testing-and-security.md) |
 | See database schema | [`architecture/4-data-models-and-schema-changes.md`](./architecture/4-data-models-and-schema-changes.md) |
 | Find API endpoints | [`architecture/6-api-design-and-integration.md`](./architecture/6-api-design-and-integration.md) |
 | Implement a feature | [`stories/`](./stories/) (find your epic/story) |
+| **Understand repair flow blocker** | **[`REPAIR_FLOW_CONTENT_BLOCKER.md`](./REPAIR_FLOW_CONTENT_BLOCKER.md)** 🔥 |
 | Review QA status | [`qa/`](./qa/) |
 | See UX feedback | [`ux-reviews/`](./ux-reviews/) |
 | Understand project structure | [`architecture/8-source-tree.md`](./architecture/8-source-tree.md) |
@@ -253,18 +298,78 @@ This project uses a **decoupled dual-export pattern** for API endpoints:
 
 ---
 
-## 🚀 Current Sprint Focus
+## 🚀 Current Sprint Focus (Updated October 14, 2025)
 
-**Next Story:** [Story 5.3 - Search and Filter Journal](./stories/5.3.search-and-filter-journal.md)
+**Sprint Status:** 67% Complete (10 of 15 stories done)
 
-**Status:** Planned  
-**Epic:** 5 - Journaling Feature  
-**Goal:** Add search and filtering capabilities to journal history for better user experience
+### 🎯 Immediate Priorities
+
+**1. Story 5.1 Quick Fix** (5 minutes)
+- **File:** [`5.1.implement-journaling-feature.md`](./stories/5.1.implement-journaling-feature.md)
+- **Status:** Ready for Review → Needs test selector fix
+- **Action:** Change `getByLabelText` to `getByRole('textbox')` in 3 locations
+- **Result:** Epic 5 complete ✅
+
+**2. Story 4.1A - AI Backend** (3-4 days) 🔥 HIGH PRIORITY
+- **File:** [`4.1A.ai-powered-repair-suggestions.md`](./stories/4.1A.ai-powered-repair-suggestions.md)
+- **Status:** Draft → Ready for Implementation
+- **Goal:** Replace hardcoded repair suggestions with AI-generated responses
+- **AI Provider:** Google Gemini
+- **Includes:** Evidence-based prompts, SAMHSA hotline integration, fallback strategy
+
+**3. Story 4.1B - AI Frontend** (2-3 days)
+- **File:** [`4.1B.ai-powered-repair-frontend.md`](./stories/4.1B.ai-powered-repair-frontend.md)
+- **Status:** Draft → Depends on 4.1A
+- **Goal:** Enhanced loading state, scrollable UI, SAMHSA highlight
+- **UX:** Compassionate 2-5 second loading experience
+
+### 📊 Epic Completion Status
+
+| Epic | Complete | In Progress | Blocked | Draft | Total |
+|------|----------|-------------|---------|-------|-------|
+| **Epic 1** (Auth) | 5 | - | - | - | **5** ✅ 100% |
+| **Epic 2** (Twilio) | - | - | - | 1 | **1** 📋 Deferred |
+| **Epic 3** (Ritual) | 1 | - | - | - | **1** ✅ 100% |
+| **Epic 4** (Repair) | 3 | - | 1 | 2 | **6** 🔄 50% |
+| **Epic 5** (Journal) | 2 | 1 | - | - | **3** 🔄 67% |
+| **TOTAL** | **11** | **1** | **1** | **3** | **16** |
+
+### 🗓️ Timeline
+
+```
+TODAY (Oct 14)
+  └─ Fix Story 5.1 (5 min) → Epic 5 complete ✅
+
+THIS WEEK (Oct 15-18)
+  └─ Story 4.1A Backend (3-4 days)
+     • RepairAIService class
+     • Google Gemini integration
+     • Evidence-based prompts
+     • Safety rails & validation
+
+NEXT WEEK (Oct 21-23)
+  └─ Story 4.1B Frontend (2-3 days)
+     • Enhanced loading state
+     • Scrollable container
+     • SAMHSA highlight
+     
+  └─ Story 4.1 UNBLOCKED → Done
+  └─ Epic 4 Complete ✅
+
+POST-IMPLEMENTATION (Oct 24+)
+  └─ Expert consultation (recovery specialist)
+  └─ Sprint retrospective
+```
+
+### 🔗 Key References
+- **Sprint Plan:** [`SPRINT_PLAN_UPDATE_2025-10-14.md`](./SPRINT_PLAN_UPDATE_2025-10-14.md) - Full sprint analysis
+- **Blocker Doc:** [`REPAIR_FLOW_CONTENT_BLOCKER.md`](./REPAIR_FLOW_CONTENT_BLOCKER.md) - Problem definition
+- **QA Summary:** [`qa/PENDING_STORIES_REVIEW_SUMMARY.md`](./qa/PENDING_STORIES_REVIEW_SUMMARY.md) - Stories 4.1 & 5.1 review
 
 **Recently Completed:**
+- ✅ Story 5.3 - Search and Filter Journal (October 14, 2025)
+- ✅ Story 5.2 - View Journal History (October 13, 2025)
 - ✅ Story 4.3 - App Navigation & Hamburger Menu (October 12, 2025)
-- ✅ Story 5.1 - Implement Journaling Feature (October 12, 2025)
-- ✅ Story 5.2 - View Journal History (October 12, 2025)
 
 ---
 
