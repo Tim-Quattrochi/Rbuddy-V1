@@ -4,8 +4,6 @@ dotenv.config();
 
 import { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
-import { Strategy as GoogleStrategy, Profile, VerifyCallback } from 'passport-google-oauth20';
-import { storage } from '../../_lib/storage.js';
 import { generateToken } from '../../_lib/middleware/auth.js';
 import type { User } from '../../_lib/storage.js';
 
@@ -56,59 +54,6 @@ function setCookie(res: any, name: string, value: string, options: Parameters<ty
   }
 }
 
-// Configure Passport inline for serverless (avoids module resolution issues)
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const CALLBACK_URL = process.env.CALLBACK_URL || 'https://rbuddy-v1.vercel.app/api/auth/google/callback';
-
-if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
-  console.error('FATAL: Missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET');
-}
-
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: GOOGLE_CLIENT_ID!,
-      clientSecret: GOOGLE_CLIENT_SECRET!,
-      callbackURL: CALLBACK_URL,
-      scope: ['profile', 'email'],
-    },
-    async (
-      accessToken: string,
-      refreshToken: string,
-      profile: Profile,
-      done: VerifyCallback
-    ) => {
-      try {
-        const googleId = profile.id;
-        const email = profile.emails?.[0]?.value;
-        const avatarUrl = profile.photos?.[0]?.value;
-
-        if (!email) {
-          return done(new Error('No email found in Google profile'));
-        }
-
-        let user = await storage.getUserByGoogleId(googleId);
-
-        if (!user) {
-          const baseUsername = email.split('@')[0];
-          const username = `${baseUsername}_${googleId.slice(-6)}`;
-
-          user = await storage.createUser({
-            email,
-            username,
-          });
-        }
-
-        return done(null, user);
-      } catch (error) {
-        console.error('Error in Google OAuth strategy:', error);
-        return done(error as Error);
-      }
-    }
-  )
-);
-
 /**
  * Handles Google OAuth callback
  * GET /api/auth/google/callback
@@ -122,14 +67,30 @@ async function handler(req: Request, res: Response, next: NextFunction) {
     'google',
     { session: false },
     (err: Error | null, user: User | false, _info: any) => {
+      // Prevent multiple responses - check if headers already sent
+      if (res.headersSent) {
+        console.error('[OAuth Callback] Response already sent, skipping');
+        return;
+      }
+
       if (err) {
         console.error('Google OAuth error:', err);
-        return (res as any).redirect?.(`${frontendUrl}/login?error=auth_failed`) ?? (res as any).status(302).setHeader('Location', `${frontendUrl}/login?error=auth_failed`).end();
+        if (typeof (res as any).redirect === 'function') {
+          return (res as any).redirect(`${frontendUrl}/login?error=auth_failed`);
+        } else {
+          (res as any).status(302).setHeader('Location', `${frontendUrl}/login?error=auth_failed`).end();
+          return;
+        }
       }
 
       if (!user) {
         console.error('No user returned from Google OAuth');
-        return (res as any).redirect?.(`${frontendUrl}/login?error=no_user`) ?? (res as any).status(302).setHeader('Location', `${frontendUrl}/login?error=no_user`).end();
+        if (typeof (res as any).redirect === 'function') {
+          return (res as any).redirect(`${frontendUrl}/login?error=no_user`);
+        } else {
+          (res as any).status(302).setHeader('Location', `${frontendUrl}/login?error=no_user`).end();
+          return;
+        }
       }
 
       try {
@@ -146,10 +107,23 @@ async function handler(req: Request, res: Response, next: NextFunction) {
         });
 
         // Redirect to daily ritual page on frontend
-        return (res as any).redirect?.(`${frontendUrl}/daily-ritual`) ?? (res as any).status(302).setHeader('Location', `${frontendUrl}/daily-ritual`).end();
+        if (typeof (res as any).redirect === 'function') {
+          return (res as any).redirect(`${frontendUrl}/daily-ritual`);
+        } else {
+          (res as any).status(302).setHeader('Location', `${frontendUrl}/daily-ritual`).end();
+          return;
+        }
       } catch (error) {
         console.error('Error generating token or setting cookie:', error);
-        return (res as any).redirect?.(`${frontendUrl}/login?error=token_generation_failed`) ?? (res as any).status(302).setHeader('Location', `${frontendUrl}/login?error=token_generation_failed`).end();
+        // Check again if headers were sent before attempting redirect
+        if (!res.headersSent) {
+          if (typeof (res as any).redirect === 'function') {
+            return (res as any).redirect(`${frontendUrl}/login?error=token_generation_failed`);
+          } else {
+            (res as any).status(302).setHeader('Location', `${frontendUrl}/login?error=token_generation_failed`).end();
+            return;
+          }
+        }
       }
     }
   )(req as any, res as any, next as any);

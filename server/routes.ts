@@ -28,8 +28,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/logout", ...logoutHandler);
   
   // User Routes
+  // ⚠️ CRITICAL: Always use /api/users/... (PLURAL) - see docs/COMMON_ISSUES.md
+  // This typo has occurred multiple times: /api/user/ vs /api/users/
   app.get("/api/users/me", ...userHandler);
-  app.get("/api/user/stats", ...userHandler);
+  app.get("/api/users/stats", ...userHandler);
   app.get("/api/journal/history", ...journalHistoryHandler);
   
   // Daily Ritual Routes
