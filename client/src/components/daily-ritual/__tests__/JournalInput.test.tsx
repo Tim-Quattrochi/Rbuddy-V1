@@ -6,7 +6,7 @@ describe("JournalInput", () => {
   it("renders textarea and button", () => {
     render(<JournalInput onSaveJournal={vi.fn()} />);
 
-    expect(screen.getByLabelText(/daily journal/i)).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /daily journal/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /save journal/i })).toBeInTheDocument();
   });
 
@@ -22,7 +22,7 @@ describe("JournalInput", () => {
     const handleSave = vi.fn().mockResolvedValue(undefined);
     render(<JournalInput onSaveJournal={handleSave} />);
 
-    fireEvent.change(screen.getByLabelText(/daily journal/i), {
+    fireEvent.change(screen.getByRole('textbox', { name: /daily journal/i }), {
       target: { value: "  Reflecting on my progress  " },
     });
 
@@ -33,7 +33,7 @@ describe("JournalInput", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/daily journal/i)).toHaveValue("");
+      expect(screen.getByRole('textbox', { name: /daily journal/i })).toHaveValue("");
     });
   });
 
@@ -41,6 +41,6 @@ describe("JournalInput", () => {
     render(<JournalInput onSaveJournal={vi.fn()} isSaving />);
 
     expect(screen.getByRole("button", { name: /saving/i })).toBeDisabled();
-    expect(screen.getByLabelText(/daily journal/i)).toBeDisabled();
+    expect(screen.getByRole('textbox', { name: /daily journal/i })).toBeDisabled();
   });
 });
