@@ -90,7 +90,11 @@
 * **Story 3.1**: Fix End-to-End Daily Ritual Persistence.
 
 ### **Epic 4: Implement PWA Rupture & Repair Flow**
-* **Story 4.1**: Implement PWA Rupture & Repair Flow.
+* **Story 4.1**: Implement PWA Rupture & Repair Flow (BLOCKED - Content Validation)
+* **Story 4.1A**: AI-Powered Repair Suggestions (Backend)
+* **Story 4.1B**: AI-Powered Repair Suggestions (Frontend)
+* **Story 4.2**: Improve Repair Flow Accessibility (Done)
+* **Story 4.3**: Implement App Navigation (Done)
 
 ### **Epic 5: Implement Journaling Feature**
 * **Story 5.1**: Implement Journaling Feature.
