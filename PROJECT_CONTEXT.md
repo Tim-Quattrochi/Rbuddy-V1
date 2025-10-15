@@ -1,45 +1,74 @@
 
-## **🪴 Next Moment —Project Brief**
+## **🪴 Next Moment — Project Brief**
 
-Version: Draft v1  
-Prepared by: Mary (Analyst, Team Fullstack)  
+Version: v2.0 (PWA Pivot)
+Prepared by: Mary (Analyst, Team Fullstack)
 Date: October 2025
+Last Updated: October 14, 2025
+
+---
+
+## **📋 Executive Summary - Current State**
+
+**Project Status**: Phase 4 (PWA Frontend Development) - In Progress
+
+**Architecture**: Decoupled Progressive Web App
+- **Frontend**: React 18 + Vite PWA (offline-first, installable)
+- **Backend**: Express.js REST API (Node.js 20, TypeScript)
+- **Database**: Neon Serverless PostgreSQL + Drizzle ORM
+- **Deployment**: Vercel Serverless Functions
+- **AI Integration**: Multi-provider chat (Google Gemini, OpenAI, Mistral, Perplexity)
+
+**Strategic Pivot Rationale** (October 2025):
+- **FROM**: SMS/IVR-based system using Twilio
+- **TO**: Progressive Web App (PWA) with offline capabilities
+- **Why**: Lifeline program provides free smartphones to target users; PWA reduces costs ($624/year savings) and enables richer UX while maintaining accessibility
+
+**Key Files**:
+- Frontend: [client/src/](client/src/) - React PWA components
+- Backend API: [api/](api/) - Express REST endpoints
+- Database Schema: [shared/schema.ts](shared/schema.ts)
+- Documentation: [docs/pwa-pivot-progress.md](docs/pwa-pivot-progress.md), [handoff.md](handoff.md)
 
 ---
 
 ### **1\. Problem Statement**
 
-Justice-impacted individuals in early reentry with a history of substance use often face overwhelming triggers, unstable routines, and limited support systems. Existing recovery apps are too complex, data-heavy, or inaccessible to those with limited devices, literacy, or connectivity.  
-Core challenge: How might we deliver structure, encouragement, and relapse resilience *without* depending on smartphones or constant internet access?
+Justice-impacted individuals in early reentry with a history of substance use often face overwhelming triggers, unstable routines, and limited support systems. Existing recovery apps are too complex, data-heavy, or lack the empathetic approach needed for this vulnerable population.
+
+Core challenge: How might we deliver structure, encouragement, and relapse resilience through an accessible, empathetic digital companion?
 
 ---
 
 ### **2\. Target Users**
 
-* Primary: Formerly incarcerated individuals in early reentry (first 6–12 months), especially those in recovery programs or probation supervision.  
-* Secondary: Probation officers, case managers, and reentry coaches who support habit accountability.  
-* Accessibility considerations:  
-  * High phone turnover and number changes  
-  * Low data availability / limited smartphone use  
-  * Preference for voice or text-based interfaces
+* **Primary**: Formerly incarcerated individuals in early reentry (first 6–12 months), especially those in recovery programs or probation supervision
+* **Secondary**: Probation officers, case managers, and reentry coaches who support habit accountability
+* **Accessibility considerations**:
+  * Smartphone access via Lifeline program (free smartphones for qualified users)
+  * Progressive Web App (PWA) for offline-first functionality
+  * Simple, trauma-informed interface design
+  * 6th-grade reading level content
 
 ---
 
 ### **3\. MVP Goal**
 
-Deliver a low-friction “Daily Ritual Flow” that helps users build emotional regulation, accountability, and recovery momentum using SMS or IVR (voice) — accessible from any phone, at any time.
+Deliver a low-friction "Daily Ritual Flow" through a Progressive Web App (PWA) that helps users build emotional regulation, accountability, and recovery momentum. The app works offline-first and provides a compassionate, mobile-optimized experience accessible from any smartphone.
 
 ---
 
-### **4\. Core MVP Features (Tier 1: SMS/IVR)**
+### **4\. Core MVP Features (PWA Architecture)**
 
 | Category | Feature | Description |
 | ----- | ----- | ----- |
-| Core Routine | Daily Ritual Flow | 2–5 min daily check-in via SMS or voice: “How’s your mood today?” → Reflect → Get affirmation or grounding tip. |
-| Relapse Support | Rupture → Repair | Non-punitive relapse check-in flow: encourages users to report slip-ups, receive affirming messages, and reset goals. |
-| Continuity | Offline First Design | Works without smartphone, app install, or data plan. Uses short codes or toll-free IVR line. |
-| Engagement | Encouragement Loop | Motivational voice or SMS messages, personalized over time (“You’ve shown up 3 days in a row — small wins matter.”) |
-| Coach Mode (Phase 2\) | Case managers receive weekly summaries (via web or SMS digest). |  |
+| Core Routine | Daily Ritual Flow | 2–5 min daily check-in via PWA: Mood selection (4 options) → Affirmation/grounding tip → Optional intention setting |
+| Relapse Support | Rupture → Repair | Compassionate relapse support flow: users can initiate repair flow, identify triggers, receive supportive guidance, and reset goals |
+| Continuity | Offline-First Design | PWA with service worker caching, works without internet connection, syncs when online |
+| Engagement | Encouragement Loop | Push notifications for daily check-ins, streak celebrations, gentle re-engagement after missed days |
+| Journaling | Reflection & History | Optional journal entries, mood trend visualization, historical review of check-ins |
+| AI Chat Support | Floating Chat Widget | Multi-provider AI chat (Google Gemini, OpenAI, Mistral, Perplexity) for crisis support and reflection |
+| Coach Mode (Phase 2) | Case managers can view aggregated engagement data (with user consent) |  |
 
 ---
 
@@ -53,45 +82,85 @@ Deliver a low-friction “Daily Ritual Flow” that helps users build emotional 
 
 ---
 
-### **6\. Technical MVP Architecture**
+### **6\. Technical MVP Architecture (Decoupled PWA)**
 
 | Layer | Component | Technology / Approach |
 | ----- | ----- | ----- |
-| User Interaction | SMS & IVR Flow | Twilio or Africa’s Talking API (for SMS \+ voice) |
-| Flow Logic | Conversation Engine | Simple rule-based state machine (Node.js or Python Flask backend) |
-| Data Storage | Minimal user profile & log | Secure SQLite / Firebase / AWS DynamoDB |
-| Content Layer | Message Templates | JSON/YAML content bank for daily rituals, affirmations, repair flows |
-| Admin / Coach Interface (later) | Simple dashboard | Low-code web portal (Retool or Supabase UI) |
+| **Frontend** | Progressive Web App | React 18 + Vite, vite-plugin-pwa, Workbox service worker |
+| **UI Components** | Component Library | shadcn/ui (Radix UI + Tailwind CSS) |
+| **Backend API** | Express.js REST API | Node.js 20, TypeScript, decoupled from frontend |
+| **Flow Logic** | Conversation Engine | Rule-based state machine (FSM) in TypeScript, returns JSON |
+| **Database** | PostgreSQL | Neon Serverless PostgreSQL, Drizzle ORM |
+| **Data Storage** | User sessions & logs | Express-session with Postgres, encrypted user data |
+| **Authentication** | Passport.js | Local strategy (phone/email), Google OAuth, JWT cookies |
+| **AI Integration** | Multi-provider chat | @google/generative-ai, OpenAI SDK, Mistral, Perplexity |
+| **Content Layer** | Message Templates | TypeScript objects with mood-based affirmations, repair flows |
+| **Deployment** | Vercel Serverless | Frontend + API deployed as Vercel serverless functions |
+| **Admin Interface** | (Phase 2) | Web-based dashboard for coaches (future) |
+
+**Architecture Pattern**: Decoupled client-server architecture
+- **Frontend**: React PWA (port 5173 dev, Vercel production)
+- **Backend**: Express API (port 5001 dev, Vercel serverless production)
+- **Communication**: REST API via `/api/*` endpoints
+- **Development**: Concurrent dev servers with Vite proxy
 
 ---
 
 ### **7\. Constraints & Assumptions**
 
-* Users may have prepaid phones or limited credit — must use toll-free or low-cost short code.  
-* IVR prompts must be under 20 seconds, plain language, and emotionally warm.  
-* Security: minimal identifiable data collected; anonymized IDs preferred.  
-* Testing to occur with reentry nonprofits or county reentry offices.
+* **Smartphone Access**: Users receive free smartphones via Lifeline program (validated assumption)
+* **Connectivity**: Offline-first design assumes intermittent internet connectivity
+* **UX Design**: Mobile-first, touch-optimized, 6th-grade reading level
+* **Security**: Minimal PII collected; encrypted sessions; optional anonymized analytics
+* **Cost Efficiency**: PWA reduces operational costs from $91/month (Twilio) to $39/month (Vercel + Neon)
+* **Testing**: Pilot with reentry nonprofits or county reentry offices
 
 ---
 
 ### **8\. Roadmap (MVP → Validation Path)**
 
-Phase 0 – Discovery (Current)
+**Phase 1 – Planning & Setup** ✅ COMPLETE (Day 1, Oct 11)
+* Strategic pivot from SMS/IVR to PWA architecture
+* Updated PRD and technical documentation
+* Removed Twilio dependencies, added PWA tooling
 
-* Validate message tone and ritual flow through role-play or SMS prototypes  
-* Test literacy and comprehension for message samples
+**Phase 2 – Database Schema Migration** ✅ COMPLETE (Day 2, Oct 12)
+* Migrated `messages` table → `interactions` table
+* Extended schema for PWA support (mood, intention, triggers)
+* Maintained backwards compatibility
 
-Phase 1 – MVP (8–10 weeks)
+**Phase 3 – Backend API Development** ✅ COMPLETE (Days 3-4, Oct 13-14)
+* Implemented 11 REST API endpoints:
+  - Authentication: `/api/auth/*` (login, logout, session check, Google OAuth)
+  - Daily Ritual: `/api/daily-ritual/*` (start, mood, affirmation, intention)
+  - Repair Flow: `/api/repair/*` (start, trigger, guidance)
+  - Journal: `/api/journal/*` (history)
+  - User Management: `/api/users/me`
+  - Chat: `/api/chat/*` (send, history, clear)
+* Extended storage layer with PWA-specific methods
+* Integrated ConversationEngine (returns JSON)
 
-* Launch core SMS/IVR flow (Daily Ritual \+ Rupture & Repair)  
-* Pilot with 25–50 users via reentry partner org  
-* Collect engagement metrics & qualitative insights
+**Phase 4 – PWA Frontend Development** 🔄 IN PROGRESS (Days 5-7, Oct 15-17)
+* Create PWA manifest and icons
+* Build React components (MoodSelector, AffirmationCard, IntentionInput, etc.)
+* Connect components to REST API
+* Implement service worker with Workbox
 
-Phase 2 – Expansion
+**Phase 5 – Offline-First Implementation** ⏸️ PENDING (Day 8, Oct 18)
+* Implement IndexedDB for offline data
+* Configure caching strategies
+* Add sync mechanism for offline actions
 
-* Add weekly coach summaries  
-* Introduce voice-based journaling and AI-assisted reflection  
-* Explore integration with probation check-in reminders
+**Phase 6 – Deploy & Test** ⏸️ PENDING (Days 9-10, Oct 19-20)
+* Deploy to Vercel
+* E2E testing on iOS and Android
+* Lighthouse PWA audit (target score ≥90)
+
+**Phase 7 – Expansion** (Future)
+* Add coach dashboard for aggregated metrics
+* Enhance AI chat with crisis detection
+* Integrate push notification system
+* Add data export for probation check-ins
 
 ---
 
@@ -115,10 +184,11 @@ Phase 2 – Expansion
 
 # **📘 Product Requirements Document (PRD)**
 
-## **Project: Next Moment – Tier 1 MVP (SMS/IVR Edition)**
+## **Project: Next Moment – PWA MVP**
 
-Version: 1.0 | Date: October 2025  
-Owner: Mary (Business Analyst, Team Fullstack)  
+Version: 2.0 (PWA Edition) | Date: October 2025
+Last Updated: October 14, 2025
+Owner: Mary (Business Analyst, Team Fullstack)
 Collaborators: Product Manager, Architect, UX, Reentry Program Advisors
 
 ---
@@ -127,19 +197,20 @@ Collaborators: Product Manager, Architect, UX, Reentry Program Advisors
 
 ### **1.1 Problem Statement**
 
-Justice-impacted individuals in early reentry with substance abuse histories often struggle with structure, emotional regulation, and relapse prevention.  
-Many recovery apps require smartphones, data plans, and high digital literacy — all barriers in this population.
+Justice-impacted individuals in early reentry with substance abuse histories often struggle with structure, emotional regulation, and relapse prevention. Many recovery apps lack trauma-informed design, require complex navigation, or fail to work offline.
 
-Next Moment provides a simple daily ritual and recalibration support through SMS or voice (IVR) to help individuals build consistency and resilience.
+Next Moment provides a simple daily ritual and compassionate relapse support through a Progressive Web App (PWA) to help individuals build consistency and resilience. The app leverages smartphone accessibility via the Lifeline program while providing offline-first functionality.
 
 ---
 
 ### **1.2 Objectives**
 
-* Deliver a low-access, high-empathy digital recovery companion via text or voice.  
-* Reinforce self-regulation through 2–5 minute daily rituals.  
-* Reframe relapse as “rupture and repair” instead of failure.  
-* Validate engagement and feasibility for low-tech user groups.
+* Deliver a mobile-first, high-empathy digital recovery companion via PWA
+* Reinforce self-regulation through 2–5 minute daily rituals
+* Reframe relapse as "rupture and repair" instead of failure
+* Provide offline-first functionality for users with intermittent connectivity
+* Integrate multi-provider AI chat for crisis support and reflection
+* Validate engagement and emotional impact with reentry population
 
 ---
 
@@ -288,143 +359,299 @@ Data Logged:
 
 | Layer | Requirement | Notes |
 | ----- | ----- | ----- |
-| Interaction Layer | SMS (Twilio, Plivo, or Africa’s Talking) \+ IVR | Dual-channel architecture |
-| Logic Engine | Node.js or Python Flask rule-based conversation handler | Should support JSON-based flow definitions |
-| Storage | Encrypted SQLite or Firebase Lite | Store minimal PII: user ID, phone, interaction logs |
-| Security | AES-256 encryption at rest; phone \# as key | HIPAA-lite compliance |
-| Deployment | Cloud (AWS or Render) | Must scale to \~500 users |
-| Content Layer | JSON/YAML message bank | Easily editable by non-tech staff |
-| Admin Panel | (Phase 2\) Retool/Supabase dashboard | For viewing metrics |
+| **Frontend** | React 18 + Vite PWA | vite-plugin-pwa, Workbox service worker, offline-first |
+| **UI Library** | shadcn/ui + Tailwind CSS | Radix UI primitives, fully accessible components |
+| **Backend API** | Express.js (TypeScript) | RESTful API, Vercel serverless functions |
+| **Logic Engine** | ConversationEngine FSM | Rule-based state machine, returns JSON responses |
+| **Database** | Neon Serverless PostgreSQL | Drizzle ORM, encrypted at rest |
+| **Storage** | Session-based + PostgreSQL | Express-session with pg-simple store, JWT cookies |
+| **Security** | AES-256 encryption, HTTPS, CORS | Secure cookies, rate limiting, input validation |
+| **Authentication** | Passport.js | Local (phone/email) + Google OAuth strategies |
+| **AI Integration** | Multi-provider | Google Gemini, OpenAI, Mistral, Perplexity APIs |
+| **Deployment** | Vercel + Neon | Frontend CDN + serverless API functions |
+| **Content Layer** | TypeScript constants | Mood-based affirmations, repair flow templates |
+| **Admin Panel** | (Phase 2) Web dashboard | Aggregated analytics for coaches |
+| **Development** | Concurrent dev servers | Vite (port 5173) + Express (port 5001) |
 
 ---
 
-## **5\. Content Architecture Example**
+## **5\. REST API Endpoints (Implemented)**
 
-`daily_ritual: calm: - "Keep going steady today — your peace helps you stay free." stressed: - "You’re not alone. One minute of breathing changes your state." tempted: - "Urges come and go. Remember your reason for starting fresh." hopeful: - "Hope grows from small wins — and you just made one." repair_flow: stress: - "Take rest tonight. Reach out tomorrow for a reset." people: - "Avoid that environment for 24 hours — call someone positive."`  
+### **Authentication Endpoints**
+- `POST /api/auth/login` - User login (local or phone-based)
+- `POST /api/auth/logout` - Clear session and logout
+- `GET /api/auth/session` - Check current session status
+- `GET /api/auth/google` - Initiate Google OAuth flow
+- `GET /api/auth/google/callback` - Handle Google OAuth callback
+
+### **Daily Ritual Endpoints**
+- `POST /api/daily-ritual/start` - Begin daily check-in flow
+- `POST /api/daily-ritual/mood` - Submit mood selection (1-4)
+- `POST /api/daily-ritual/affirmation` - Retrieve mood-based affirmation
+- `POST /api/daily-ritual/intention` - Submit optional daily intention
+
+### **Repair Flow Endpoints**
+- `POST /api/repair/start` - Initiate compassionate repair flow
+- `POST /api/repair/trigger` - Identify relapse trigger
+- `POST /api/repair/guidance` - Get personalized reset guidance
+
+### **Journal & History**
+- `GET /api/journal/history` - Retrieve user's check-in history
+
+### **User Management**
+- `GET /api/users/me` - Get current user profile
+
+### **AI Chat Support**
+- `POST /api/chat/send` - Send message to AI chat
+- `GET /api/chat/history` - Retrieve chat conversation history
+- `DELETE /api/chat/clear` - Clear chat history
+
 ---
 
-## **6\. User Experience Guidelines**
+## **6\. Content Architecture Example**
+
+```typescript
+// Mood-based affirmations
+const AFFIRMATIONS = {
+  calm: [
+    "Keep going steady today — your peace helps you stay free.",
+    "Your calm is powerful. Carry it with you today."
+  ],
+  stressed: [
+    "You're not alone. One minute of breathing changes your state.",
+    "Stress is real, but so is your resilience. Take it one moment at a time."
+  ],
+  tempted: [
+    "Urges come and go. Remember your reason for starting fresh.",
+    "You've made it this far. That takes strength. Keep going."
+  ],
+  hopeful: [
+    "Hope grows from small wins — and you just made one.",
+    "Your hope is valid. Build on it today."
+  ]
+};
+
+// Repair flow guidance
+const REPAIR_GUIDANCE = {
+  stress: "Take rest tonight. Reach out tomorrow for a reset. You showed courage by checking in.",
+  people: "Avoid that environment for 24 hours — call someone positive. You're doing the right thing.",
+  craving: "Cravings pass. You've waited them out before. Try a 5-minute walk or call your support person.",
+  unknown: "It's okay not to know. The important thing is you're here now. Let's start fresh together."
+};
+```
+
+---
+
+## **7\. User Experience Guidelines**
 
 | Area | Principle | Implementation |
 | ----- | ----- | ----- |
-| Tone | Non-judgmental, peer-like, affirming | Always “we” not “you should” |
+| Tone | Non-judgmental, peer-like, affirming | Always "we" not "you should" |
 | Language | Plain, 6th-grade reading level | Tested via Flesch–Kincaid |
-| Timing | Same time each day (opt-in schedule) | SMS reminders configurable |
-| Voice | Warm, steady, non-clinical | Recordings by real recovery mentors |
-| Accessibility | Works without data; no app install | USSD fallback optional |
+| Timing | Daily check-in reminders | Push notifications (opt-in) |
+| Interface | Touch-optimized, mobile-first | Large tap targets, smooth animations |
+| Accessibility | Works offline; installable PWA | Service worker caching, IndexedDB |
+| Visual Design | Calming colors, minimal clutter | Dark mode support, high contrast |
+| Gestures | Swipe-friendly navigation | Minimal typing required |
 
 ---
 
-## **7\. Privacy & Compliance**
+## **8\. Privacy & Compliance**
 
-* No clinical claims or diagnoses  
-* User consents to message storage and automated communication  
-* Anonymous data for analytics; opt-out at any time (“STOP”)  
-* Voice data stored \<30 days unless user opts to retain for journaling
+* No clinical claims or diagnoses
+* User consents to data storage and automated communication
+* Minimal PII collection (phone/email for auth only)
+* End-to-end HTTPS encryption
+* Secure session management with HttpOnly cookies
+* Optional anonymized analytics for product improvement
+* User can delete account and all data at any time
+* No third-party data sharing (except AI providers for chat feature)
+* GDPR-conscious design (right to access, delete, export)
 
 ---
 
-## **8\. Risks & Mitigations**
+## **9\. Risks & Mitigations**
 
 | Risk | Mitigation |
 | ----- | ----- |
-| Low engagement after first week | Personalize timing, streak encouragements |
-| Triggering content or tone | Co-design message bank with peer mentors |
-| Lost or changed phone number | Allow self-registration with unique code |
-| Privacy concerns | Transparent disclosure; anonymized storage |
-| Voice fatigue / poor IVR UX | Use human-voiced audio prompts, 20s max length |
+| Low engagement after first week | Personalized push notifications, streak celebrations, gentle re-engagement |
+| Triggering content or tone | Co-design content with peer mentors, trauma-informed language review |
+| Device/phone changes | Google OAuth backup, account recovery via email |
+| Privacy concerns | Transparent privacy policy, minimal data collection, user controls |
+| Offline sync conflicts | Last-write-wins strategy, conflict resolution UI |
+| Browser compatibility | PWA tested on iOS Safari, Chrome, Firefox |
+| AI chat inappropriate responses | System prompts for trauma-informed responses, content moderation |
 
 ---
 
-## **9\. Rollout Plan**
+## **10\. Rollout Plan (10-Day PWA Implementation)**
 
-| Phase | Milestone | Deliverable |
-| ----- | ----- | ----- |
-| 0 – Discovery | Validate flow with 10 participants | Prototype via Twilio Sandbox |
-| 1 – MVP Build (8 weeks) | Deploy SMS/IVR flows \+ logging | Node.js backend \+ Twilio integration |
-| 2 – Pilot (2–3 weeks) | Partner org test (25–50 users) | Usage \+ sentiment reports |
-| 3 – Learn & Iterate | Adjust tone, timing, and repair model | V2 PRD update |
-| 4 – Scale | Add coach summaries \+ web dashboard | Phase 2 build |
+| Phase | Timeline | Status | Deliverable |
+| ----- | ----- | ----- | ----- |
+| 1 – Planning & Setup | Day 1 (Oct 11) | ✅ Complete | PWA architecture, dependency updates, PRD revision |
+| 2 – Database Migration | Day 2 (Oct 12) | ✅ Complete | Schema migration (messages → interactions), Drizzle migration |
+| 3 – Backend API | Days 3-4 (Oct 13-14) | ✅ Complete | 11 REST endpoints, storage layer, ConversationEngine integration |
+| 4 – PWA Frontend | Days 5-7 (Oct 15-17) | 🔄 In Progress | React components, PWA manifest, service worker, API integration |
+| 5 – Offline-First | Day 8 (Oct 18) | ⏸️ Pending | IndexedDB, sync strategies, offline UX |
+| 6 – Deploy & Test | Days 9-10 (Oct 19-20) | ⏸️ Pending | Vercel deployment, E2E testing, Lighthouse audit |
+| 7 – Pilot | Weeks 2-4 | ⏸️ Future | Partner org test (25–50 users), usage analytics |
+| 8 – Iterate | Weeks 5-6 | ⏸️ Future | Adjust UX based on feedback, add push notifications |
+| 9 – Scale | Months 2-3 | ⏸️ Future | Coach dashboard, enhanced AI features, data export |
 
 ---
 
-## **10\. Open Questions**
+## **11\. Open Questions**
 
-1. Should voice journaling be available at MVP stage or reserved for Phase 2?  
-2. Should participants earn “streak badges” or keep the experience purely reflective?  
-3. Will reentry orgs handle onboarding, or should Next Moment support self-enrollment?  
+1. Should voice journaling be available at MVP stage or reserved for Phase 2?
+2. Should participants earn "streak badges" or keep the experience purely reflective?
+3. Will reentry orgs handle onboarding, or should Next Moment support self-enrollment?
 4. Should we support bilingual (English/Spanish) content at launch?
+5. What push notification strategy will maximize engagement without being intrusive?
+6. Should the AI chat feature be available immediately or gated behind streak milestones?
+7. What analytics should be tracked while maintaining privacy commitments?
 
 ---
 
-## **11\. Appendices**
+## **12\. Appendices**
 
-### **Appendix A — SMS Flow Diagram (Simplified)**
+### **Appendix A — PWA User Flow Diagram (Simplified)**
 
-       `+-------------------------+`  
-        `|   Daily Reminder Sent   |`  
-        `+-----------+-------------+`  
-                    `|`  
-                    `v`  
-      `+-------------+-------------+`  
-      `| How’s your mood today?    |`  
-      `| (1) Calm (2) Stressed ... |`  
-      `+-------------+-------------+`  
-                    `|`  
-                    `v`  
-        `+-----------+------------+`  
-        `| Send tailored response |`  
-        `+-----------+------------+`  
-                    `|`  
-                    `v`  
-        `+-----------+------------+`  
-        `| Ask: “Set intention?”  |`  
-        `+-----------+------------+`  
-                    `|`  
-                    `v`  
-        `+-----------+------------+`  
-        `| Store results + streak |`  
-        `+------------------------+`
+```
+┌─────────────────────────┐
+│  Daily Push Notification│
+│   "Time for check-in"   │
+└───────────┬─────────────┘
+            │
+            v
+┌─────────────────────────┐
+│   Landing: Daily Ritual │
+│  "How's your mood?"     │
+│  [😌 Calm]              │
+│  [😰 Stressed]          │
+│  [😔 Tempted]           │
+│  [😊 Hopeful]           │
+└───────────┬─────────────┘
+            │
+            v
+┌─────────────────────────┐
+│   Affirmation Display   │
+│  Mood-based message +   │
+│  calming animation      │
+└───────────┬─────────────┘
+            │
+            v
+┌─────────────────────────┐
+│   Optional Intention    │
+│  "Set today's goal?"    │
+│  [Text input]           │
+│  [Skip] [Save]          │
+└───────────┬─────────────┘
+            │
+            v
+┌─────────────────────────┐
+│   Completion Screen     │
+│  Streak counter update  │
+│  Encouragement message  │
+└─────────────────────────┘
+```
 
 ---
 
-### **Appendix B — IVR Voice Prompts Sample**
+### **Appendix B — PWA Component Structure**
 
-* “Hi, this is Next Moment — let’s take two minutes together.”  
-* “Press 1 if you’re calm, 2 if stressed, 3 if tempted, 4 if hopeful.”  
-* “That’s honest — good job checking in. Remember, every day you show up, you strengthen your freedom.”
+```
+client/src/
+├── components/
+│   ├── daily-ritual/
+│   │   ├── MoodSelector.tsx         # 4 emoji mood buttons
+│   │   ├── AffirmationCard.tsx      # Animated affirmation display
+│   │   ├── IntentionInput.tsx       # Optional text input
+│   │   └── StreakCounter.tsx        # Gamified streak display
+│   ├── repair/
+│   │   └── RepairFlow.tsx           # Compassionate relapse support
+│   ├── chat/
+│   │   └── FloatingChat.tsx         # AI chat widget
+│   ├── auth/
+│   │   └── ProtectedRoute.tsx       # Auth guard
+│   └── navigation/
+│       ├── NavigationMenu.tsx       # Bottom nav
+│       └── UserMenu.tsx             # User settings
+├── pages/
+│   ├── Landing.tsx                  # Public landing page
+│   ├── Login.tsx                    # Authentication
+│   ├── DailyRitual.tsx              # Main check-in flow
+│   ├── Journal.tsx                  # History & trends
+│   └── CheckIn.tsx                  # Quick check-in entry
+├── hooks/
+│   ├── useAuth.tsx                  # Authentication hook
+│   └── useOfflineSync.tsx           # Offline data sync
+└── lib/
+    ├── api.ts                       # API client
+    └── db.ts                        # IndexedDB wrapper
+```
 
 ---
 
-# **✅ Next Moment — Final MVP Brief (Tier 1 SMS/IVR Approach)**
+### **Appendix C — Technology Stack Details**
+
+**Frontend Dependencies:**
+- `react` ^18.3.1 - UI framework
+- `react-router-dom` ^7.9.3 - Client-side routing
+- `@tanstack/react-query` ^5.60.5 - Server state management
+- `vite-plugin-pwa` ^0.21.1 - PWA capabilities
+- `workbox-window` ^7.3.0 - Service worker management
+- `idb` ^8.0.0 - IndexedDB wrapper
+- `framer-motion` ^11.13.1 - Animations
+- `lucide-react` ^0.453.0 - Icons
+
+**Backend Dependencies:**
+- `express` ^4.21.2 - Web framework
+- `passport` ^0.7.0 - Authentication
+- `drizzle-orm` ^0.39.1 - Database ORM
+- `@neondatabase/serverless` ^0.10.4 - Neon client
+- `@google/generative-ai` ^0.24.1 - Gemini AI
+- `openai` ^6.3.0 - OpenAI client
+- `express-rate-limit` ^8.1.0 - Rate limiting
+- `express-session` ^1.18.1 - Session management
+
+---
+
+# **✅ Next Moment — PWA Implementation Status**
 
 ### **Prepared by: Mary (Business Analyst)**
 
-Date: October 2025  
-For: Alex (Product Manager) – PRD & Roadmap Definition
+Date: October 2025
+Last Updated: October 14, 2025
+Current Phase: Phase 4 (Frontend Development)
 
 ---
 
 ## **1\. Summary**
 
-Objective: Create a low-barrier, emotionally supportive recovery companion for justice-impacted individuals using SMS or IVR.  
-Core Strategy: Deliver a “Daily Ritual Flow” habit builder \+ “Rupture and Repair” post-relapse support, accessible via any phone, without requiring data or app downloads.  
-Guiding Principle: *Recovery is not linear — consistency, not perfection.*
+**Objective**: Create a trauma-informed, emotionally supportive recovery companion for justice-impacted individuals using Progressive Web App technology.
+
+**Core Strategy**: Deliver a "Daily Ritual Flow" habit builder + "Rupture and Repair" post-relapse support through an installable, offline-first PWA accessible on any smartphone.
+
+**Guiding Principle**: *Recovery is not linear — consistency, not perfection.*
+
+**Current Status**: Backend API complete (11 endpoints), Frontend components in development
 
 ---
 
 ## **2\. Core Problem to Solve**
 
-Justice-impacted individuals in early reentry frequently relapse due to lack of structure and accessible daily support. Traditional digital tools are often smartphone-dependent, creating a digital divide for those with low access or literacy.
+Justice-impacted individuals in early reentry frequently relapse due to lack of structure and accessible daily support. While the Lifeline program provides free smartphones to qualified users, existing recovery apps lack trauma-informed design, offline functionality, and the empathetic approach this population needs.
 
 ---
 
 ## **3\. Solution Vision**
 
-* Provide Daily Ritual check-ins (2–5 min) by text or call.  
-* Offer affirmations and grounding tips tied to emotional states.  
-* When relapse occurs, offer a “Repair” flow—encouragement, reset planning, and reflection, not shame.  
-* Design for low friction, high empathy, and human warmth through technology.
+* Provide Daily Ritual check-ins (2–5 min) via PWA with touch-optimized interface
+* Offer mood-based affirmations and grounding tips with calming animations
+* When relapse occurs, offer a "Repair" flow—encouragement, reset planning, and reflection, not shame
+* Enable offline functionality so users can check in anytime, anywhere
+* Integrate multi-provider AI chat for additional support and reflection
+* Design for low friction, high empathy, and human warmth through technology
 
 ---
 
@@ -432,71 +659,146 @@ Justice-impacted individuals in early reentry frequently relapse due to lack of 
 
 | User Type | Description | Needs |
 | ----- | ----- | ----- |
-| Primary: Returning citizen in recovery | Limited tech access; vulnerable to triggers | Simple daily structure, emotional grounding |
-| Secondary: Case manager / reentry coach | 15–25 clients, limited check-in capacity | Lightweight engagement data (weekly summary) |
+| Primary: Returning citizen in recovery | Smartphone via Lifeline; vulnerable to triggers; intermittent connectivity | Simple daily structure, emotional grounding, offline capability |
+| Secondary: Case manager / reentry coach | 15–25 clients, limited check-in capacity | Lightweight engagement data (aggregated dashboard - Phase 2) |
 
 ---
 
-## **5\. Core MVP Features (Tier 1\)**
+## **5\. Core MVP Features (PWA Implementation)**
 
-| Feature | Description | Channel |
+| Feature | Description | Implementation |
 | ----- | ----- | ----- |
-| Daily Ritual Flow | 2–5 minute daily mood \+ reflection check-in | SMS \+ IVR |
-| Rupture & Repair Flow | Post-relapse reset with affirming language | SMS \+ IVR |
-| Encouragement Loop | Micro-messages for motivation and re-engagement | SMS |
-| Basic Logging | Mood, response, streaks (anonymized) | Backend |
-| Coach Summary (Phase 2\) | Weekly digest of user engagement | SMS/Web dashboard |
+| Daily Ritual Flow | 2–5 minute mood selection → affirmation → optional intention | React components + REST API |
+| Rupture & Repair Flow | Compassionate relapse support with trigger identification | Dedicated repair flow component |
+| Encouragement Loop | Push notifications for streaks and gentle re-engagement | Web Push API (Phase 5) |
+| Journal & History | View past check-ins, mood trends, intentions | Journal page with data visualization |
+| AI Chat Support | Multi-provider AI chat for crisis support | Floating chat widget with provider selection |
+| Offline Capability | Works without internet; syncs when online | Service worker + IndexedDB (Phase 5) |
+| Streak Counter | Visualize consistency without gamification pressure | Non-punitive, encouraging design |
+| Coach Dashboard (Phase 2) | Aggregated engagement metrics (opt-in) | Web dashboard |
 
 ---
 
 ## **6\. Accessibility & Design Principles**
 
-* Works on any mobile phone (feature or smart).  
-* Uses toll-free or short code access.  
-* Plain language at 6th-grade reading level.  
-* Warm, peer-support tone (e.g., “You showed up today — that’s strength.”).  
-* No clinical data; privacy-first approach.
+* **Mobile-First**: Optimized for smartphones (iOS Safari, Android Chrome)
+* **Offline-First**: Service worker caching enables use without connectivity
+* **Installable**: Add to home screen, full-screen experience
+* **Touch-Optimized**: Large tap targets, swipe gestures, minimal typing
+* **Plain Language**: 6th-grade reading level throughout
+* **Trauma-Informed Tone**: Warm, peer-support voice (e.g., "You showed up today — that's strength")
+* **Privacy-First**: Minimal data collection, transparent policies
+* **Responsive**: Works across device sizes (phone priority)
+* **Dark Mode**: Reduces eye strain, battery-friendly
+* **High Contrast**: WCAG AA accessibility standards
 
 ---
 
 ## **7\. Success Criteria**
 
-| Metric | Target |
-| ----- | ----- |
-| Daily Ritual completion | ≥ 60% |
-| Retention (2 weeks) | ≥ 70% |
-| “Felt supported” user sentiment | ≥ 80% positive |
-| Successful SMS/IVR delivery | ≥ 95% uptime |
-| Data privacy incidents | 0 |
+| Metric | Target | Measurement Method |
+| ----- | ----- | ----- |
+| Daily Ritual completion rate | ≥ 60% | Backend analytics (anonymized) |
+| User retention (2 weeks) | ≥ 70% | Active user tracking |
+| "Felt supported" sentiment | ≥ 80% positive | Post-pilot survey |
+| PWA installation rate | ≥ 50% | Install event tracking |
+| Lighthouse PWA score | ≥ 90 | Automated audit |
+| API response time | < 500ms p95 | Server monitoring |
+| Offline functionality | 100% core features | Manual testing |
+| Data privacy incidents | 0 | Security audit |
+| Mobile compatibility | iOS Safari + Android Chrome | Device testing |
 
 ---
 
 ## **8\. Validation Path**
 
-1. Prototype SMS & IVR flows (Twilio sandbox).  
-2. Pilot test with 25–50 reentry participants via community partner.  
-3. Collect engagement and qualitative feedback.  
-4. Iterate tone, timing, and content bank before scaling.
+1. **Phase 4 Completion**: Finish PWA frontend components and API integration (Oct 15-17)
+2. **Phase 5 Implementation**: Add offline-first functionality with IndexedDB (Oct 18)
+3. **Phase 6 Deployment**: Deploy to Vercel, conduct Lighthouse audit, E2E testing (Oct 19-20)
+4. **Pilot Preparation**: Partner with reentry organization for 25–50 user cohort
+5. **Pilot Launch**: 2-3 week pilot with engagement tracking and user feedback
+6. **Iteration**: Refine UX, content, and features based on pilot learnings
+7. **Scale**: Expand to additional partner organizations
 
 ---
 
-## **9\. Technical Guidance for Winston (Preliminary)**
+## **9\. Development Environment Setup**
 
-* Conversation Engine: Rule-based flow handler (JSON/YAML configurable).  
-* Backend: Python (Flask/FastAPI) or Node.js with Twilio integration.  
-* Storage: Minimal (user ID, timestamp, response logs).  
-* Deployment: Cloud (AWS, Render, or Supabase).  
-* Security: End-to-end encryption; anonymized identifiers only.
+### **Backend Development**
+```bash
+# Start backend API server (port 5001)
+npm run dev:backend
+
+# Run backend tests
+npm test
+
+# Build backend for production
+npm run build:api
+```
+
+### **Frontend Development**
+```bash
+# Start Vite dev server (port 5173)
+npm run dev:frontend
+
+# Build frontend for production
+npm run build:client
+
+# Run both servers concurrently
+npm run dev
+```
+
+### **Database Operations**
+```bash
+# Push schema changes to database
+npm run db:push
+
+# Generate migrations
+npx drizzle-kit generate
+```
+
+### **Key Environment Variables**
+```
+# Database
+DATABASE_URL=postgresql://...
+
+# Authentication
+SESSION_SECRET=...
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+
+# AI Providers
+GOOGLE_GEMINI_API_KEY=...
+OPENAI_API_KEY=...
+MISTRAL_API_KEY=...
+PERPLEXITY_API_KEY=...
+```
 
 ---
 
-## **10\. Next Steps**
+## **10\. Immediate Next Steps (Phase 4 - In Progress)**
 
-| Phase | Owner | Deliverable |
-| ----- | ----- | ----- |
-| Phase 1: PRD Definition | Alex (PM) | Formal PRD with feature specs, roadmap, and success metrics |
-| Phase 2: Architecture | Winston (Architect) | Technical design (Twilio API, IVR state logic, data schema) |
-| Phase 3: Build & Validation | Claude Code (Dev) | MVP build, test deployment, and pilot feedback loop |
+### **Frontend Components to Build**
+1. ✅ **PWA Manifest** - Already configured in [vite.config.ts:12-56](vite.config.ts#L12-L56)
+2. 🔄 **Daily Ritual Components**:
+   - [ ] [MoodSelector.tsx](client/src/components/daily-ritual/MoodSelector.tsx) - 4 emoji mood buttons (exists, may need updates)
+   - [ ] [AffirmationCard.tsx](client/src/components/daily-ritual/AffirmationCard.tsx) - Animated affirmation display (exists, may need updates)
+   - [ ] [IntentionInput.tsx](client/src/components/daily-ritual/IntentionInput.tsx) - Optional text input (exists, may need updates)
+   - [ ] [StreakCounter.tsx](client/src/components/daily-ritual/StreakCounter.tsx) - Non-punitive streak display (exists, may need updates)
+3. 🔄 **Repair Flow**:
+   - [ ] [RepairFlow.tsx](client/src/components/repair/RepairFlow.tsx) - Compassionate relapse support (exists, verify integration)
+4. 🔄 **Pages**:
+   - [ ] [DailyRitual.tsx](client/src/pages/DailyRitual.tsx) - Main flow orchestrator (exists, verify REST API integration)
+   - [ ] [Journal.tsx](client/src/pages/Journal.tsx) - History view (exists, verify)
+   - [ ] [Login.tsx](client/src/pages/Login.tsx) - Authentication UI (exists, verify)
+5. ✅ **AI Chat** - [FloatingChat.tsx](client/src/components/chat/FloatingChat.tsx) already implemented
+
+### **Integration Tasks**
+- [ ] Connect all components to REST API endpoints (see Section 5)
+- [ ] Test end-to-end Daily Ritual flow
+- [ ] Test Repair flow trigger and guidance
+- [ ] Verify authentication flow (local + Google OAuth)
+- [ ] Test PWA installation on iOS and Android
 
 ---
 
