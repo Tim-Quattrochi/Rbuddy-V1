@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { Mock } from "vitest";
-import historyHandler, { handler } from "./history";
+import { middlewares as historyHandler, handler } from "./history";
 
-vi.mock("../../server/middleware/auth", () => ({
+vi.mock("../_lib/middleware/auth", () => ({
   requireAuth: (req: any, _res: any, next: () => void) => {
     req.userId = req.userId ?? "user-123";
     next();
@@ -18,7 +18,7 @@ type DbMocks = {
   from: Mock;
 };
 
-vi.mock("../../server/storage", () => {
+vi.mock("../_lib/storage", () => {
   const builder: Record<string, any> = {};
   const offset = vi.fn(async () => [] as any[]);
   const limit = vi.fn(() => builder);
@@ -149,5 +149,169 @@ describe("GET /api/journal/history", () => {
 
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({ error: "Internal Server Error" });
+  });
+
+  it("filters entries by search keyword", async () => {
+    const now = new Date();
+    mocks.offset.mockResolvedValueOnce([
+      { id: "entry-1", body: "Feeling grateful today", createdAt: now },
+    ]);
+
+    const req = createMockReq({ search: "grateful", limit: "20" });
+    const res = createMockRes();
+
+    await runMiddlewares(historyHandler, req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        entries: expect.arrayContaining([
+          expect.objectContaining({ id: "entry-1", body: "Feeling grateful today" }),
+        ]),
+      }),
+    );
+  });
+
+  it("filters entries by startDate", async () => {
+    const targetDate = new Date("2025-10-01");
+    mocks.offset.mockResolvedValueOnce([
+      { id: "entry-1", body: "Recent entry", createdAt: targetDate },
+    ]);
+
+    const req = createMockReq({ startDate: "2025-10-01" });
+    const res = createMockRes();
+
+    await runMiddlewares(historyHandler, req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("filters entries by endDate", async () => {
+    const targetDate = new Date("2025-10-10");
+    mocks.offset.mockResolvedValueOnce([
+      { id: "entry-1", body: "Old entry", createdAt: targetDate },
+    ]);
+
+    const req = createMockReq({ endDate: "2025-10-10" });
+    const res = createMockRes();
+
+    await runMiddlewares(historyHandler, req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("filters entries by date range", async () => {
+    const targetDate = new Date("2025-10-05");
+    mocks.offset.mockResolvedValueOnce([
+      { id: "entry-1", body: "In range entry", createdAt: targetDate },
+    ]);
+
+    const req = createMockReq({ startDate: "2025-10-01", endDate: "2025-10-10" });
+    const res = createMockRes();
+
+    await runMiddlewares(historyHandler, req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("combines search and date filters", async () => {
+    const targetDate = new Date("2025-10-05");
+    mocks.offset.mockResolvedValueOnce([
+      { id: "entry-1", body: "Grateful and in range", createdAt: targetDate },
+    ]);
+
+    const req = createMockReq({ search: "grateful", startDate: "2025-10-01", endDate: "2025-10-10" });
+    const res = createMockRes();
+
+    await runMiddlewares(historyHandler, req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("returns 400 when startDate is after endDate", async () => {
+    const req = createMockReq({ startDate: "2025-10-10", endDate: "2025-10-01" });
+    const res = createMockRes();
+
+    await handler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ error: "startDate must be before or equal to endDate" });
+  });
+
+  it("returns empty results when no entries match filters", async () => {
+    mocks.offset.mockResolvedValueOnce([]);
+
+    const req = createMockReq({ search: "nonexistent" });
+    const res = createMockRes();
+
+    await runMiddlewares(historyHandler, req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        entries: [],
+        pagination: expect.objectContaining({
+          hasMore: false,
+          nextOffset: null,
+        }),
+      }),
+    );
+  });
+
+  it("handles special characters in search query", async () => {
+    const now = new Date();
+    mocks.offset.mockResolvedValueOnce([
+      { id: "entry-1", body: "Entry with special chars: $%&", createdAt: now },
+    ]);
+
+    const req = createMockReq({ search: "$%&" });
+    const res = createMockRes();
+
+    await runMiddlewares(historyHandler, req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("ignores empty search string", async () => {
+    const now = new Date();
+    mocks.offset.mockResolvedValueOnce([
+      { id: "entry-1", body: "Any entry", createdAt: now },
+    ]);
+
+    const req = createMockReq({ search: "   " });
+    const res = createMockRes();
+
+    await runMiddlewares(historyHandler, req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("maintains pagination with filters applied", async () => {
+    const now = new Date();
+    const entries = Array.from({ length: 21 }, (_, i) => ({
+      id: `entry-${i}`,
+      body: `Grateful entry ${i}`,
+      createdAt: new Date(now.getTime() - i * 1000),
+    }));
+
+    mocks.offset.mockResolvedValueOnce(entries);
+
+    const req = createMockReq({ search: "grateful", limit: "20", offset: "0" });
+    const res = createMockRes();
+
+    await runMiddlewares(historyHandler, req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        entries: expect.arrayContaining([
+          expect.objectContaining({ id: "entry-0" }),
+        ]),
+        pagination: expect.objectContaining({
+          hasMore: true,
+          nextOffset: 20,
+        }),
+      }),
+    );
   });
 });

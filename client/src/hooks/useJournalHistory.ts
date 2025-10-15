@@ -17,13 +17,37 @@ export interface JournalHistoryResponse {
   };
 }
 
+export interface JournalFilters {
+  search?: string;
+  dateRange?: {
+    startDate?: string;
+    endDate?: string;
+  };
+}
+
 const PAGE_SIZE = 20;
 
-async function fetchJournalHistory(offset: number, limit: number): Promise<JournalHistoryResponse> {
+async function fetchJournalHistory(
+  offset: number,
+  limit: number,
+  filters?: JournalFilters,
+): Promise<JournalHistoryResponse> {
   const params = new URLSearchParams({
     offset: offset.toString(),
     limit: limit.toString(),
   });
+
+  if (filters?.search) {
+    params.append("search", filters.search);
+  }
+
+  if (filters?.dateRange?.startDate) {
+    params.append("startDate", filters.dateRange.startDate);
+  }
+
+  if (filters?.dateRange?.endDate) {
+    params.append("endDate", filters.dateRange.endDate);
+  }
 
   const res = await fetch(`/api/journal/history?${params.toString()}`, {
     credentials: "include",
@@ -53,11 +77,11 @@ async function fetchJournalHistory(offset: number, limit: number): Promise<Journ
   return res.json();
 }
 
-export function useJournalHistory(pageSize: number = PAGE_SIZE) {
+export function useJournalHistory(filters?: JournalFilters, pageSize: number = PAGE_SIZE) {
   return useInfiniteQuery({
-    queryKey: ["journalHistory", pageSize],
+    queryKey: ["journalHistory", pageSize, filters],
     initialPageParam: 0,
-    queryFn: ({ pageParam }) => fetchJournalHistory(Number(pageParam ?? 0), pageSize),
+    queryFn: ({ pageParam }) => fetchJournalHistory(Number(pageParam ?? 0), pageSize, filters),
     getNextPageParam: (lastPage) =>
       lastPage.pagination.hasMore ? lastPage.pagination.nextOffset ?? undefined : undefined,
   });

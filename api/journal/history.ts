@@ -1,5 +1,5 @@
 import type { Response } from "express";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, ilike, gte, lte, SQL } from "drizzle-orm";
 import type { AuthenticatedRequest } from "../_lib/middleware/auth.js";
 import { requireAuth } from "../_lib/middleware/auth.js";
 import { db } from "../_lib/storage.js";
@@ -35,6 +35,26 @@ function parseOffset(rawOffset: unknown): number {
   return parsed;
 }
 
+function parseSearch(rawSearch: unknown): string | undefined {
+  if (typeof rawSearch === "string" && rawSearch.trim().length > 0) {
+    return rawSearch.trim();
+  }
+  return undefined;
+}
+
+function parseDate(rawDate: unknown): Date | null {
+  if (typeof rawDate !== "string" || rawDate.trim().length === 0) {
+    return null;
+  }
+
+  const date = new Date(rawDate);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return date;
+}
+
 type JournalEntryResponse = {
   id: string;
   body: string;
@@ -61,6 +81,35 @@ export async function handler(req: AuthenticatedRequest, res: Response) {
 
     const limit = parseLimit(req.query.limit);
     const offset = parseOffset(req.query.offset);
+    const search = parseSearch(req.query.search);
+    const startDate = parseDate(req.query.startDate);
+    const endDate = parseDate(req.query.endDate);
+
+    // Validate date range
+    if (startDate && endDate && startDate > endDate) {
+      return res.status(400).json({ error: "startDate must be before or equal to endDate" });
+    }
+
+    // Build where conditions
+    const conditions: SQL[] = [
+      eq(interactions.userId, userId),
+      eq(interactions.contentType, "journal_entry"),
+    ];
+
+    if (search) {
+      conditions.push(ilike(interactions.body, `%${search}%`));
+    }
+
+    if (startDate) {
+      conditions.push(gte(interactions.createdAt, startDate));
+    }
+
+    if (endDate) {
+      // Include entries created on endDate by adding 1 day
+      const endOfDay = new Date(endDate);
+      endOfDay.setDate(endOfDay.getDate() + 1);
+      conditions.push(lte(interactions.createdAt, endOfDay));
+    }
 
     const rows = await db
       .select({
@@ -69,12 +118,7 @@ export async function handler(req: AuthenticatedRequest, res: Response) {
         createdAt: interactions.createdAt,
       })
       .from(interactions)
-      .where(
-        and(
-          eq(interactions.userId, userId),
-          eq(interactions.contentType, "journal_entry"),
-        ),
-      )
+      .where(and(...conditions))
       .orderBy(desc(interactions.createdAt))
       .limit(limit + 1)
       .offset(offset);
