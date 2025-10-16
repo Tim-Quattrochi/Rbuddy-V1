@@ -47,11 +47,30 @@ passport.use(
 
         if (!user) {
           const baseUsername = email.split('@')[0];
-          const username = `${baseUsername}_${googleId.slice(-6)}`;
+          let username = `${baseUsername}_${googleId.slice(-6)}`;
+          let attempt = 0;
+          const maxAttempts = 10;
+
+          // Handle username collisions by appending a number
+          while (attempt < maxAttempts) {
+            const existingUser = await storage.getUserByUsername(username);
+            if (!existingUser) {
+              break; // Username is unique
+            }
+            attempt++;
+            username = `${baseUsername}_${googleId.slice(-6)}_${attempt}`;
+          }
+
+          if (attempt >= maxAttempts) {
+            // Fallback to a more unique username if we can't find one
+            username = `${baseUsername}_${googleId}_${Date.now()}`;
+          }
 
           user = await storage.createUser({
             email,
             username,
+            googleId,
+            avatarUrl,
           });
         }
 

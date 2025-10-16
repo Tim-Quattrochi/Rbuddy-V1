@@ -36,6 +36,15 @@ vi.mock('../_lib/middleware/auth', () => ({
   generateToken: vi.fn(() => 'mock-jwt-token-12345'),
 }));
 
+// Mock storage to test username collision handling
+vi.mock('../_lib/storage', () => ({
+  storage: {
+    getUserByGoogleId: vi.fn(),
+    getUserByUsername: vi.fn(),
+    createUser: vi.fn(),
+  },
+}));
+
 // Helper to create a mock request
 const createMockReq = (method: string = 'GET', body: any = {}, query: any = {}) => {
   return {
@@ -142,6 +151,85 @@ describe('OAuth API Endpoints', () => {
 
       expect(res.redirect).toHaveBeenCalledWith('http://localhost:5173/login?error=no_user');
       expect(res.cookie).not.toHaveBeenCalled();
+    });
+
+    it('should handle username collisions by appending numbers', async () => {
+      // Mock storage to simulate username collision
+      const { storage } = await import('../_lib/storage');
+
+      // First call returns existing user (collision), second returns undefined (available)
+      vi.mocked(storage.getUserByUsername)
+        .mockResolvedValueOnce({
+          id: 'existing-user',
+          username: 'testuser_123456',
+          password: null,
+          email: 'existing@example.com',
+          googleId: null,
+          avatarUrl: null,
+          phoneNumber: null,
+          deviceToken: null,
+          preferredTime: null,
+          lastSyncAt: null,
+          enablePushNotifications: true,
+        }) // First attempt fails
+        .mockResolvedValueOnce(undefined); // Second attempt succeeds
+
+      vi.mocked(storage.getUserByGoogleId).mockResolvedValue(undefined);
+      vi.mocked(storage.createUser).mockResolvedValue({
+        id: 'new-user-123',
+        username: 'testuser_123456_1',
+        password: null,
+        email: 'test@example.com',
+        googleId: '123456',
+        avatarUrl: null,
+        phoneNumber: null,
+        deviceToken: null,
+        preferredTime: null,
+        lastSyncAt: null,
+        enablePushNotifications: true,
+      });
+
+      // Override passport mock to trigger user creation with profile data
+      const passport = await import('passport');
+      vi.mocked(passport.default.authenticate).mockImplementationOnce((strategy: string, options: any, callback?: any) => {
+        return (req: any, res: any, next: any) => {
+          if (callback) {
+            // Simulate Google profile data that will trigger user creation
+            const profile = {
+              id: '123456',
+              emails: [{ value: 'test@example.com' }],
+              photos: [{ value: 'https://example.com/avatar.jpg' }],
+            };
+            // Call the strategy's verify function which should create a user
+            callback(null, null, { profile }); // Pass null user to trigger creation
+          }
+        };
+      });
+
+      const req = createMockReq('GET');
+      const res = createMockRes();
+      const next = vi.fn();
+
+      await googleCallbackHandler(req, res, next);
+
+      // Verify that createUser was called with the collision-resolved username
+      expect(storage.createUser).toHaveBeenCalledWith({
+        email: 'test@example.com',
+        username: 'testuser_123456_1',
+        googleId: '123456',
+        avatarUrl: 'https://example.com/avatar.jpg',
+      });
+
+      expect(res.cookie).toHaveBeenCalledWith(
+        'auth_token',
+        'mock-jwt-token-12345',
+        expect.objectContaining({
+          httpOnly: true,
+          sameSite: 'lax',
+          path: '/',
+        })
+      );
+      expect(res.redirect).toHaveBeenCalledWith('http://localhost:5173/daily-ritual');
     });
   });
 });
